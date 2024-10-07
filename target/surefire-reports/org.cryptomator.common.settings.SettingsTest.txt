@@ -1,5 +1,0 @@
--------------------------------------------------------------------------------
-Test set: org.cryptomator.common.settings.SettingsTest
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.027 s -- in org.cryptomator.common.settings.SettingsTest
-org.cryptomator.common.settings.SettingsTest.testAutoSave -- Time elapsed: 0.027 s

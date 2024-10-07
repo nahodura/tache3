@@ -1,9 +1,0 @@
--------------------------------------------------------------------------------
-Test set: org.cryptomator.common.EnvironmentTest$VariablesContainingPathLists
--------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in org.cryptomator.common.EnvironmentTest$VariablesContainingPathLists
-org.cryptomator.common.EnvironmentTest.testAbsoluteLogDir -- Time elapsed: 0.001 s
-org.cryptomator.common.EnvironmentTest$VariablesContainingPathLists.testIpcSocketPath -- Time elapsed: 0 s
-org.cryptomator.common.EnvironmentTest$VariablesContainingPathLists.testKeychainPath -- Time elapsed: 0 s
-org.cryptomator.common.EnvironmentTest$VariablesContainingPathLists.testSettingsPath -- Time elapsed: 0.001 s
-org.cryptomator.common.EnvironmentTest$VariablesContainingPathLists.testP12Path -- Time elapsed: 0.001 s

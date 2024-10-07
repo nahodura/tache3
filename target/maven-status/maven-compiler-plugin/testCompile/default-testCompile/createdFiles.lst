@@ -16,6 +16,7 @@ org/cryptomator/common/keychain/KeychainManagerTest.class
 org/cryptomator/launcher/SupportedLanguagesTest.class
 org/cryptomator/common/ErrorCodeTest$DifferentExceptionWithSameRootCause.class
 org/cryptomator/ipc/IpcCommunicatorTest$1.class
+org/cryptomator/tests/CatchingExecutorsTest.class
 org/cryptomator/ui/convertvault/HubToPasswordConvertControllerTest$ConvertInternalTests.class
 org/cryptomator/ui/keyloading/hub/JWEHelperTest$Decoders.class
 org/cryptomator/common/PassphraseTest.class

@@ -1,8 +1,0 @@
--------------------------------------------------------------------------------
-Test set: org.cryptomator.ui.addvaultwizard.ReadMeGeneratorTest
--------------------------------------------------------------------------------
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.028 s -- in org.cryptomator.ui.addvaultwizard.ReadMeGeneratorTest
-org.cryptomator.ui.addvaultwizard.ReadMeGeneratorTest.testCreateDocument -- Time elapsed: 0.003 s
-org.cryptomator.ui.addvaultwizard.ReadMeGeneratorTest.testEscapeNonAsciiChars(String, String)[1] -- Time elapsed: 0 s
-org.cryptomator.ui.addvaultwizard.ReadMeGeneratorTest.testEscapeNonAsciiChars(String, String)[2] -- Time elapsed: 0 s
-org.cryptomator.ui.addvaultwizard.ReadMeGeneratorTest.testEscapeNonAsciiChars(String, String)[3] -- Time elapsed: 0 s

@@ -1,5 +1,0 @@
--------------------------------------------------------------------------------
-Test set: org.cryptomator.ui.keyloading.hub.HubConfigTest
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.029 s -- in org.cryptomator.ui.keyloading.hub.HubConfigTest
-org.cryptomator.ui.keyloading.hub.HubConfigTest.testParseJWTWithUnknownFields -- Time elapsed: 0.029 s

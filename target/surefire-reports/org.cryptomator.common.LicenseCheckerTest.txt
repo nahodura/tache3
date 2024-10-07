@@ -1,8 +1,0 @@
--------------------------------------------------------------------------------
-Test set: org.cryptomator.common.LicenseCheckerTest
--------------------------------------------------------------------------------
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.020 s -- in org.cryptomator.common.LicenseCheckerTest
-org.cryptomator.common.LicenseCheckerTest.testCheckValidLicense -- Time elapsed: 0.016 s
-org.cryptomator.common.LicenseCheckerTest.testCheckInvalidLicensePayload -- Time elapsed: 0.001 s
-org.cryptomator.common.LicenseCheckerTest.testCheckInvalidLicenseHeader -- Time elapsed: 0 s
-org.cryptomator.common.LicenseCheckerTest.testCheckInvalidLicenseSignature -- Time elapsed: 0.001 s
