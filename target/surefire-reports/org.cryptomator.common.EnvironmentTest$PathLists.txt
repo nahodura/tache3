@@ -1,0 +1,8 @@
+-------------------------------------------------------------------------------
+Test set: org.cryptomator.common.EnvironmentTest$PathLists
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.008 s -- in org.cryptomator.common.EnvironmentTest$PathLists
+org.cryptomator.common.EnvironmentTest$PathLists.testTwoPathsColon -- Time elapsed: 0.003 s
+org.cryptomator.common.EnvironmentTest$PathLists.testTwoPathsSemiColon skipped
+org.cryptomator.common.EnvironmentTest$PathLists.testEmptyList -- Time elapsed: 0.001 s
+org.cryptomator.common.EnvironmentTest$PathLists.testSinglePath -- Time elapsed: 0.001 s

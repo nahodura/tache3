@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MountOptionsController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.vaultoptions</a> &gt; <span class="el_source">MountOptionsController.java</span></div><h1>MountOptionsController.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.vaultoptions;
+
+import com.google.common.base.Strings;
+import dagger.Lazy;
+import org.cryptomator.common.ObservableUtil;
+import org.cryptomator.common.mount.Mounter;
+import org.cryptomator.common.mount.WindowsDriveLetters;
+import org.cryptomator.common.settings.VaultSettings;
+import org.cryptomator.common.vaults.Vault;
+import org.cryptomator.integrations.mount.MountCapability;
+import org.cryptomator.integrations.mount.MountService;
+import org.cryptomator.ui.common.FxController;
+import org.cryptomator.ui.fxapp.FxApplicationWindows;
+import org.cryptomator.ui.preferences.SelectedPreferencesTab;
+import org.cryptomator.ui.preferences.VolumePreferencesController;
+
+import javax.inject.Inject;
+import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.beans.value.ObservableValue;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleGroup;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
+import javafx.util.StringConverter;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.Set;
+
+@VaultOptionsScoped
+public class MountOptionsController implements FxController {
+
+	private final Stage window;
+	private final VaultSettings vaultSettings;
+	private final WindowsDriveLetters windowsDriveLetters;
+	private final ResourceBundle resourceBundle;
+	private final Lazy&lt;Application&gt; application;
+
+	private final ObservableValue&lt;String&gt; defaultMountFlags;
+	private final ObservableValue&lt;Boolean&gt; mountpointDirSupported;
+	private final ObservableValue&lt;Boolean&gt; mountpointDriveLetterSupported;
+	private final ObservableValue&lt;Boolean&gt; readOnlySupported;
+	private final ObservableValue&lt;Boolean&gt; mountFlagsSupported;
+	private final ObservableValue&lt;Boolean&gt; defaultMountServiceSelected;
+	private final ObservableValue&lt;String&gt; directoryPath;
+	private final FxApplicationWindows applicationWindows;
+	private final List&lt;MountService&gt; mountProviders;
+	private final ObservableValue&lt;MountService&gt; defaultMountService;
+	private final ObservableValue&lt;MountService&gt; selectedMountService;
+	private final ObservableValue&lt;Boolean&gt; selectedMountServiceRequiresRestart;
+	private final ObservableValue&lt;Boolean&gt; loopbackPortChangeable;
+
+
+	//-- FXML objects --
+	public CheckBox readOnlyCheckbox;
+	public CheckBox customMountFlagsCheckbox;
+	public TextField mountFlagsField;
+	public ToggleGroup mountPointToggleGroup;
+	public RadioButton mountPointAutoBtn;
+	public RadioButton mountPointDriveLetterBtn;
+	public RadioButton mountPointDirBtn;
+	public TextField directoryPathField;
+	public ChoiceBox&lt;Path&gt; driveLetterSelection;
+	public ChoiceBox&lt;MountService&gt; vaultVolumeTypeChoiceBox;
+	public TextField vaultLoopbackPortField;
+	public Button vaultLoopbackPortApplyButton;
+
+
+	@Inject
+	MountOptionsController(@VaultOptionsWindow Stage window, //
+						   @VaultOptionsWindow Vault vault, //
+						   WindowsDriveLetters windowsDriveLetters, //
+						   ResourceBundle resourceBundle, //
+						   FxApplicationWindows applicationWindows, //
+						   Lazy&lt;Application&gt; application, //
+						   List&lt;MountService&gt; mountProviders, //
+						   Mounter mounter, //
+<span class="nc" id="L89">						   ObservableValue&lt;MountService&gt; defaultMountService) {</span>
+<span class="nc" id="L90">		this.window = window;</span>
+<span class="nc" id="L91">		this.vaultSettings = vault.getVaultSettings();</span>
+<span class="nc" id="L92">		this.windowsDriveLetters = windowsDriveLetters;</span>
+<span class="nc" id="L93">		this.resourceBundle = resourceBundle;</span>
+<span class="nc" id="L94">		this.applicationWindows = applicationWindows;</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">		this.directoryPath = vault.getVaultSettings().mountPoint.map(p -&gt; isDriveLetter(p) ? null : p.toString());</span>
+<span class="nc" id="L96">		this.application = application;</span>
+<span class="nc" id="L97">		this.mountProviders = mountProviders;</span>
+<span class="nc" id="L98">		this.defaultMountService = defaultMountService;</span>
+<span class="nc" id="L99">		this.selectedMountService = Bindings.createObjectBinding(this::reselectMountService, defaultMountService, vaultSettings.mountService);</span>
+<span class="nc" id="L100">		this.selectedMountServiceRequiresRestart = selectedMountService.map(mounter::isConflictingMountService);</span>
+
+<span class="nc" id="L102">		this.defaultMountFlags = selectedMountService.map(s -&gt; {</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">			if (s.hasCapability(MountCapability.MOUNT_FLAGS)) {</span>
+<span class="nc" id="L104">				return s.getDefaultMountFlags();</span>
+			} else {
+<span class="nc" id="L106">				return &quot;&quot;;</span>
+			}
+		});
+<span class="nc" id="L109">		this.mountFlagsSupported = selectedMountService.map(s -&gt; s.hasCapability(MountCapability.MOUNT_FLAGS));</span>
+<span class="nc" id="L110">		this.defaultMountServiceSelected = ObservableUtil.mapWithDefault(vaultSettings.mountService, _ -&gt; false, true);</span>
+<span class="nc" id="L111">		this.readOnlySupported = selectedMountService.map(s -&gt; s.hasCapability(MountCapability.READ_ONLY));</span>
+<span class="nc bnc" id="L112" title="All 4 branches missed.">		this.mountpointDirSupported = selectedMountService.map(s -&gt; s.hasCapability(MountCapability.MOUNT_TO_EXISTING_DIR) || s.hasCapability(MountCapability.MOUNT_WITHIN_EXISTING_PARENT));</span>
+<span class="nc" id="L113">		this.mountpointDriveLetterSupported = selectedMountService.map(s -&gt; s.hasCapability(MountCapability.MOUNT_AS_DRIVE_LETTER));</span>
+<span class="nc bnc" id="L114" title="All 4 branches missed.">		this.loopbackPortChangeable = selectedMountService.map(s -&gt; s.hasCapability(MountCapability.LOOPBACK_PORT) &amp;&amp; vaultSettings.mountService.getValue() != null);</span>
+<span class="nc" id="L115">	}</span>
+
+	private MountService reselectMountService() {
+<span class="nc" id="L118">		var desired = vaultSettings.mountService.getValue();</span>
+<span class="nc" id="L119">		var defaultMS = defaultMountService.getValue();</span>
+<span class="nc" id="L120">		return mountProviders.stream().filter(s -&gt; s.getClass().getName().equals(desired)).findFirst().orElse(defaultMS);</span>
+	}
+
+	@FXML
+	public void initialize() {
+<span class="nc" id="L125">		defaultMountService.addListener((_, _, _) -&gt; vaultVolumeTypeChoiceBox.setConverter(new MountServiceConverter()));</span>
+
+		// readonly:
+<span class="nc" id="L128">		readOnlyCheckbox.selectedProperty().bindBidirectional(vaultSettings.usesReadOnlyMode);</span>
+
+		// custom mount flags:
+<span class="nc" id="L131">		mountFlagsField.disableProperty().bind(customMountFlagsCheckbox.selectedProperty().not());</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">		customMountFlagsCheckbox.setSelected(!Strings.isNullOrEmpty(vaultSettings.mountFlags.getValue()));</span>
+<span class="nc" id="L133">		toggleUseCustomMountFlags();</span>
+
+		//driveLetter choice box
+<span class="nc" id="L136">		driveLetterSelection.getItems().addAll(windowsDriveLetters.getAll());</span>
+<span class="nc" id="L137">		driveLetterSelection.setConverter(new WinDriveLetterLabelConverter(windowsDriveLetters, resourceBundle));</span>
+
+		//mountPoint toggle group
+<span class="nc" id="L140">		var mountPoint = vaultSettings.mountPoint.get();</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">		if (mountPoint == null) {</span>
+			//prepare and select auto
+<span class="nc" id="L143">			mountPointToggleGroup.selectToggle(mountPointAutoBtn);</span>
+<span class="nc bnc" id="L144" title="All 4 branches missed.">		} else if (mountPoint.getParent() == null &amp;&amp; isDriveLetter(mountPoint)) {</span>
+			//prepare and select drive letter
+<span class="nc" id="L146">			mountPointToggleGroup.selectToggle(mountPointDriveLetterBtn);</span>
+<span class="nc" id="L147">			driveLetterSelection.valueProperty().bindBidirectional(vaultSettings.mountPoint);</span>
+		} else {
+			//prepare and select dir
+<span class="nc" id="L150">			mountPointToggleGroup.selectToggle(mountPointDirBtn);</span>
+		}
+<span class="nc" id="L152">		mountPointToggleGroup.selectedToggleProperty().addListener(this::selectedToggleChanged);</span>
+
+<span class="nc" id="L154">		vaultVolumeTypeChoiceBox.getItems().add(null);</span>
+<span class="nc" id="L155">		vaultVolumeTypeChoiceBox.getItems().addAll(mountProviders);</span>
+<span class="nc" id="L156">		vaultVolumeTypeChoiceBox.setConverter(new MountServiceConverter());</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">		vaultVolumeTypeChoiceBox.getSelectionModel().select(isDefaultMountServiceSelected() ? null : selectedMountService.getValue());</span>
+<span class="nc" id="L158">		vaultVolumeTypeChoiceBox.valueProperty().addListener((_, _, newProvider) -&gt; {</span>
+<span class="nc" id="L159">			var toSet = Optional.ofNullable(newProvider).map(nP -&gt; nP.getClass().getName()).orElse(null);</span>
+<span class="nc" id="L160">			vaultSettings.mountService.set(toSet);</span>
+<span class="nc" id="L161">		});</span>
+
+<span class="nc" id="L163">		vaultLoopbackPortField.setText(String.valueOf(vaultSettings.port.get()));</span>
+<span class="nc" id="L164">		vaultLoopbackPortApplyButton.visibleProperty().bind(vaultSettings.port.asString().isNotEqualTo(vaultLoopbackPortField.textProperty()));</span>
+<span class="nc" id="L165">		vaultLoopbackPortApplyButton.disableProperty().bind(Bindings.createBooleanBinding(this::validateLoopbackPort, vaultLoopbackPortField.textProperty()).not());</span>
+
+<span class="nc" id="L167">	}</span>
+
+	@FXML
+	public void openVolumePreferences() {
+<span class="nc" id="L171">		applicationWindows.showPreferencesWindow(SelectedPreferencesTab.VOLUME);</span>
+<span class="nc" id="L172">	}</span>
+
+	@FXML
+	public void toggleUseCustomMountFlags() {
+<span class="nc bnc" id="L176" title="All 2 branches missed.">		if (customMountFlagsCheckbox.isSelected()) {</span>
+<span class="nc" id="L177">			readOnlyCheckbox.setSelected(false); // to prevent invalid states</span>
+<span class="nc" id="L178">			mountFlagsField.textProperty().unbind();</span>
+<span class="nc" id="L179">			var mountFlags = vaultSettings.mountFlags.get();</span>
+<span class="nc bnc" id="L180" title="All 4 branches missed.">			if (mountFlags == null || mountFlags.isBlank()) {</span>
+<span class="nc" id="L181">				vaultSettings.mountFlags.set(defaultMountFlags.getValue());</span>
+			}
+<span class="nc" id="L183">			mountFlagsField.textProperty().bindBidirectional(vaultSettings.mountFlags);</span>
+<span class="nc" id="L184">		} else {</span>
+<span class="nc" id="L185">			mountFlagsField.textProperty().unbindBidirectional(vaultSettings.mountFlags);</span>
+<span class="nc" id="L186">			vaultSettings.mountFlags.set(null);</span>
+<span class="nc" id="L187">			mountFlagsField.textProperty().bind(defaultMountFlags);</span>
+		}
+<span class="nc" id="L189">	}</span>
+
+	@FXML
+	public void chooseCustomMountPoint() {
+		try {
+<span class="nc" id="L194">			Path chosenPath = chooseCustomMountPointInternal();</span>
+<span class="nc" id="L195">			vaultSettings.mountPoint.set(chosenPath);</span>
+<span class="nc" id="L196">		} catch (NoDirSelectedException e) {</span>
+			//no-op
+<span class="nc" id="L198">		}</span>
+<span class="nc" id="L199">	}</span>
+
+	/**
+	 * Prepares and opens a directory chooser dialog.
+	 * This method blocks until the dialog is closed.
+	 *
+	 * @return the absolute path to the chosen directory
+	 * @throws NoDirSelectedException if dialog is closed without choosing a directory
+	 */
+	private Path chooseCustomMountPointInternal() throws NoDirSelectedException {
+<span class="nc" id="L209">		DirectoryChooser directoryChooser = new DirectoryChooser();</span>
+<span class="nc" id="L210">		directoryChooser.setTitle(resourceBundle.getString(&quot;vaultOptions.mount.mountPoint.directoryPickerTitle&quot;));</span>
+		try {
+<span class="nc" id="L212">			var mp = vaultSettings.mountPoint.get();</span>
+<span class="nc bnc" id="L213" title="All 4 branches missed.">			var initialDir = mp != null &amp;&amp; !isDriveLetter(mp) ? mp : Path.of(System.getProperty(&quot;user.home&quot;));</span>
+
+<span class="nc bnc" id="L215" title="All 2 branches missed.">			if (Files.isDirectory(initialDir)) {</span>
+<span class="nc" id="L216">				directoryChooser.setInitialDirectory(initialDir.toFile());</span>
+			}
+<span class="nc" id="L218">		} catch (InvalidPathException e) {</span>
+			// no-op
+<span class="nc" id="L220">		}</span>
+<span class="nc" id="L221">		File file = directoryChooser.showDialog(window);</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">		if (file != null) {</span>
+<span class="nc" id="L223">			return file.toPath();</span>
+		} else {
+<span class="nc" id="L225">			throw new NoDirSelectedException();</span>
+		}
+	}
+
+	private void selectedToggleChanged(ObservableValue&lt;? extends Toggle&gt; observable, Toggle oldToggle, Toggle newToggle) {
+		//Remark: the mountpoint corresponding to the newToggle must be null, otherwise it would not be new!
+<span class="nc" id="L231">		driveLetterSelection.valueProperty().unbindBidirectional(vaultSettings.mountPoint);</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">		if (mountPointDriveLetterBtn.equals(newToggle)) {</span>
+<span class="nc" id="L233">			vaultSettings.mountPoint.set(windowsDriveLetters.getFirstDesiredAvailable().orElse(windowsDriveLetters.getAll().stream().findAny().get()));</span>
+<span class="nc" id="L234">			driveLetterSelection.valueProperty().bindBidirectional(vaultSettings.mountPoint);</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">		} else if (mountPointDirBtn.equals(newToggle)) {</span>
+			try {
+<span class="nc" id="L237">				vaultSettings.mountPoint.set(chooseCustomMountPointInternal());</span>
+<span class="nc" id="L238">			} catch (NoDirSelectedException e) {</span>
+<span class="nc bnc" id="L239" title="All 4 branches missed.">				if (oldToggle != null &amp;&amp; !mountPointDirBtn.equals(oldToggle)) {</span>
+<span class="nc" id="L240">					mountPointToggleGroup.selectToggle(oldToggle);</span>
+				} else {
+<span class="nc" id="L242">					mountPointToggleGroup.selectToggle(mountPointAutoBtn);</span>
+				}
+<span class="nc" id="L244">			}</span>
+		} else {
+<span class="nc" id="L246">			vaultSettings.mountPoint.set(null);</span>
+		}
+<span class="nc" id="L248">	}</span>
+
+	private boolean isDriveLetter(Path mountPoint) {
+<span class="nc bnc" id="L251" title="All 2 branches missed.">		if (mountPoint != null) {</span>
+<span class="nc" id="L252">			var s = mountPoint.toString();</span>
+<span class="nc bnc" id="L253" title="All 4 branches missed.">			return s.length() == 3 &amp;&amp; s.endsWith(&quot;:\\&quot;);</span>
+		}
+<span class="nc" id="L255">		return false;</span>
+	}
+
+	private static class WinDriveLetterLabelConverter extends StringConverter&lt;Path&gt; {
+
+		private final Set&lt;Path&gt; occupiedDriveLetters;
+		private final ResourceBundle resourceBundle;
+
+<span class="nc" id="L263">		WinDriveLetterLabelConverter(WindowsDriveLetters windowsDriveLetters, ResourceBundle resourceBundle) {</span>
+<span class="nc" id="L264">			this.occupiedDriveLetters = windowsDriveLetters.getOccupied();</span>
+<span class="nc" id="L265">			this.resourceBundle = resourceBundle;</span>
+<span class="nc" id="L266">		}</span>
+
+		@Override
+		public String toString(Path driveLetter) {
+<span class="nc bnc" id="L270" title="All 2 branches missed.">			if (driveLetter == null) {</span>
+<span class="nc" id="L271">				return &quot;&quot;;</span>
+<span class="nc bnc" id="L272" title="All 2 branches missed.">			} else if (occupiedDriveLetters.contains(driveLetter)) {</span>
+<span class="nc" id="L273">				return driveLetter.toString().substring(0, 2) + &quot; (&quot; + resourceBundle.getString(&quot;vaultOptions.mount.winDriveLetterOccupied&quot;) + &quot;)&quot;;</span>
+			} else {
+<span class="nc" id="L275">				return driveLetter.toString().substring(0, 2);</span>
+			}
+		}
+
+		@Override
+		public Path fromString(String string) {
+<span class="nc bnc" id="L281" title="All 2 branches missed.">			if (string.isEmpty()) {</span>
+<span class="nc" id="L282">				return null;</span>
+			} else {
+<span class="nc" id="L284">				return Path.of(string + &quot;\\&quot;);</span>
+			}
+		}
+
+	}
+
+	public void openDocs() {
+<span class="nc" id="L291">		application.get().getHostServices().showDocument(VolumePreferencesController.DOCS_MOUNTING_URL);</span>
+<span class="nc" id="L292">	}</span>
+
+	private boolean validateLoopbackPort() {
+		try {
+<span class="nc" id="L296">			int port = Integer.parseInt(vaultLoopbackPortField.getText());</span>
+<span class="nc bnc" id="L297" title="All 6 branches missed.">			return port == 0 // choose port automatically</span>
+					|| port &gt;= VolumePreferencesController.MIN_PORT &amp;&amp; port &lt;= VolumePreferencesController.MAX_PORT; // port within range
+<span class="nc" id="L299">		} catch (NumberFormatException e) {</span>
+<span class="nc" id="L300">			return false;</span>
+		}
+	}
+
+	public void doChangeLoopbackPort() {
+<span class="nc bnc" id="L305" title="All 2 branches missed.">		if (validateLoopbackPort()) {</span>
+<span class="nc" id="L306">			vaultSettings.port.set(Integer.parseInt(vaultLoopbackPortField.getText()));</span>
+		}
+<span class="nc" id="L308">	}</span>
+
+	//@formatter:off
+	private static class NoDirSelectedException extends Exception {}
+	//@formatter:on
+
+	// Getter &amp; Setter
+
+	public ObservableValue&lt;Boolean&gt; mountFlagsSupportedProperty() {
+<span class="nc" id="L317">		return mountFlagsSupported;</span>
+	}
+
+	public boolean isMountFlagsSupported() {
+<span class="nc" id="L321">		return mountFlagsSupported.getValue();</span>
+	}
+
+	public ObservableValue&lt;Boolean&gt; defaultMountServiceSelectedProperty() {
+<span class="nc" id="L325">		return defaultMountServiceSelected;</span>
+	}
+
+	public boolean isDefaultMountServiceSelected() {
+<span class="nc" id="L329">		return defaultMountServiceSelected.getValue();</span>
+	}
+
+	public ObservableValue&lt;Boolean&gt; mountpointDirSupportedProperty() {
+<span class="nc" id="L333">		return mountpointDirSupported;</span>
+	}
+
+	public boolean isMountpointDirSupported() {
+<span class="nc" id="L337">		return mountpointDirSupported.getValue();</span>
+	}
+
+	public ObservableValue&lt;Boolean&gt; mountpointDriveLetterSupportedProperty() {
+<span class="nc" id="L341">		return mountpointDriveLetterSupported;</span>
+	}
+
+	public boolean isMountpointDriveLetterSupported() {
+<span class="nc" id="L345">		return mountpointDriveLetterSupported.getValue();</span>
+	}
+
+	public ObservableValue&lt;Boolean&gt; readOnlySupportedProperty() {
+<span class="nc" id="L349">		return readOnlySupported;</span>
+	}
+
+	public boolean isReadOnlySupported() {
+<span class="nc" id="L353">		return readOnlySupported.getValue();</span>
+	}
+
+	public ObservableValue&lt;String&gt; directoryPathProperty() {
+<span class="nc" id="L357">		return directoryPath;</span>
+	}
+
+	public String getDirectoryPath() {
+<span class="nc" id="L361">		return directoryPath.getValue();</span>
+	}
+
+	public ObservableValue&lt;Boolean&gt; selectedMountServiceRequiresRestartProperty() {
+<span class="nc" id="L365">		return selectedMountServiceRequiresRestart;</span>
+	}
+
+	public boolean getSelectedMountServiceRequiresRestart() {
+<span class="nc" id="L369">		return selectedMountServiceRequiresRestart.getValue();</span>
+	}
+
+	public ObservableValue&lt;Boolean&gt; loopbackPortChangeableProperty() {
+<span class="nc" id="L373">		return loopbackPortChangeable;</span>
+	}
+
+	public boolean isLoopbackPortChangeable() {
+<span class="nc" id="L377">		return loopbackPortChangeable.getValue();</span>
+	}
+
+<span class="nc" id="L380">	private class MountServiceConverter extends StringConverter&lt;MountService&gt; {</span>
+
+		@Override
+		public String toString(MountService provider) {
+<span class="nc bnc" id="L384" title="All 2 branches missed.">			if (provider == null) {</span>
+<span class="nc" id="L385">				return String.format(resourceBundle.getString(&quot;vaultOptions.mount.volumeType.default&quot;), defaultMountService.getValue().displayName());</span>
+			} else {
+<span class="nc" id="L387">				return provider.displayName();</span>
+			}
+		}
+
+		@Override
+		public MountService fromString(String string) {
+<span class="nc" id="L393">			throw new UnsupportedOperationException();</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

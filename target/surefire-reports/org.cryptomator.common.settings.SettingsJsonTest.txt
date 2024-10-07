@@ -1,0 +1,9 @@
+-------------------------------------------------------------------------------
+Test set: org.cryptomator.common.settings.SettingsJsonTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.069 s -- in org.cryptomator.common.settings.SettingsJsonTest
+org.cryptomator.common.settings.SettingsJsonTest.testSerialize -- Time elapsed: 0.040 s
+org.cryptomator.common.settings.SettingsJsonTest.testDeserialize -- Time elapsed: 0.016 s
+org.cryptomator.common.settings.SettingsJsonTest.testDeserializeMalformed(String)[1] -- Time elapsed: 0.006 s
+org.cryptomator.common.settings.SettingsJsonTest.testDeserializeMalformed(String)[2] -- Time elapsed: 0.003 s
+org.cryptomator.common.settings.SettingsJsonTest.testDeserializeMalformed(String)[3] -- Time elapsed: 0.002 s

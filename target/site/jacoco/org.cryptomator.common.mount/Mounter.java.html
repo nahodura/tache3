@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Mounter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.common.mount</a> &gt; <span class="el_source">Mounter.java</span></div><h1>Mounter.java</h1><pre class="source lang-java linenums">package org.cryptomator.common.mount;
+
+import org.cryptomator.common.Environment;
+import org.cryptomator.common.settings.Settings;
+import org.cryptomator.common.settings.VaultSettings;
+import org.cryptomator.integrations.mount.Mount;
+import org.cryptomator.integrations.mount.MountBuilder;
+import org.cryptomator.integrations.mount.MountFailedException;
+import org.cryptomator.integrations.mount.MountService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javafx.beans.value.ObservableValue;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.cryptomator.integrations.mount.MountCapability.MOUNT_AS_DRIVE_LETTER;
+import static org.cryptomator.integrations.mount.MountCapability.MOUNT_TO_EXISTING_DIR;
+import static org.cryptomator.integrations.mount.MountCapability.MOUNT_TO_SYSTEM_CHOSEN_PATH;
+import static org.cryptomator.integrations.mount.MountCapability.MOUNT_WITHIN_EXISTING_PARENT;
+import static org.cryptomator.integrations.mount.MountCapability.UNMOUNT_FORCED;
+
+@Singleton
+public class Mounter {
+
+<span class="nc" id="L33">	private static final Logger LOG = LoggerFactory.getLogger(Mounter.class);</span>
+
+	// mount providers (key) can not be used if any of the conflicting mount providers (values) are already in use
+<span class="nc" id="L36">	private static final Map&lt;String, Set&lt;String&gt;&gt; CONFLICTING_MOUNT_SERVICES = Map.of(</span>
+<span class="nc" id="L37">			&quot;org.cryptomator.frontend.fuse.mount.MacFuseMountProvider&quot;, Set.of(&quot;org.cryptomator.frontend.fuse.mount.FuseTMountProvider&quot;),</span>
+<span class="nc" id="L38">			&quot;org.cryptomator.frontend.fuse.mount.FuseTMountProvider&quot;, Set.of(&quot;org.cryptomator.frontend.fuse.mount.MacFuseMountProvider&quot;)</span>
+	);
+
+	private final Environment env;
+	private final Settings settings;
+	private final WindowsDriveLetters driveLetters;
+	private final List&lt;MountService&gt; mountProviders;
+	private final Set&lt;MountService&gt; usedMountServices;
+	private final ObservableValue&lt;MountService&gt; defaultMountService;
+
+	@Inject
+	public Mounter(Environment env, //
+				   Settings settings, //
+				   WindowsDriveLetters driveLetters, //
+				   List&lt;MountService&gt; mountProviders, //
+				   @Named(&quot;usedMountServices&quot;) Set&lt;MountService&gt; usedMountServices, //
+<span class="nc" id="L54">				   ObservableValue&lt;MountService&gt; defaultMountService) {</span>
+<span class="nc" id="L55">		this.env = env;</span>
+<span class="nc" id="L56">		this.settings = settings;</span>
+<span class="nc" id="L57">		this.driveLetters = driveLetters;</span>
+<span class="nc" id="L58">		this.mountProviders = mountProviders;</span>
+<span class="nc" id="L59">		this.usedMountServices = usedMountServices;</span>
+<span class="nc" id="L60">		this.defaultMountService = defaultMountService;</span>
+<span class="nc" id="L61">	}</span>
+
+	private class SettledMounter {
+
+		private final MountService service;
+		private final MountBuilder builder;
+		private final VaultSettings vaultSettings;
+
+<span class="nc" id="L69">		public SettledMounter(MountService service, MountBuilder builder, VaultSettings vaultSettings) {</span>
+<span class="nc" id="L70">			this.service = service;</span>
+<span class="nc" id="L71">			this.builder = builder;</span>
+<span class="nc" id="L72">			this.vaultSettings = vaultSettings;</span>
+<span class="nc" id="L73">		}</span>
+
+		Runnable prepare() throws IOException {
+<span class="nc bnc" id="L76" title="All 2 branches missed.">			for (var capability : service.capabilities()) {</span>
+<span class="nc bnc" id="L77" title="All 8 branches missed.">				switch (capability) {</span>
+<span class="nc" id="L78">					case FILE_SYSTEM_NAME -&gt; builder.setFileSystemName(&quot;cryptoFs&quot;);</span>
+					case LOOPBACK_PORT -&gt; {
+<span class="nc bnc" id="L80" title="All 2 branches missed.">						if (vaultSettings.mountService.getValue() == null) {</span>
+<span class="nc" id="L81">							builder.setLoopbackPort(settings.port.get());</span>
+						} else {
+<span class="nc" id="L83">							builder.setLoopbackPort(vaultSettings.port.get());</span>
+						}
+<span class="nc" id="L85">					}</span>
+<span class="nc" id="L86">					case LOOPBACK_HOST_NAME -&gt; env.getLoopbackAlias().ifPresent(builder::setLoopbackHostName);</span>
+<span class="nc" id="L87">					case READ_ONLY -&gt; builder.setReadOnly(vaultSettings.usesReadOnlyMode.get());</span>
+					case MOUNT_FLAGS -&gt; {
+<span class="nc" id="L89">						var mountFlags = vaultSettings.mountFlags.get();</span>
+<span class="nc bnc" id="L90" title="All 4 branches missed.">						if (mountFlags == null || mountFlags.isBlank()) {</span>
+<span class="nc" id="L91">							builder.setMountFlags(service.getDefaultMountFlags());</span>
+						} else {
+<span class="nc" id="L93">							builder.setMountFlags(mountFlags);</span>
+						}
+<span class="nc" id="L95">					}</span>
+<span class="nc" id="L96">					case VOLUME_ID -&gt; builder.setVolumeId(vaultSettings.id);</span>
+<span class="nc" id="L97">					case VOLUME_NAME -&gt; builder.setVolumeName(vaultSettings.mountName.get());</span>
+				}
+<span class="nc" id="L99">			}</span>
+
+<span class="nc" id="L101">			return prepareMountPoint();</span>
+		}
+
+		private Runnable prepareMountPoint() throws IOException {
+<span class="nc" id="L105">			Runnable cleanup = () -&gt; {};</span>
+<span class="nc" id="L106">			var userChosenMountPoint = vaultSettings.mountPoint.get();</span>
+<span class="nc" id="L107">			var defaultMountPointBase = env.getMountPointsDir().orElseThrow();</span>
+<span class="nc" id="L108">			var canMountToDriveLetter = service.hasCapability(MOUNT_AS_DRIVE_LETTER);</span>
+<span class="nc" id="L109">			var canMountToParent = service.hasCapability(MOUNT_WITHIN_EXISTING_PARENT);</span>
+<span class="nc" id="L110">			var canMountToDir = service.hasCapability(MOUNT_TO_EXISTING_DIR);</span>
+<span class="nc" id="L111">			var canMountToSystem = service.hasCapability(MOUNT_TO_SYSTEM_CHOSEN_PATH);</span>
+
+<span class="nc bnc" id="L113" title="All 2 branches missed.">			if (userChosenMountPoint == null) {</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">				if (canMountToSystem) {</span>
+					// no need to set a mount point
+<span class="nc bnc" id="L116" title="All 2 branches missed.">				} else if (canMountToDriveLetter) {</span>
+<span class="nc" id="L117">					builder.setMountpoint(driveLetters.getFirstDesiredAvailable().orElseThrow()); //TODO: catch exception and translate</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">				} else if (canMountToParent) {</span>
+<span class="nc" id="L119">					Files.createDirectories(defaultMountPointBase);</span>
+<span class="nc" id="L120">					builder.setMountpoint(defaultMountPointBase);</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">				} else if (canMountToDir) {</span>
+<span class="nc" id="L122">					var mountPoint = defaultMountPointBase.resolve(vaultSettings.mountName.get());</span>
+<span class="nc" id="L123">					Files.createDirectories(mountPoint);</span>
+<span class="nc" id="L124">					builder.setMountpoint(mountPoint);</span>
+<span class="nc" id="L125">				}</span>
+			} else {
+<span class="nc" id="L127">				var mpIsDriveLetter = userChosenMountPoint.toString().matches(&quot;[A-Z]:\\\\&quot;);</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">				if (mpIsDriveLetter) {</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">					if (driveLetters.getOccupied().contains(userChosenMountPoint)) {</span>
+<span class="nc" id="L130">						throw new MountPointInUseException(userChosenMountPoint);</span>
+					}
+<span class="nc bnc" id="L132" title="All 4 branches missed.">				} else if (canMountToParent &amp;&amp; !canMountToDir) {</span>
+<span class="nc" id="L133">					MountWithinParentUtil.prepareParentNoMountPoint(userChosenMountPoint);</span>
+<span class="nc" id="L134">					cleanup = () -&gt; MountWithinParentUtil.cleanup(userChosenMountPoint);</span>
+				}
+				try {
+<span class="nc" id="L137">					builder.setMountpoint(userChosenMountPoint);</span>
+<span class="nc" id="L138">				} catch (IllegalArgumentException | UnsupportedOperationException e) {</span>
+<span class="nc bnc" id="L139" title="All 20 branches missed.">					var configNotSupported = (!canMountToDriveLetter &amp;&amp; mpIsDriveLetter) //mounting as driveletter, albeit not supported</span>
+							|| (!canMountToDir &amp;&amp; !mpIsDriveLetter) //mounting to directory, albeit not supported
+							|| (!canMountToParent &amp;&amp; !mpIsDriveLetter) //
+							|| (!canMountToDir &amp;&amp; !canMountToParent &amp;&amp; !canMountToSystem &amp;&amp; !canMountToDriveLetter);
+<span class="nc bnc" id="L143" title="All 2 branches missed.">					if (configNotSupported) {</span>
+<span class="nc" id="L144">						throw new MountPointNotSupportedException(userChosenMountPoint, e.getMessage());</span>
+<span class="nc bnc" id="L145" title="All 6 branches missed.">					} else if (canMountToDir &amp;&amp; !canMountToParent &amp;&amp; !Files.exists(userChosenMountPoint)) {</span>
+						//mountpoint must exist
+<span class="nc" id="L147">						throw new MountPointNotExistingException(userChosenMountPoint, e.getMessage());</span>
+					} else {
+						//TODO: add specific exception for !canMountToDir &amp;&amp; canMountToParent &amp;&amp; !Files.notExists(userChosenMountPoint)
+<span class="nc" id="L150">						throw new IllegalMountPointException(userChosenMountPoint, e.getMessage());</span>
+					}
+<span class="nc" id="L152">				}</span>
+			}
+<span class="nc" id="L154">			return cleanup;</span>
+		}
+
+	}
+
+	public MountHandle mount(VaultSettings vaultSettings, Path cryptoFsRoot) throws IOException, MountFailedException {
+<span class="nc" id="L160">		var mountService = mountProviders.stream().filter(s -&gt; s.getClass().getName().equals(vaultSettings.mountService.getValue())).findFirst().orElse(defaultMountService.getValue());</span>
+
+<span class="nc bnc" id="L162" title="All 2 branches missed.">		if (isConflictingMountService(mountService)) {</span>
+<span class="nc" id="L163">			var msg = STR.&quot;\{mountService.getClass()} unavailable due to conflict with either of \{CONFLICTING_MOUNT_SERVICES.get(mountService.getClass().getName())}&quot;;</span>
+<span class="nc" id="L164">			throw new ConflictingMountServiceException(msg);</span>
+		}
+
+<span class="nc" id="L167">		usedMountServices.add(mountService);</span>
+
+<span class="nc" id="L169">		var builder = mountService.forFileSystem(cryptoFsRoot);</span>
+<span class="nc" id="L170">		var internal = new SettledMounter(mountService, builder, vaultSettings); // FIXME: no need for an inner class</span>
+<span class="nc" id="L171">		var cleanup = internal.prepare();</span>
+<span class="nc" id="L172">		return new MountHandle(builder.mount(), mountService.hasCapability(UNMOUNT_FORCED), cleanup);</span>
+	}
+
+	public boolean isConflictingMountService(MountService service) {
+<span class="nc" id="L176">		var conflictingServices = CONFLICTING_MOUNT_SERVICES.getOrDefault(service.getClass().getName(), Set.of());</span>
+<span class="nc" id="L177">		return usedMountServices.stream().map(MountService::getClass).map(Class::getName).anyMatch(conflictingServices::contains);</span>
+	}
+
+<span class="nc" id="L180">	public record MountHandle(Mount mountObj, boolean supportsUnmountForced, Runnable specialCleanup) {</span>
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

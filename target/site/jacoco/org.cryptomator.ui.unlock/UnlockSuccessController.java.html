@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UnlockSuccessController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.unlock</a> &gt; <span class="el_source">UnlockSuccessController.java</span></div><h1>UnlockSuccessController.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.unlock;
+
+import org.cryptomator.common.settings.WhenUnlocked;
+import org.cryptomator.common.vaults.Vault;
+import org.cryptomator.ui.common.FxController;
+import org.cryptomator.ui.common.VaultService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.concurrent.Task;
+import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ContentDisplay;
+import javafx.stage.Stage;
+import java.util.concurrent.ExecutorService;
+
+@UnlockScoped
+public class UnlockSuccessController implements FxController {
+
+<span class="nc" id="L26">	private static final Logger LOG = LoggerFactory.getLogger(UnlockSuccessController.class);</span>
+
+	private final Stage window;
+	private final Vault vault;
+	private final ExecutorService executor;
+	private final VaultService vaultService;
+	private final ObjectProperty&lt;ContentDisplay&gt; revealButtonState;
+	private final BooleanProperty revealButtonDisabled;
+
+	/* FXML */
+	public CheckBox rememberChoiceCheckbox;
+
+	@Inject
+<span class="nc" id="L39">	public UnlockSuccessController(@UnlockWindow Stage window, @UnlockWindow Vault vault, ExecutorService executor, VaultService vaultService) {</span>
+<span class="nc" id="L40">		this.window = window;</span>
+<span class="nc" id="L41">		this.vault = vault;</span>
+<span class="nc" id="L42">		this.executor = executor;</span>
+<span class="nc" id="L43">		this.vaultService = vaultService;</span>
+<span class="nc" id="L44">		this.revealButtonState = new SimpleObjectProperty&lt;&gt;(ContentDisplay.TEXT_ONLY);</span>
+<span class="nc" id="L45">		this.revealButtonDisabled = new SimpleBooleanProperty();</span>
+<span class="nc" id="L46">	}</span>
+
+	@FXML
+	public void close() {
+<span class="nc" id="L50">		LOG.trace(&quot;UnlockSuccessController.close()&quot;);</span>
+<span class="nc" id="L51">		window.close();</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">		if (rememberChoiceCheckbox.isSelected()) {</span>
+<span class="nc" id="L53">			vault.getVaultSettings().actionAfterUnlock.setValue(WhenUnlocked.IGNORE);</span>
+		}
+<span class="nc" id="L55">	}</span>
+
+	@FXML
+	public void revealAndClose() {
+<span class="nc" id="L59">		LOG.trace(&quot;UnlockSuccessController.revealAndClose()&quot;);</span>
+<span class="nc" id="L60">		revealButtonState.set(ContentDisplay.LEFT);</span>
+<span class="nc" id="L61">		revealButtonDisabled.set(true);</span>
+
+<span class="nc" id="L63">		Task&lt;Vault&gt; revealTask = vaultService.createRevealTask(vault);</span>
+<span class="nc" id="L64">		revealTask.setOnSucceeded(evt -&gt; {</span>
+<span class="nc" id="L65">			revealButtonState.set(ContentDisplay.TEXT_ONLY);</span>
+<span class="nc" id="L66">			revealButtonDisabled.set(false);</span>
+<span class="nc" id="L67">			window.close();</span>
+<span class="nc" id="L68">		});</span>
+<span class="nc" id="L69">		revealTask.setOnFailed(evt -&gt; {</span>
+<span class="nc" id="L70">			LOG.warn(&quot;Reveal failed.&quot;, revealTask.getException());</span>
+<span class="nc" id="L71">			revealButtonState.set(ContentDisplay.TEXT_ONLY);</span>
+<span class="nc" id="L72">			revealButtonDisabled.set(false);</span>
+<span class="nc" id="L73">		});</span>
+<span class="nc" id="L74">		executor.execute(revealTask);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">		if (rememberChoiceCheckbox.isSelected()) {</span>
+<span class="nc" id="L76">			vault.getVaultSettings().actionAfterUnlock.setValue(WhenUnlocked.REVEAL);</span>
+		}
+<span class="nc" id="L78">	}</span>
+
+	/* Getter/Setter */
+
+	public Vault getVault() {
+<span class="nc" id="L83">		return vault;</span>
+	}
+
+	public ReadOnlyObjectProperty&lt;ContentDisplay&gt; revealButtonStateProperty() {
+<span class="nc" id="L87">		return revealButtonState;</span>
+	}
+
+	public ContentDisplay getRevealButtonState() {
+<span class="nc" id="L91">		return revealButtonState.get();</span>
+	}
+
+	public BooleanProperty revealButtonDisabledProperty() {
+<span class="nc" id="L95">		return revealButtonDisabled;</span>
+	}
+
+	public boolean isRevealButtonDisabled() {
+<span class="nc" id="L99">		return revealButtonDisabled.get();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

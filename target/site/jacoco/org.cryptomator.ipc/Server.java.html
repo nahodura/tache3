@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Server.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ipc</a> &gt; <span class="el_source">Server.java</span></div><h1>Server.java</h1><pre class="source lang-java linenums">package org.cryptomator.ipc;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.EOFException;
+import java.io.IOException;
+import java.net.StandardProtocolFamily;
+import java.net.UnixDomainSocketAddress;
+import java.nio.channels.AlreadyBoundException;
+import java.nio.channels.AsynchronousCloseException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.UnsupportedAddressTypeException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.concurrent.Executor;
+
+class Server implements IpcCommunicator {
+
+<span class="fc" id="L21">	private static final Logger LOG = LoggerFactory.getLogger(Server.class);</span>
+
+	private final ServerSocketChannel serverSocketChannel;
+	private final Path socketPath;
+
+<span class="fc" id="L26">	private Server(ServerSocketChannel serverSocketChannel, Path socketPath) {</span>
+<span class="fc" id="L27">		this.serverSocketChannel = serverSocketChannel;</span>
+<span class="fc" id="L28">		this.socketPath = socketPath;</span>
+<span class="fc" id="L29">	}</span>
+
+	public static Server create(Path socketPath) throws IOException {
+<span class="fc" id="L32">		Files.createDirectories(socketPath.getParent());</span>
+<span class="fc" id="L33">		var address = UnixDomainSocketAddress.of(socketPath);</span>
+<span class="fc" id="L34">		ServerSocketChannel ch = null;</span>
+		try {
+<span class="fc" id="L36">			ch = ServerSocketChannel.open(StandardProtocolFamily.UNIX);</span>
+<span class="fc" id="L37">			ch.bind(address);</span>
+<span class="fc" id="L38">			LOG.info(&quot;Spawning IPC server listening on socket {}&quot;, socketPath);</span>
+<span class="fc" id="L39">			return new Server(ch, socketPath);</span>
+<span class="nc" id="L40">		} catch (IOException | AlreadyBoundException | UnsupportedAddressTypeException e) {</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">			if (ch != null) {</span>
+<span class="nc" id="L42">				ch.close();</span>
+			}
+<span class="nc" id="L44">			throw e;</span>
+		}
+	}
+
+	@Override
+	public boolean isClient() {
+<span class="nc" id="L50">		return false;</span>
+	}
+
+	@Override
+	public void listen(IpcMessageListener listener, Executor executor) {
+<span class="fc" id="L55">		executor.execute(() -&gt; {</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">			while (serverSocketChannel.isOpen()) {</span>
+<span class="fc" id="L57">				try (var ch = serverSocketChannel.accept()) {</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">					while (ch.isConnected()) {</span>
+<span class="fc" id="L59">						var msg = IpcMessage.receive(ch);</span>
+<span class="fc" id="L60">						listener.handleMessage(msg);</span>
+<span class="fc" id="L61">					}</span>
+<span class="nc" id="L62">				} catch (AsynchronousCloseException e) {</span>
+<span class="nc" id="L63">					return; // serverSocketChannel closed or listener interrupted</span>
+<span class="fc" id="L64">				} catch (EOFException | ClosedChannelException e) {</span>
+					// continue with next connected client
+<span class="nc" id="L66">				} catch (IOException e) {</span>
+<span class="nc" id="L67">					LOG.error(&quot;Failed to read IPC message&quot;, e);</span>
+<span class="pc" id="L68">				}</span>
+			}
+<span class="fc" id="L70">		});</span>
+<span class="fc" id="L71">	}</span>
+
+	@Override
+	public void send(IpcMessage message, Executor executor) {
+<span class="nc" id="L75">		executor.execute(() -&gt; {</span>
+<span class="nc" id="L76">			try (var ch = serverSocketChannel.accept()) {</span>
+<span class="nc" id="L77">				message.send(ch);</span>
+<span class="nc" id="L78">			} catch (IOException e) {</span>
+<span class="nc" id="L79">				LOG.error(&quot;Failed to send IPC message&quot;, e);</span>
+<span class="nc" id="L80">			}</span>
+<span class="nc" id="L81">		});</span>
+<span class="nc" id="L82">	}</span>
+
+	@Override
+	public void close() throws IOException {
+		try {
+<span class="fc" id="L87">			serverSocketChannel.close();</span>
+		} finally {
+<span class="fc" id="L89">			Files.deleteIfExists(socketPath);</span>
+<span class="fc" id="L90">			LOG.debug(&quot;IPC server closed&quot;);</span>
+		}
+<span class="fc" id="L92">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

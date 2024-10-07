@@ -1,0 +1,6 @@
+-------------------------------------------------------------------------------
+Test set: org.cryptomator.ipc.HandleLaunchArgsMessageTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in org.cryptomator.ipc.HandleLaunchArgsMessageTest
+org.cryptomator.ipc.HandleLaunchArgsMessageTest.testSendAndReceive(Path) -- Time elapsed: 0.003 s
+org.cryptomator.ipc.HandleLaunchArgsMessageTest.testSendAndReceiveEmpty(Path) -- Time elapsed: 0.001 s

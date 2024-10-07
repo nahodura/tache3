@@ -1,0 +1,23 @@
+-------------------------------------------------------------------------------
+Test set: org.cryptomator.common.mount.MountWithinParentUtilTest
+-------------------------------------------------------------------------------
+Tests run: 19, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0.023 s -- in org.cryptomator.common.mount.MountWithinParentUtilTest
+org.cryptomator.common.mount.MountWithinParentUtilTest.testHandleMountPointFolderDoesNotExist(Path) -- Time elapsed: 0.003 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testPrepareNeitherExist(Path) -- Time elapsed: 0.001 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testGetHideawayRootDirUnix -- Time elapsed: 0 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testRemoveResidualHideawayFile(Path) -- Time elapsed: 0.001 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testGetHideaway(Path) -- Time elapsed: 0 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testPrepareOnlyHideawayFileExists(Path) -- Time elapsed: 0.001 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testPrepareBothExistMountNotEmpty(Path) -- Time elapsed: 0.001 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testPrepareBothExistHideawayNotEmpty(Path) -- Time elapsed: 0.001 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testPrepareBothExistMountNotDir(Path) -- Time elapsed: 0 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testCleanup(Path) -- Time elapsed: 0 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testRemoveResidualHideawayNotEmpty(Path) -- Time elapsed: 0.001 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testHandleMountPointFolderIsNotEmpty(Path) -- Time elapsed: 0.001 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testPrepareOnlyHideawayDirExists(Path) skipped
+org.cryptomator.common.mount.MountWithinParentUtilTest.testPrepareBothExistHideawayFile(Path) -- Time elapsed: 0.001 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testCleanupNoHideaway(Path) -- Time elapsed: 0.001 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testHandleMountPointFolderIsFile(Path) -- Time elapsed: 0.001 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testGetHideawayRootDirWin skipped
+org.cryptomator.common.mount.MountWithinParentUtilTest.testHandleMountPointFolder(Path) -- Time elapsed: 0.001 s
+org.cryptomator.common.mount.MountWithinParentUtilTest.testPrepareBothExist(Path) skipped

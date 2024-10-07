@@ -1,0 +1,18 @@
+-------------------------------------------------------------------------------
+Test set: org.cryptomator.ui.keyloading.hub.JWEHelperTest$Decoders
+-------------------------------------------------------------------------------
+Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in org.cryptomator.ui.keyloading.hub.JWEHelperTest$Decoders
+org.cryptomator.ui.keyloading.hub.JWEHelperTest.testDecryptUserKeyECDHES -- Time elapsed: 0.066 s
+org.cryptomator.ui.keyloading.hub.JWEHelperTest.testEncryptAndDecryptVaultKey -- Time elapsed: 0.018 s
+org.cryptomator.ui.keyloading.hub.JWEHelperTest.testDecryptUserKeyPBES2WrongKey -- Time elapsed: 0.026 s
+org.cryptomator.ui.keyloading.hub.JWEHelperTest.testDecryptVaultKey -- Time elapsed: 0.004 s
+org.cryptomator.ui.keyloading.hub.JWEHelperTest.testEncryptAndDecryptUserKey -- Time elapsed: 0.011 s
+org.cryptomator.ui.keyloading.hub.JWEHelperTest.testDecryptInvalidVaultKey(String)[1] -- Time elapsed: 0.004 s
+org.cryptomator.ui.keyloading.hub.JWEHelperTest.testDecryptInvalidVaultKey(String)[2] -- Time elapsed: 0.009 s
+org.cryptomator.ui.keyloading.hub.JWEHelperTest.testDecryptInvalidVaultKey(String)[3] -- Time elapsed: 0.003 s
+org.cryptomator.ui.keyloading.hub.JWEHelperTest.testDecryptInvalidVaultKey(String)[4] -- Time elapsed: 0.002 s
+org.cryptomator.ui.keyloading.hub.JWEHelperTest.testDecryptInvalidVaultKey(String)[5] -- Time elapsed: 0.003 s
+org.cryptomator.ui.keyloading.hub.JWEHelperTest.testDecryptUserKeyECDHESWrongKey -- Time elapsed: 0.003 s
+org.cryptomator.ui.keyloading.hub.JWEHelperTest.testDecryptUserKeyPBES2 -- Time elapsed: 0.008 s
+org.cryptomator.ui.keyloading.hub.JWEHelperTest$Decoders.testDecodeECPublicKey -- Time elapsed: 0 s
+org.cryptomator.ui.keyloading.hub.JWEHelperTest$Decoders.testDecodeECPrivateKey -- Time elapsed: 0 s

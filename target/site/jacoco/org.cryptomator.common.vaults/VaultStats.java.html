@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VaultStats.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.common.vaults</a> &gt; <span class="el_source">VaultStats.java</span></div><h1>VaultStats.java</h1><pre class="source lang-java linenums">package org.cryptomator.common.vaults;
+
+import org.cryptomator.cryptofs.CryptoFileSystem;
+import org.cryptomator.cryptofs.CryptoFileSystemStats;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javafx.application.Platform;
+import javafx.beans.Observable;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.concurrent.ScheduledService;
+import javafx.concurrent.Task;
+import javafx.util.Duration;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
+
+@PerVault
+public class VaultStats {
+
+<span class="nc" id="L28">	private static final Logger LOG = LoggerFactory.getLogger(VaultStats.class);</span>
+
+	private final AtomicReference&lt;CryptoFileSystem&gt; fs;
+	private final VaultState state;
+	private final ScheduledService&lt;Optional&lt;CryptoFileSystemStats&gt;&gt; updateService;
+<span class="nc" id="L33">	private final LongProperty bytesPerSecondRead = new SimpleLongProperty();</span>
+<span class="nc" id="L34">	private final LongProperty bytesPerSecondWritten = new SimpleLongProperty();</span>
+<span class="nc" id="L35">	private final LongProperty bytesPerSecondEncrypted = new SimpleLongProperty();</span>
+<span class="nc" id="L36">	private final LongProperty bytesPerSecondDecrypted = new SimpleLongProperty();</span>
+<span class="nc" id="L37">	private final DoubleProperty cacheHitRate = new SimpleDoubleProperty();</span>
+<span class="nc" id="L38">	private final LongProperty totalBytesRead = new SimpleLongProperty();</span>
+<span class="nc" id="L39">	private final LongProperty totalBytesWritten = new SimpleLongProperty();</span>
+<span class="nc" id="L40">	private final LongProperty totalBytesEncrypted = new SimpleLongProperty();</span>
+<span class="nc" id="L41">	private final LongProperty totalBytesDecrypted = new SimpleLongProperty();</span>
+<span class="nc" id="L42">	private final LongProperty filesRead = new SimpleLongProperty();</span>
+<span class="nc" id="L43">	private final LongProperty filesWritten = new SimpleLongProperty();</span>
+<span class="nc" id="L44">	private final LongProperty filesAccessed = new SimpleLongProperty();</span>
+<span class="nc" id="L45">	private final LongProperty totalFilesAccessed = new SimpleLongProperty();</span>
+<span class="nc" id="L46">	private final ObjectProperty&lt;Instant&gt; lastActivity = new SimpleObjectProperty&lt;&gt;();</span>
+
+	@Inject
+<span class="nc" id="L49">	VaultStats(AtomicReference&lt;CryptoFileSystem&gt; fs, VaultState state, ExecutorService executor) {</span>
+<span class="nc" id="L50">		this.fs = fs;</span>
+<span class="nc" id="L51">		this.state = state;</span>
+<span class="nc" id="L52">		this.updateService = new UpdateStatsService();</span>
+<span class="nc" id="L53">		updateService.setExecutor(executor);</span>
+<span class="nc" id="L54">		updateService.setPeriod(Duration.seconds(1));</span>
+
+<span class="nc" id="L56">		state.addListener(this::vaultStateChanged);</span>
+<span class="nc" id="L57">	}</span>
+
+	private void vaultStateChanged(@SuppressWarnings(&quot;unused&quot;) Observable observable) {
+<span class="nc bnc" id="L60" title="All 2 branches missed.">		if (VaultState.Value.UNLOCKED == state.get()) {</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">			assert fs.get() != null;</span>
+<span class="nc" id="L62">			LOG.debug(&quot;start recording stats&quot;);</span>
+<span class="nc" id="L63">			Platform.runLater(() -&gt; {</span>
+<span class="nc" id="L64">				lastActivity.set(Instant.now());</span>
+<span class="nc" id="L65">				updateService.restart();</span>
+<span class="nc" id="L66">			});</span>
+		} else {
+<span class="nc" id="L68">			LOG.debug(&quot;stop recording stats&quot;);</span>
+<span class="nc" id="L69">			Platform.runLater(() -&gt; updateService.cancel());</span>
+		}
+<span class="nc" id="L71">	}</span>
+
+	private void updateStats(Optional&lt;CryptoFileSystemStats&gt; stats) {
+<span class="nc bnc" id="L74" title="All 2 branches missed.">		assert Platform.isFxApplicationThread();</span>
+<span class="nc" id="L75">		bytesPerSecondRead.set(stats.map(CryptoFileSystemStats::pollBytesRead).orElse(0L));</span>
+<span class="nc" id="L76">		bytesPerSecondWritten.set(stats.map(CryptoFileSystemStats::pollBytesWritten).orElse(0L));</span>
+<span class="nc" id="L77">		cacheHitRate.set(stats.map(this::getCacheHitRate).orElse(0.0));</span>
+<span class="nc" id="L78">		bytesPerSecondDecrypted.set(stats.map(CryptoFileSystemStats::pollBytesDecrypted).orElse(0L));</span>
+<span class="nc" id="L79">		bytesPerSecondEncrypted.set(stats.map(CryptoFileSystemStats::pollBytesEncrypted).orElse(0L));</span>
+<span class="nc" id="L80">		totalBytesRead.set(stats.map(CryptoFileSystemStats::pollTotalBytesRead).orElse(0L));</span>
+<span class="nc" id="L81">		totalBytesWritten.set(stats.map(CryptoFileSystemStats::pollTotalBytesWritten).orElse(0L));</span>
+<span class="nc" id="L82">		totalBytesEncrypted.set(stats.map(CryptoFileSystemStats::pollTotalBytesEncrypted).orElse(0L));</span>
+<span class="nc" id="L83">		totalBytesDecrypted.set(stats.map(CryptoFileSystemStats::pollTotalBytesDecrypted).orElse(0L));</span>
+<span class="nc" id="L84">		var oldAccessCount = filesRead.get() + filesWritten.get();</span>
+<span class="nc" id="L85">		filesRead.set(stats.map(CryptoFileSystemStats::pollAmountOfAccessesRead).orElse(0L));</span>
+<span class="nc" id="L86">		filesWritten.set(stats.map(CryptoFileSystemStats::pollAmountOfAccessesWritten).orElse(0L));</span>
+<span class="nc" id="L87">		filesAccessed.set(stats.map(CryptoFileSystemStats::pollAmountOfAccesses).orElse(0L));</span>
+<span class="nc" id="L88">		totalFilesAccessed.set(stats.map(CryptoFileSystemStats::pollTotalAmountOfAccesses).orElse(0L));</span>
+<span class="nc" id="L89">		var newAccessCount = filesRead.get() + filesWritten.get();</span>
+
+		// check for any I/O activity
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		if (newAccessCount &gt; oldAccessCount) {</span>
+<span class="nc" id="L93">			lastActivity.set(Instant.now());</span>
+		}
+<span class="nc" id="L95">	}</span>
+
+	private double getCacheHitRate(CryptoFileSystemStats stats) {
+<span class="nc" id="L98">		long accesses = stats.pollChunkCacheAccesses();</span>
+<span class="nc" id="L99">		long hits = stats.pollChunkCacheHits();</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">		if (accesses == 0) {</span>
+<span class="nc" id="L101">			return 0.0;</span>
+		} else {
+<span class="nc" id="L103">			return hits / (double) accesses;</span>
+		}
+	}
+
+<span class="nc" id="L107">	private class UpdateStatsService extends ScheduledService&lt;Optional&lt;CryptoFileSystemStats&gt;&gt; {</span>
+
+<span class="nc" id="L109">		private UpdateStatsService() {</span>
+<span class="nc" id="L110">			setOnFailed(event -&gt; LOG.error(&quot;Error in UpdateStateService.&quot;, getException()));</span>
+<span class="nc" id="L111">		}</span>
+
+		@Override
+		protected Task&lt;Optional&lt;CryptoFileSystemStats&gt;&gt; createTask() {
+<span class="nc" id="L115">			return new Task&lt;&gt;() {</span>
+				@Override
+				protected Optional&lt;CryptoFileSystemStats&gt; call() {
+<span class="nc" id="L118">					return Optional.ofNullable(fs.get()).map(CryptoFileSystem::getStats);</span>
+				}
+			};
+		}
+
+		@Override
+		protected void succeeded() {
+<span class="nc bnc" id="L125" title="All 2 branches missed.">			assert getValue() != null;</span>
+<span class="nc" id="L126">			updateStats(getValue());</span>
+<span class="nc" id="L127">			super.succeeded();</span>
+<span class="nc" id="L128">		}</span>
+	}
+
+	/* Observables */
+
+	public LongProperty bytesPerSecondReadProperty() {
+<span class="nc" id="L134">		return bytesPerSecondRead;</span>
+	}
+
+	public long getBytesPerSecondRead() {
+<span class="nc" id="L138">		return bytesPerSecondRead.get();</span>
+	}
+
+	public LongProperty bytesPerSecondWrittenProperty() {
+<span class="nc" id="L142">		return bytesPerSecondWritten;</span>
+	}
+
+	public long getBytesPerSecondWritten() {
+<span class="nc" id="L146">		return bytesPerSecondWritten.get();</span>
+	}
+
+	public LongProperty bytesPerSecondEncryptedProperty() {
+<span class="nc" id="L150">		return bytesPerSecondEncrypted;</span>
+	}
+
+	public long getBytesPerSecondEncrypted() {
+<span class="nc" id="L154">		return bytesPerSecondEncrypted.get();</span>
+	}
+
+	public LongProperty bytesPerSecondDecryptedProperty() {
+<span class="nc" id="L158">		return bytesPerSecondDecrypted;</span>
+	}
+
+	public long getBytesPerSecondDecrypted() {
+<span class="nc" id="L162">		return bytesPerSecondDecrypted.get();</span>
+	}
+
+<span class="nc" id="L165">	public DoubleProperty cacheHitRateProperty() { return cacheHitRate; }</span>
+
+	public double getCacheHitRate() {
+<span class="nc" id="L168">		return cacheHitRate.get();</span>
+	}
+
+<span class="nc" id="L171">	public LongProperty totalBytesReadProperty() {return totalBytesRead;}</span>
+
+<span class="nc" id="L173">	public long getTotalBytesRead() { return totalBytesRead.get();}</span>
+
+<span class="nc" id="L175">	public LongProperty totalBytesWrittenProperty() {return totalBytesWritten;}</span>
+
+<span class="nc" id="L177">	public long getTotalBytesWritten() { return totalBytesWritten.get();}</span>
+
+<span class="nc" id="L179">	public LongProperty totalBytesEncryptedProperty() {return totalBytesEncrypted;}</span>
+
+<span class="nc" id="L181">	public long getTotalBytesEncrypted() { return totalBytesEncrypted.get();}</span>
+
+<span class="nc" id="L183">	public LongProperty totalBytesDecryptedProperty() {return totalBytesDecrypted;}</span>
+
+<span class="nc" id="L185">	public long getTotalBytesDecrypted() { return totalBytesDecrypted.get();}</span>
+
+<span class="nc" id="L187">	public LongProperty filesRead() { return filesRead;}</span>
+
+<span class="nc" id="L189">	public long getFilesRead() { return filesRead.get();}</span>
+
+<span class="nc" id="L191">	public LongProperty filesWritten() {return filesWritten;}</span>
+
+<span class="nc" id="L193">	public long getFilesWritten() {return filesWritten.get();}</span>
+
+	public LongProperty filesAccessed() {
+<span class="nc" id="L196">		return filesAccessed;}</span>
+
+<span class="nc" id="L198">	public long getFilesAccessed() {return filesAccessed.get();}</span>
+
+	public LongProperty totalFilesAccessed(){
+<span class="nc" id="L201">		return totalFilesAccessed;</span>
+	}
+
+	public long getTotalFilesAccessed(){
+<span class="nc" id="L205">		return totalFilesAccessed.get();</span>
+	}
+
+	public ObjectProperty&lt;Instant&gt; lastActivityProperty() {
+<span class="nc" id="L209">		return lastActivity;</span>
+	}
+
+	public Instant getLastActivity() {
+<span class="nc" id="L213">		return lastActivity.get();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RegisterDeviceController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.keyloading.hub</a> &gt; <span class="el_source">RegisterDeviceController.java</span></div><h1>RegisterDeviceController.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.keyloading.hub;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.BaseEncoding;
+import com.nimbusds.jose.JWEObject;
+import dagger.Lazy;
+import org.cryptomator.common.settings.DeviceKey;
+import org.cryptomator.cryptolib.common.P384KeyPair;
+import org.cryptomator.ui.common.FxController;
+import org.cryptomator.ui.common.FxmlFile;
+import org.cryptomator.ui.common.FxmlScene;
+import org.cryptomator.ui.keyloading.KeyLoading;
+import org.cryptomator.ui.keyloading.KeyLoadingScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.fxml.FXML;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.io.UncheckedIOException;
+import java.net.InetAddress;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.security.interfaces.ECPublicKey;
+import java.text.ParseException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Base64;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
+@KeyLoadingScoped
+public class RegisterDeviceController implements FxController {
+
+<span class="nc" id="L57">	private static final Logger LOG = LoggerFactory.getLogger(RegisterDeviceController.class);</span>
+<span class="nc" id="L58">	private static final ObjectMapper JSON = new ObjectMapper().setDefaultLeniency(true);</span>
+<span class="nc" id="L59">	private static final Duration REQ_TIMEOUT = Duration.ofSeconds(10);</span>
+
+	private final Stage window;
+	private final HubConfig hubConfig;
+	private final String bearerToken;
+	private final Lazy&lt;Scene&gt; registerSuccessScene;
+	private final Lazy&lt;Scene&gt; registerFailedScene;
+	private final Lazy&lt;Scene&gt; deviceAlreadyExistsScene;
+	private final String deviceId;
+	private final P384KeyPair deviceKeyPair;
+	private final CompletableFuture&lt;ReceivedKey&gt; result;
+	private final HttpClient httpClient;
+
+<span class="nc" id="L72">	private final BooleanProperty invalidSetupCode = new SimpleBooleanProperty(false);</span>
+<span class="nc" id="L73">	private final BooleanProperty workInProgress = new SimpleBooleanProperty(false);</span>
+	public TextField setupCodeField;
+	public TextField deviceNameField;
+	public Button registerBtn;
+
+	@Inject
+<span class="nc" id="L79">	public RegisterDeviceController(@KeyLoading Stage window, ExecutorService executor, HubConfig hubConfig, @Named(&quot;deviceId&quot;) String deviceId, DeviceKey deviceKey, CompletableFuture&lt;ReceivedKey&gt; result, @Named(&quot;bearerToken&quot;) AtomicReference&lt;String&gt; bearerToken, @FxmlScene(FxmlFile.HUB_REGISTER_SUCCESS) Lazy&lt;Scene&gt; registerSuccessScene, @FxmlScene(FxmlFile.HUB_REGISTER_FAILED) Lazy&lt;Scene&gt; registerFailedScene, @FxmlScene(FxmlFile.HUB_REGISTER_DEVICE_ALREADY_EXISTS) Lazy&lt;Scene&gt; deviceAlreadyExistsScene) {</span>
+<span class="nc" id="L80">		this.window = window;</span>
+<span class="nc" id="L81">		this.hubConfig = hubConfig;</span>
+<span class="nc" id="L82">		this.deviceId = deviceId;</span>
+<span class="nc" id="L83">		this.deviceKeyPair = Objects.requireNonNull(deviceKey.get());</span>
+<span class="nc" id="L84">		this.result = result;</span>
+<span class="nc" id="L85">		this.bearerToken = Objects.requireNonNull(bearerToken.get());</span>
+<span class="nc" id="L86">		this.registerSuccessScene = registerSuccessScene;</span>
+<span class="nc" id="L87">		this.registerFailedScene = registerFailedScene;</span>
+<span class="nc" id="L88">		this.deviceAlreadyExistsScene = deviceAlreadyExistsScene;</span>
+<span class="nc" id="L89">		this.window.addEventHandler(WindowEvent.WINDOW_HIDING, this::windowClosed);</span>
+<span class="nc" id="L90">		this.httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).executor(executor).build();</span>
+<span class="nc" id="L91">	}</span>
+
+	public void initialize() {
+<span class="nc" id="L94">		deviceNameField.setText(determineHostname());</span>
+<span class="nc" id="L95">		deviceNameField.disableProperty().bind(workInProgress);</span>
+<span class="nc" id="L96">		setupCodeField.textProperty().addListener(observable -&gt; invalidSetupCode.set(false));</span>
+<span class="nc" id="L97">		setupCodeField.disableProperty().bind(workInProgress);</span>
+<span class="nc" id="L98">		var missingSetupCode = setupCodeField.textProperty().isEmpty();</span>
+<span class="nc" id="L99">		var missingDeviceName = deviceNameField.textProperty().isEmpty();</span>
+<span class="nc" id="L100">		registerBtn.disableProperty().bind(workInProgress.or(missingSetupCode).or(missingDeviceName));</span>
+<span class="nc" id="L101">		registerBtn.contentDisplayProperty().bind(Bindings.when(workInProgress).then(ContentDisplay.LEFT).otherwise(ContentDisplay.TEXT_ONLY));</span>
+<span class="nc" id="L102">	}</span>
+
+	private String determineHostname() {
+		try {
+<span class="nc" id="L106">			var hostName = InetAddress.getLocalHost().getHostName();</span>
+<span class="nc" id="L107">			return Objects.requireNonNullElse(hostName, &quot;&quot;);</span>
+<span class="nc" id="L108">		} catch (IOException e) {</span>
+<span class="nc" id="L109">			return &quot;&quot;;</span>
+		}
+	}
+
+	@FXML
+	public void register() {
+<span class="nc" id="L115">		workInProgress.set(true);</span>
+
+
+<span class="nc" id="L118">		var userReq = HttpRequest.newBuilder(hubConfig.URIs.API.&quot;users/me&quot;) //</span>
+<span class="nc" id="L119">				.GET() //</span>
+<span class="nc" id="L120">				.timeout(REQ_TIMEOUT) //</span>
+<span class="nc" id="L121">				.header(&quot;Authorization&quot;, &quot;Bearer &quot; + bearerToken) //</span>
+<span class="nc" id="L122">				.header(&quot;Content-Type&quot;, &quot;application/json&quot;) //</span>
+<span class="nc" id="L123">				.build();</span>
+<span class="nc" id="L124">		httpClient.sendAsync(userReq, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)) //</span>
+<span class="nc" id="L125">				.thenApply(response -&gt; {</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">					if (response.statusCode() == 200) {</span>
+<span class="nc" id="L127">						var dto = fromJson(response.body());</span>
+<span class="nc" id="L128">						return Objects.requireNonNull(dto, &quot;null or empty response body&quot;);</span>
+					} else {
+<span class="nc" id="L130">						throw new RuntimeException(&quot;Server answered with unexpected status code &quot; + response.statusCode());</span>
+					}
+<span class="nc" id="L132">				}).thenApply(user -&gt; {</span>
+					try {
+<span class="nc bnc" id="L134" title="All 4 branches missed.">						assert user.privateKey != null &amp;&amp; user.publicKey != null; // api/vaults/{v}/user-tokens/me would have returned 403, if user wasn't fully set up yet</span>
+<span class="nc" id="L135">						var userPublicKey = JWEHelper.decodeECPublicKey(Base64.getDecoder().decode(user.publicKey));</span>
+<span class="nc" id="L136">						migrateLegacyDevices(userPublicKey); // TODO: remove eventually, when most users have migrated to Hub 1.3.x or newer</span>
+<span class="nc" id="L137">						var userKey = JWEHelper.decryptUserKey(JWEObject.parse(user.privateKey), setupCodeField.getText());</span>
+<span class="nc" id="L138">						return JWEHelper.encryptUserKey(userKey, deviceKeyPair.getPublic());</span>
+<span class="nc" id="L139">					} catch (ParseException | JWEHelper.KeyDecodeFailedException e) {</span>
+<span class="nc" id="L140">						throw new RuntimeException(&quot;Server answered with unparsable user key&quot;, e);</span>
+					}
+<span class="nc" id="L142">				}).thenCompose(jwe -&gt; {</span>
+<span class="nc" id="L143">					var now = Instant.now().toString();</span>
+<span class="nc" id="L144">					var dto = new CreateDeviceDto(deviceId, deviceNameField.getText(), BaseEncoding.base64().encode(deviceKeyPair.getPublic().getEncoded()), &quot;DESKTOP&quot;, jwe.serialize(), now);</span>
+<span class="nc" id="L145">					var json = toJson(dto);</span>
+<span class="nc" id="L146">					var deviceUri = hubConfig.URIs.API.&quot;devices/\{deviceId}&quot;;</span>
+<span class="nc" id="L147">					var putDeviceReq = HttpRequest.newBuilder(deviceUri) //</span>
+<span class="nc" id="L148">							.PUT(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8)) //</span>
+<span class="nc" id="L149">							.timeout(REQ_TIMEOUT) //</span>
+<span class="nc" id="L150">							.header(&quot;Authorization&quot;, &quot;Bearer &quot; + bearerToken) //</span>
+<span class="nc" id="L151">							.header(&quot;Content-Type&quot;, &quot;application/json&quot;) //</span>
+<span class="nc" id="L152">							.build();</span>
+<span class="nc" id="L153">					return httpClient.sendAsync(putDeviceReq, HttpResponse.BodyHandlers.discarding());</span>
+<span class="nc" id="L154">				}).whenCompleteAsync((response, throwable) -&gt; {</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">					if (response != null) {</span>
+<span class="nc" id="L156">						this.handleRegisterDeviceResponse(response);</span>
+					} else {
+<span class="nc" id="L158">						this.setupFailed(throwable);</span>
+					}
+<span class="nc" id="L160">					workInProgress.set(false);</span>
+<span class="nc" id="L161">				}, Platform::runLater);</span>
+<span class="nc" id="L162">	}</span>
+
+	private void migrateLegacyDevices(ECPublicKey userPublicKey) {
+		try {
+			// GET legacy access tokens
+<span class="nc" id="L167">			var getUri = hubConfig.URIs.API.&quot;devices/\{deviceId}/legacy-access-tokens&quot;;</span>
+<span class="nc" id="L168">			var getReq = HttpRequest.newBuilder(getUri).GET().timeout(REQ_TIMEOUT).header(&quot;Authorization&quot;, &quot;Bearer &quot; + bearerToken).build();</span>
+<span class="nc" id="L169">			var getRes = httpClient.send(getReq, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">			if (getRes.statusCode() != 200) {</span>
+<span class="nc" id="L171">				LOG.debug(&quot;GET {} resulted in status code {}. Skipping migration.&quot;, getUri, getRes.statusCode());</span>
+<span class="nc" id="L172">				return;</span>
+			}
+<span class="nc" id="L174">			Map&lt;String, String&gt; legacyAccessTokens = JSON.readerForMapOf(String.class).readValue(getRes.body());</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">			if (legacyAccessTokens.isEmpty()) {</span>
+<span class="nc" id="L176">				return; // no migration required</span>
+			}
+
+			// POST new access tokens
+<span class="nc" id="L180">			Map&lt;String, String&gt; newAccessTokens = legacyAccessTokens.entrySet().stream().&lt;Map.Entry&lt;String, String&gt;&gt;mapMulti((entry, consumer) -&gt; {</span>
+<span class="nc" id="L181">				try (var vaultKey = JWEHelper.decryptVaultKey(JWEObject.parse(entry.getValue()), deviceKeyPair.getPrivate())) {</span>
+<span class="nc" id="L182">					var newAccessToken = JWEHelper.encryptVaultKey(vaultKey, userPublicKey).serialize();</span>
+<span class="nc" id="L183">					consumer.accept(Map.entry(entry.getKey(), newAccessToken));</span>
+<span class="nc" id="L184">				} catch (ParseException | JWEHelper.InvalidJweKeyException e) {</span>
+<span class="nc" id="L185">					LOG.warn(&quot;Failed to decrypt legacy access token for vault {}. Skipping migration.&quot;, entry.getKey());</span>
+<span class="nc" id="L186">				}</span>
+<span class="nc" id="L187">			}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));</span>
+<span class="nc" id="L188">			var postUri = hubConfig.URIs.API.&quot;users/me/access-tokens&quot;;</span>
+<span class="nc" id="L189">			var postBody = JSON.writer().writeValueAsString(newAccessTokens);</span>
+<span class="nc" id="L190">			var postReq = HttpRequest.newBuilder(postUri).POST(HttpRequest.BodyPublishers.ofString(postBody)).timeout(REQ_TIMEOUT).header(&quot;Authorization&quot;, &quot;Bearer &quot; + bearerToken).build();</span>
+<span class="nc" id="L191">			var postRes = httpClient.send(postReq, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">			if (postRes.statusCode() != 200) {</span>
+<span class="nc" id="L193">				throw new IOException(STR.&quot;Unexpected response from POST \{postUri}: \{postRes.statusCode()}&quot;);</span>
+			}
+<span class="nc" id="L195">		} catch (IOException e) {</span>
+			// log and ignore: this is merely a best-effort attempt of migrating legacy devices. Failure is uncritical as this is merely a convenience feature.
+<span class="nc" id="L197">			LOG.error(&quot;Legacy Device Migration failed.&quot;, e);</span>
+<span class="nc" id="L198">		} catch (InterruptedException e) {</span>
+<span class="nc" id="L199">			Thread.currentThread().interrupt();</span>
+<span class="nc" id="L200">			throw new UncheckedIOException(new InterruptedIOException(&quot;Legacy Device Migration interrupted&quot;));</span>
+<span class="nc" id="L201">		}</span>
+<span class="nc" id="L202">	}</span>
+
+	private UserDto fromJson(String json) {
+		try {
+<span class="nc" id="L206">			return JSON.reader().readValue(json, UserDto.class);</span>
+<span class="nc" id="L207">		} catch (IOException e) {</span>
+<span class="nc" id="L208">			throw new IllegalStateException(&quot;Failed to deserialize DTO&quot;, e);</span>
+		}
+	}
+
+	private String toJson(CreateDeviceDto dto) {
+		try {
+<span class="nc" id="L214">			return JSON.writer().writeValueAsString(dto);</span>
+<span class="nc" id="L215">		} catch (JacksonException e) {</span>
+<span class="nc" id="L216">			throw new IllegalStateException(&quot;Failed to serialize DTO&quot;, e);</span>
+		}
+	}
+
+	private void handleRegisterDeviceResponse(HttpResponse&lt;Void&gt; response) {
+<span class="nc bnc" id="L221" title="All 2 branches missed.">		if (response.statusCode() == 201) {</span>
+<span class="nc" id="L222">			LOG.debug(&quot;Device registration for hub instance {} successful.&quot;, hubConfig.authSuccessUrl);</span>
+<span class="nc" id="L223">			window.setScene(registerSuccessScene.get());</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">		} else if (response.statusCode() == 409) {</span>
+<span class="nc" id="L225">			setupFailed(new DeviceAlreadyExistsException());</span>
+		} else {
+<span class="nc" id="L227">			setupFailed(new IllegalStateException(&quot;Unexpected http status code &quot; + response.statusCode()));</span>
+		}
+<span class="nc" id="L229">	}</span>
+
+	private void setupFailed(Throwable cause) {
+<span class="nc bnc" id="L232" title="All 3 branches missed.">		switch (cause) {</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">			case CompletionException e when e.getCause() instanceof JWEHelper.InvalidJweKeyException -&gt; invalidSetupCode.set(true);</span>
+<span class="nc" id="L234">			case DeviceAlreadyExistsException e -&gt; {</span>
+<span class="nc" id="L235">				LOG.debug(&quot;Device already registered in hub instance {} for different user&quot;, hubConfig.authSuccessUrl);</span>
+<span class="nc" id="L236">				window.setScene(deviceAlreadyExistsScene.get());</span>
+<span class="nc" id="L237">			}</span>
+			default -&gt; {
+<span class="nc" id="L239">				LOG.warn(&quot;Device setup failed.&quot;, cause);</span>
+<span class="nc" id="L240">				window.setScene(registerFailedScene.get());</span>
+<span class="nc" id="L241">			}</span>
+		}
+<span class="nc" id="L243">	}</span>
+
+	@FXML
+	public void close() {
+<span class="nc" id="L247">		window.close();</span>
+<span class="nc" id="L248">	}</span>
+
+	private void windowClosed(WindowEvent windowEvent) {
+<span class="nc" id="L251">		result.cancel(true);</span>
+<span class="nc" id="L252">	}</span>
+
+	//--- Getters &amp; Setters
+	public BooleanProperty invalidSetupCodeProperty() {
+<span class="nc" id="L256">		return invalidSetupCode;</span>
+	}
+
+	public boolean isInvalidSetupCode() {
+<span class="nc" id="L260">		return invalidSetupCode.get();</span>
+	}
+
+	@JsonIgnoreProperties(ignoreUnknown = true)
+<span class="nc" id="L264">	private record UserDto(String id, String name, String publicKey, String privateKey, String setupCode) {}</span>
+
+<span class="nc" id="L266">	private record CreateDeviceDto(@JsonProperty(required = true) String id, //</span>
+								   @JsonProperty(required = true) String name, //
+								   @JsonProperty(required = true) String publicKey, //
+								   @JsonProperty(required = true, defaultValue = &quot;DESKTOP&quot;) String type, //
+								   @JsonProperty(required = true) String userPrivateKey, //
+								   @JsonProperty(required = true) String creationTime) {}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

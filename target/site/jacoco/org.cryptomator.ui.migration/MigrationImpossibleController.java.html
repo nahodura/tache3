@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MigrationImpossibleController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.migration</a> &gt; <span class="el_source">MigrationImpossibleController.java</span></div><h1>MigrationImpossibleController.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.migration;
+
+import org.cryptomator.common.vaults.Vault;
+import org.cryptomator.ui.common.FxController;
+
+import javax.inject.Inject;
+import javafx.application.Application;
+import javafx.fxml.FXML;
+import javafx.stage.Stage;
+
+public class MigrationImpossibleController implements FxController {
+
+	private static final String HELP_URI = &quot;https://docs.cryptomator.org/en/1.7/help/manual-migration/&quot;;
+
+	private final Application application;
+	private final Stage window;
+	private final Vault vault;
+
+	@Inject
+<span class="nc" id="L20">	MigrationImpossibleController(Application application, @MigrationWindow Stage window, @MigrationWindow Vault vault) {</span>
+<span class="nc" id="L21">		this.application = application;</span>
+<span class="nc" id="L22">		this.window = window;</span>
+<span class="nc" id="L23">		this.vault = vault;</span>
+<span class="nc" id="L24">	}</span>
+
+	@FXML
+	public void close() {
+<span class="nc" id="L28">		window.close();</span>
+<span class="nc" id="L29">	}</span>
+
+	@FXML
+	public void getMigrationHelp() {
+<span class="nc" id="L33">		application.getHostServices().showDocument(HELP_URI);</span>
+<span class="nc" id="L34">	}</span>
+
+	/* Getter/Setters */
+
+	public Vault getVault() {
+<span class="nc" id="L39">		return vault;</span>
+	}
+
+	public String getHelpUri() {
+<span class="nc" id="L43">		return HELP_URI;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

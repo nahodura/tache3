@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TrayMenuBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.traymenu</a> &gt; <span class="el_source">TrayMenuBuilder.java</span></div><h1>TrayMenuBuilder.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.traymenu;
+
+import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.SystemUtils;
+import org.cryptomator.common.vaults.Vault;
+import org.cryptomator.common.vaults.VaultListManager;
+import org.cryptomator.integrations.tray.ActionItem;
+import org.cryptomator.integrations.tray.SeparatorItem;
+import org.cryptomator.integrations.tray.SubMenuItem;
+import org.cryptomator.integrations.tray.TrayIconLoader;
+import org.cryptomator.integrations.tray.TrayMenuController;
+import org.cryptomator.integrations.tray.TrayMenuException;
+import org.cryptomator.integrations.tray.TrayMenuItem;
+import org.cryptomator.ui.common.VaultService;
+import org.cryptomator.ui.fxapp.FxApplicationTerminator;
+import org.cryptomator.ui.fxapp.FxApplicationWindows;
+import org.cryptomator.ui.preferences.SelectedPreferencesTab;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javafx.application.Platform;
+import javafx.beans.Observable;
+import javafx.collections.ObservableList;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+
+@TrayMenuScoped
+public class TrayMenuBuilder {
+
+<span class="nc" id="L35">	private static final Logger LOG = LoggerFactory.getLogger(TrayMenuBuilder.class);</span>
+	private static final String TRAY_ICON_MAC = &quot;/img/tray_icon_mac@2x.png&quot;;
+	private static final String TRAY_ICON_UNLOCKED_MAC = &quot;/img/tray_icon_unlocked_mac@2x.png&quot;;
+	private static final String TRAY_ICON = &quot;/img/tray_icon.png&quot;;
+	private static final String TRAY_ICON_UNLOCKED = &quot;/img/tray_icon_unlocked.png&quot;;
+
+	private final ResourceBundle resourceBundle;
+	private final VaultService vaultService;
+	private final FxApplicationWindows appWindows;
+	private final FxApplicationTerminator appTerminator;
+	private final ObservableList&lt;Vault&gt; vaults;
+	private final TrayMenuController trayMenu;
+
+	private volatile boolean initialized;
+
+	@Inject
+<span class="nc" id="L51">	TrayMenuBuilder(ResourceBundle resourceBundle, VaultService vaultService, FxApplicationWindows appWindows, FxApplicationTerminator appTerminator, ObservableList&lt;Vault&gt; vaults, Optional&lt;TrayMenuController&gt; trayMenu) {</span>
+<span class="nc" id="L52">		this.resourceBundle = resourceBundle;</span>
+<span class="nc" id="L53">		this.vaultService = vaultService;</span>
+<span class="nc" id="L54">		this.appWindows = appWindows;</span>
+<span class="nc" id="L55">		this.appTerminator = appTerminator;</span>
+<span class="nc" id="L56">		this.vaults = vaults;</span>
+<span class="nc" id="L57">		this.trayMenu = trayMenu.orElse(null);</span>
+<span class="nc" id="L58">	}</span>
+
+	public synchronized void initTrayMenu() {
+<span class="nc bnc" id="L61" title="All 2 branches missed.">		Preconditions.checkState(!initialized, &quot;tray icon already initialized&quot;);</span>
+
+<span class="nc" id="L63">		vaults.addListener(this::vaultListChanged);</span>
+<span class="nc" id="L64">		vaults.forEach(v -&gt; {</span>
+<span class="nc" id="L65">			v.displayNameProperty().addListener(this::vaultListChanged);</span>
+<span class="nc" id="L66">		});</span>
+
+		try {
+<span class="nc" id="L69">			trayMenu.showTrayIcon(loader -&gt; {</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">				switch (loader) {</span>
+<span class="nc" id="L71">					case TrayIconLoader.PngData l -&gt; l.loadPng(getAppropriateTrayIconImage());</span>
+<span class="nc" id="L72">					case TrayIconLoader.FreedesktopIconName l -&gt; l.lookupByName(getAppropriateFreedesktopIconName());</span>
+				}
+<span class="nc" id="L74">			}, this::showMainWindow, &quot;Cryptomator&quot;);</span>
+<span class="nc" id="L75">			trayMenu.onBeforeOpenMenu(() -&gt; {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">				for (Vault vault : vaults) {</span>
+<span class="nc" id="L77">					VaultListManager.redetermineVaultState(vault);</span>
+<span class="nc" id="L78">				}</span>
+<span class="nc" id="L79">			});</span>
+<span class="nc" id="L80">			rebuildMenu();</span>
+<span class="nc" id="L81">			initialized = true;</span>
+<span class="nc" id="L82">		} catch (TrayMenuException e) {</span>
+<span class="nc" id="L83">			LOG.error(&quot;Adding tray icon failed&quot;, e);</span>
+<span class="nc" id="L84">		}</span>
+<span class="nc" id="L85">	}</span>
+
+	public boolean isInitialized() {
+<span class="nc" id="L88">		return initialized;</span>
+	}
+
+	private void vaultListChanged(@SuppressWarnings(&quot;unused&quot;) Observable observable) {
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		assert Platform.isFxApplicationThread();</span>
+<span class="nc" id="L93">		trayMenu.updateTrayIcon(loader -&gt; {</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">			switch (loader) {</span>
+<span class="nc" id="L95">				case TrayIconLoader.PngData l -&gt; l.loadPng(getAppropriateTrayIconImage());</span>
+<span class="nc" id="L96">				case TrayIconLoader.FreedesktopIconName l -&gt; l.lookupByName(getAppropriateFreedesktopIconName());</span>
+			}
+<span class="nc" id="L98">		});</span>
+<span class="nc" id="L99">		rebuildMenu();</span>
+<span class="nc" id="L100">	}</span>
+
+	private void rebuildMenu() {
+<span class="nc" id="L103">		List&lt;TrayMenuItem&gt; menu = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L105">		menu.add(new ActionItem(resourceBundle.getString(&quot;traymenu.showMainWindow&quot;), this::showMainWindow));</span>
+<span class="nc" id="L106">		menu.add(new ActionItem(resourceBundle.getString(&quot;traymenu.showPreferencesWindow&quot;), this::showPreferencesWindow));</span>
+<span class="nc" id="L107">		menu.add(new SeparatorItem());</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">		for (Vault vault : vaults) {</span>
+<span class="nc" id="L109">			List&lt;TrayMenuItem&gt; submenu = buildSubmenu(vault);</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">			var label = vault.isUnlocked() ? &quot;* &quot;.concat(vault.getDisplayName()) : vault.getDisplayName();</span>
+<span class="nc" id="L111">			menu.add(new SubMenuItem(label, submenu));</span>
+<span class="nc" id="L112">		}</span>
+<span class="nc" id="L113">		menu.add(new SeparatorItem());</span>
+<span class="nc" id="L114">		menu.add(new ActionItem(resourceBundle.getString(&quot;traymenu.lockAllVaults&quot;), this::lockAllVaults, vaults.stream().anyMatch(Vault::isUnlocked)));</span>
+<span class="nc" id="L115">		menu.add(new ActionItem(resourceBundle.getString(&quot;traymenu.quitApplication&quot;), this::quitApplication));</span>
+
+		try {
+<span class="nc" id="L118">			trayMenu.updateTrayMenu(menu);</span>
+<span class="nc" id="L119">		} catch (TrayMenuException e) {</span>
+<span class="nc" id="L120">			LOG.error(&quot;Updating tray menu failed&quot;, e);</span>
+<span class="nc" id="L121">		}</span>
+<span class="nc" id="L122">	}</span>
+
+	private List&lt;TrayMenuItem&gt; buildSubmenu(Vault vault) {
+<span class="nc bnc" id="L125" title="All 2 branches missed.">		if (vault.isLocked()) {</span>
+<span class="nc" id="L126">			return List.of( //</span>
+<span class="nc" id="L127">					new ActionItem(resourceBundle.getString(&quot;traymenu.vault.unlock&quot;), () -&gt; this.unlockVault(vault)) //</span>
+			);
+<span class="nc bnc" id="L129" title="All 2 branches missed.">		} else if (vault.isUnlocked()) {</span>
+<span class="nc" id="L130">			return List.of( //</span>
+<span class="nc" id="L131">					new ActionItem(resourceBundle.getString(&quot;traymenu.vault.lock&quot;), () -&gt; this.lockVault(vault)), //</span>
+<span class="nc" id="L132">					new ActionItem(resourceBundle.getString(&quot;traymenu.vault.reveal&quot;), () -&gt; this.revealVault(vault)) //</span>
+			);
+		} else {
+<span class="nc" id="L135">			return List.of();</span>
+		}
+	}
+
+	/* action listeners: */
+
+	private void quitApplication() {
+<span class="nc" id="L142">		appTerminator.terminate();</span>
+<span class="nc" id="L143">	}</span>
+
+	private void unlockVault(Vault vault) {
+<span class="nc" id="L146">		appWindows.startUnlockWorkflow(vault, null);</span>
+<span class="nc" id="L147">	}</span>
+
+	private void lockVault(Vault vault) {
+<span class="nc" id="L150">		appWindows.startLockWorkflow(vault, null);</span>
+<span class="nc" id="L151">	}</span>
+
+	private void lockAllVaults() {
+<span class="nc" id="L154">		vaultService.lockAll(vaults.filtered(Vault::isUnlocked), false);</span>
+<span class="nc" id="L155">	}</span>
+
+	private void revealVault(Vault vault) {
+<span class="nc" id="L158">		vaultService.reveal(vault);</span>
+<span class="nc" id="L159">	}</span>
+
+	void showMainWindow() {
+<span class="nc" id="L162">		appWindows.showMainWindow();</span>
+<span class="nc" id="L163">	}</span>
+
+	private void showPreferencesWindow() {
+<span class="nc" id="L166">		appWindows.showPreferencesWindow(SelectedPreferencesTab.ANY);</span>
+<span class="nc" id="L167">	}</span>
+
+	private byte[] getAppropriateTrayIconImage() {
+<span class="nc" id="L170">		boolean isAnyVaultUnlocked = vaults.stream().anyMatch(Vault::isUnlocked);</span>
+
+		String resourceName;
+<span class="nc bnc" id="L173" title="All 2 branches missed.">		if (SystemUtils.IS_OS_MAC_OSX) {</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">			resourceName = isAnyVaultUnlocked ? TRAY_ICON_UNLOCKED_MAC : TRAY_ICON_MAC;</span>
+		} else {
+<span class="nc bnc" id="L176" title="All 2 branches missed.">			resourceName = isAnyVaultUnlocked ? TRAY_ICON_UNLOCKED : TRAY_ICON;</span>
+		}
+
+<span class="nc" id="L179">		try (var image = getClass().getResourceAsStream(resourceName)) {</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">			assert image != null;</span>
+<span class="nc" id="L181">			return image.readAllBytes();</span>
+<span class="nc" id="L182">		} catch (IOException e) {</span>
+<span class="nc" id="L183">			throw new UncheckedIOException(&quot;Failed to load tray icon image: &quot; + resourceName, e);</span>
+		}
+	}
+
+	private String getAppropriateFreedesktopIconName() {
+<span class="nc" id="L188">		boolean isAnyVaultUnlocked = vaults.stream().anyMatch(Vault::isUnlocked);</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">		return isAnyVaultUnlocked ? &quot;org.cryptomator.Cryptomator.tray-unlocked-symbolic&quot; : &quot;org.cryptomator.Cryptomator.tray-symbolic&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

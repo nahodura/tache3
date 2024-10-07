@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VaultStatisticsModule.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.stats</a> &gt; <span class="el_source">VaultStatisticsModule.java</span></div><h1>VaultStatisticsModule.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.stats;
+
+import dagger.Binds;
+import dagger.Module;
+import dagger.Provides;
+import dagger.multibindings.IntoMap;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import org.cryptomator.common.vaults.Vault;
+import org.cryptomator.common.vaults.VaultState;
+import org.cryptomator.ui.common.DefaultSceneFactory;
+import org.cryptomator.ui.common.FxmlLoaderFactory;
+import org.cryptomator.ui.common.FxController;
+import org.cryptomator.ui.common.FxControllerKey;
+import org.cryptomator.ui.common.FxmlFile;
+import org.cryptomator.ui.common.FxmlScene;
+import org.cryptomator.ui.common.StageFactory;
+
+import javax.inject.Provider;
+import java.lang.ref.WeakReference;
+import java.util.Map;
+import java.util.ResourceBundle;
+
+@Module
+<span class="nc" id="L27">abstract class VaultStatisticsModule {</span>
+
+	@Provides
+	@VaultStatisticsWindow
+	@VaultStatisticsScoped
+	static FxmlLoaderFactory provideFxmlLoaderFactory(Map&lt;Class&lt;? extends FxController&gt;, Provider&lt;FxController&gt;&gt; factories, DefaultSceneFactory sceneFactory, ResourceBundle resourceBundle) {
+<span class="nc" id="L33">		return new FxmlLoaderFactory(factories, sceneFactory, resourceBundle);</span>
+	}
+
+	@Provides
+	@VaultStatisticsWindow
+	@VaultStatisticsScoped
+	static Stage provideStage(StageFactory factory, ResourceBundle resourceBundle, @VaultStatisticsWindow Vault vault) {
+<span class="nc" id="L40">		Stage stage = factory.create();</span>
+<span class="nc" id="L41">		stage.setTitle(String.format(resourceBundle.getString(&quot;stats.title&quot;), vault.getDisplayName()));</span>
+<span class="nc" id="L42">		stage.setResizable(false);</span>
+<span class="nc" id="L43">		var weakStage = new WeakReference&lt;&gt;(stage);</span>
+<span class="nc" id="L44">		vault.stateProperty().addListener(new ChangeListener&lt;&gt;() {</span>
+			@Override
+			public void changed(ObservableValue&lt;? extends VaultState.Value&gt; observable, VaultState.Value oldValue, VaultState.Value newValue) {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">				if (newValue != VaultState.Value.UNLOCKED) {</span>
+<span class="nc" id="L48">					Stage stage = weakStage.get();</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">					if (stage != null) {</span>
+<span class="nc" id="L50">						stage.hide();</span>
+					}
+<span class="nc" id="L52">					observable.removeListener(this);</span>
+				}
+<span class="nc" id="L54">			}</span>
+		});
+<span class="nc" id="L56">		stage.setOnCloseRequest(windowEvent -&gt; vault.showingStatsProperty().setValue(false));</span>
+<span class="nc" id="L57">		return stage;</span>
+	}
+
+	@Provides
+	@FxmlScene(FxmlFile.VAULT_STATISTICS)
+	@VaultStatisticsScoped
+	static Scene provideVaultStatisticsScene(@VaultStatisticsWindow FxmlLoaderFactory fxmlLoaders) {
+<span class="nc" id="L64">		return fxmlLoaders.createScene(FxmlFile.VAULT_STATISTICS);</span>
+	}
+
+	// ------------------
+
+	@Binds
+	@IntoMap
+	@FxControllerKey(VaultStatisticsController.class)
+	abstract FxController bindVaultStatisticsController(VaultStatisticsController controller);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LicenseChecker.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.common</a> &gt; <span class="el_source">LicenseChecker.java</span></div><h1>LicenseChecker.java</h1><pre class="source lang-java linenums">package org.cryptomator.common;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.JWTVerifier;
+import com.google.common.io.BaseEncoding;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Optional;
+
+@Singleton
+class LicenseChecker {
+
+	private final JWTVerifier verifier;
+
+	@Inject
+<span class="fc" id="L27">	public LicenseChecker(@Named(&quot;licensePublicKey&quot;) String pemEncodedPublicKey) {</span>
+<span class="fc" id="L28">		Algorithm algorithm = Algorithm.ECDSA512(decodePublicKey(pemEncodedPublicKey), null);</span>
+<span class="fc" id="L29">		this.verifier = JWT.require(algorithm).build();</span>
+<span class="fc" id="L30">	}</span>
+
+	private static ECPublicKey decodePublicKey(String pemEncodedPublicKey) {
+		try {
+<span class="fc" id="L34">			byte[] keyBytes = BaseEncoding.base64().decode(pemEncodedPublicKey);</span>
+<span class="fc" id="L35">			PublicKey key = KeyFactory.getInstance(&quot;EC&quot;).generatePublic(new X509EncodedKeySpec(keyBytes));</span>
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">			if (key instanceof ECPublicKey k) {</span>
+<span class="fc" id="L37">				return k;</span>
+			} else {
+<span class="nc" id="L39">				throw new IllegalStateException(&quot;Key not an EC public key.&quot;);</span>
+			}
+<span class="nc" id="L41">		} catch (InvalidKeySpecException e) {</span>
+<span class="nc" id="L42">			throw new IllegalArgumentException(&quot;Invalid license public key&quot;, e);</span>
+<span class="nc" id="L43">		} catch (NoSuchAlgorithmException e) {</span>
+<span class="nc" id="L44">			throw new IllegalStateException(e);</span>
+		}
+	}
+
+	public Optional&lt;DecodedJWT&gt; check(String licenseKey) {
+		try {
+<span class="fc" id="L50">			return Optional.of(verifier.verify(licenseKey));</span>
+<span class="fc" id="L51">		} catch (JWTVerificationException exception) {</span>
+<span class="fc" id="L52">			return Optional.empty();</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

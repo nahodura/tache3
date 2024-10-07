@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GeneralPreferencesController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.preferences</a> &gt; <span class="el_source">GeneralPreferencesController.java</span></div><h1>GeneralPreferencesController.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.preferences;
+
+import org.cryptomator.common.Environment;
+import org.cryptomator.common.settings.Settings;
+import org.cryptomator.integrations.autostart.AutoStartProvider;
+import org.cryptomator.integrations.autostart.ToggleAutoStartFailedException;
+import org.cryptomator.integrations.common.NamedServiceProvider;
+import org.cryptomator.integrations.keychain.KeychainAccessProvider;
+import org.cryptomator.integrations.quickaccess.QuickAccessService;
+import org.cryptomator.ui.common.FxController;
+import org.cryptomator.ui.fxapp.FxApplicationWindows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ToggleGroup;
+import javafx.stage.Stage;
+import javafx.util.StringConverter;
+import java.util.List;
+import java.util.Optional;
+
+@PreferencesScoped
+public class GeneralPreferencesController implements FxController {
+
+<span class="nc" id="L30">	private static final Logger LOG = LoggerFactory.getLogger(GeneralPreferencesController.class);</span>
+
+	private final Stage window;
+	private final Settings settings;
+	private final Optional&lt;AutoStartProvider&gt; autoStartProvider;
+	private final List&lt;QuickAccessService&gt; quickAccessServices;
+	private final Application application;
+	private final Environment environment;
+	private final List&lt;KeychainAccessProvider&gt; keychainAccessProviders;
+	private final FxApplicationWindows appWindows;
+	public CheckBox useKeychainCheckbox;
+	public ChoiceBox&lt;KeychainAccessProvider&gt; keychainBackendChoiceBox;
+	public CheckBox useQuickAccessCheckbox;
+	public ChoiceBox&lt;QuickAccessService&gt; quickAccessServiceChoiceBox;
+	public CheckBox startHiddenCheckbox;
+	public CheckBox autoCloseVaultsCheckbox;
+	public CheckBox debugModeCheckbox;
+	public CheckBox autoStartCheckbox;
+	public ToggleGroup nodeOrientation;
+
+	@Inject
+<span class="nc" id="L51">	GeneralPreferencesController(@PreferencesWindow Stage window, Settings settings, Optional&lt;AutoStartProvider&gt; autoStartProvider, List&lt;KeychainAccessProvider&gt; keychainAccessProviders, Application application, Environment environment, FxApplicationWindows appWindows) {</span>
+<span class="nc" id="L52">		this.window = window;</span>
+<span class="nc" id="L53">		this.settings = settings;</span>
+<span class="nc" id="L54">		this.autoStartProvider = autoStartProvider;</span>
+<span class="nc" id="L55">		this.keychainAccessProviders = keychainAccessProviders;</span>
+<span class="nc" id="L56">		this.quickAccessServices = QuickAccessService.get().toList();</span>
+<span class="nc" id="L57">		this.application = application;</span>
+<span class="nc" id="L58">		this.environment = environment;</span>
+<span class="nc" id="L59">		this.appWindows = appWindows;</span>
+<span class="nc" id="L60">	}</span>
+
+	@FXML
+	public void initialize() {
+<span class="nc" id="L64">		startHiddenCheckbox.selectedProperty().bindBidirectional(settings.startHidden);</span>
+<span class="nc" id="L65">		autoCloseVaultsCheckbox.selectedProperty().bindBidirectional(settings.autoCloseVaults);</span>
+<span class="nc" id="L66">		debugModeCheckbox.selectedProperty().bindBidirectional(settings.debugMode);</span>
+<span class="nc" id="L67">		autoStartProvider.ifPresent(autoStart -&gt; autoStartCheckbox.setSelected(autoStart.isEnabled()));</span>
+
+<span class="nc" id="L69">		var keychainSettingsConverter = new ServiceToSettingsConverter&lt;&gt;(keychainAccessProviders);</span>
+<span class="nc" id="L70">		keychainBackendChoiceBox.getItems().addAll(keychainAccessProviders);</span>
+<span class="nc" id="L71">		keychainBackendChoiceBox.setValue(keychainSettingsConverter.fromString(settings.keychainProvider.get()));</span>
+<span class="nc" id="L72">		keychainBackendChoiceBox.setConverter(new KeychainProviderDisplayNameConverter());</span>
+<span class="nc" id="L73">		Bindings.bindBidirectional(settings.keychainProvider, keychainBackendChoiceBox.valueProperty(), keychainSettingsConverter);</span>
+<span class="nc" id="L74">		useKeychainCheckbox.selectedProperty().bindBidirectional(settings.useKeychain);</span>
+<span class="nc" id="L75">		keychainBackendChoiceBox.disableProperty().bind(useKeychainCheckbox.selectedProperty().not());</span>
+
+<span class="nc" id="L77">		useQuickAccessCheckbox.selectedProperty().bindBidirectional(settings.useQuickAccess);</span>
+<span class="nc" id="L78">		var quickAccessSettingsConverter = new ServiceToSettingsConverter&lt;&gt;(quickAccessServices);</span>
+<span class="nc" id="L79">		quickAccessServiceChoiceBox.getItems().addAll(quickAccessServices);</span>
+<span class="nc" id="L80">		quickAccessServiceChoiceBox.setValue(quickAccessSettingsConverter.fromString(settings.quickAccessService.get()));</span>
+<span class="nc" id="L81">		quickAccessServiceChoiceBox.setConverter(new NamedServiceConverter&lt;&gt;());</span>
+<span class="nc" id="L82">		Bindings.bindBidirectional(settings.quickAccessService, quickAccessServiceChoiceBox.valueProperty(), quickAccessSettingsConverter);</span>
+<span class="nc" id="L83">		quickAccessServiceChoiceBox.disableProperty().bind(useQuickAccessCheckbox.selectedProperty().not());</span>
+<span class="nc" id="L84">	}</span>
+
+	public boolean isAutoStartSupported() {
+<span class="nc" id="L87">		return autoStartProvider.isPresent();</span>
+	}
+
+	@FXML
+	public void toggleAutoStart() {
+<span class="nc" id="L92">		autoStartProvider.ifPresent(autoStart -&gt; {</span>
+<span class="nc" id="L93">			boolean enableAutoStart = autoStartCheckbox.isSelected();</span>
+			try {
+<span class="nc bnc" id="L95" title="All 2 branches missed.">				if (enableAutoStart) {</span>
+<span class="nc" id="L96">					autoStart.enable();</span>
+				} else {
+<span class="nc" id="L98">					autoStart.disable();</span>
+				}
+<span class="nc" id="L100">			} catch (ToggleAutoStartFailedException e) {</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">				autoStartCheckbox.setSelected(!enableAutoStart); // restore previous state</span>
+<span class="nc" id="L102">				LOG.error(&quot;Failed to toggle autostart.&quot;, e);</span>
+<span class="nc" id="L103">				appWindows.showErrorWindow(e, window, window.getScene());</span>
+<span class="nc" id="L104">			}</span>
+<span class="nc" id="L105">		});</span>
+<span class="nc" id="L106">	}</span>
+
+	public boolean isSomeQuickAccessServiceAvailable() {
+<span class="nc bnc" id="L109" title="All 2 branches missed.">		return !quickAccessServices.isEmpty();</span>
+	}
+
+	@FXML
+	public void showLogfileDirectory() {
+<span class="nc" id="L114">		environment.getLogDir().ifPresent(logDirPath -&gt; application.getHostServices().showDocument(logDirPath.toUri().toString()));</span>
+<span class="nc" id="L115">	}</span>
+
+	/* Helper classes */
+
+	private static class KeychainProviderDisplayNameConverter extends StringConverter&lt;KeychainAccessProvider&gt; {
+
+		@Override
+		public String toString(KeychainAccessProvider provider) {
+<span class="nc bnc" id="L123" title="All 2 branches missed.">			if (provider == null) {</span>
+<span class="nc" id="L124">				return null;</span>
+			} else {
+<span class="nc" id="L126">				return provider.displayName();</span>
+			}
+		}
+
+		@Override
+		public KeychainAccessProvider fromString(String string) {
+<span class="nc" id="L132">			throw new UnsupportedOperationException();</span>
+		}
+
+	}
+
+	private static class NamedServiceConverter&lt;T extends NamedServiceProvider&gt; extends StringConverter&lt;T&gt; {
+
+		@Override
+		public String toString(T namedService) {
+<span class="nc bnc" id="L141" title="All 2 branches missed.">			if (namedService == null) {</span>
+<span class="nc" id="L142">				return null;</span>
+			} else {
+<span class="nc" id="L144">				return namedService.getName();</span>
+			}
+		}
+
+		@Override
+		public T fromString(String string) {
+<span class="nc" id="L150">			throw new UnsupportedOperationException();</span>
+		}
+
+	}
+
+	private static class ServiceToSettingsConverter&lt;T&gt; extends StringConverter&lt;T&gt; {
+
+		private final List&lt;T&gt; services;
+
+<span class="nc" id="L159">		public ServiceToSettingsConverter(List&lt;T&gt; services) {</span>
+<span class="nc" id="L160">			this.services = services;</span>
+<span class="nc" id="L161">		}</span>
+
+		@Override
+		public String toString(T service) {
+<span class="nc bnc" id="L165" title="All 2 branches missed.">			if (service == null) {</span>
+<span class="nc" id="L166">				return null;</span>
+			} else {
+<span class="nc" id="L168">				return service.getClass().getName();</span>
+			}
+		}
+
+		@Override
+		public T fromString(String string) {
+<span class="nc bnc" id="L174" title="All 2 branches missed.">			if (string == null) {</span>
+<span class="nc" id="L175">				return null;</span>
+			} else {
+<span class="nc" id="L177">				return services.stream().filter(provider -&gt; provider.getClass().getName().equals(string)).findAny().orElse(null);</span>
+			}
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FxmlFile.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.common</a> &gt; <span class="el_source">FxmlFile.java</span></div><h1>FxmlFile.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.common;
+
+<span class="fc" id="L3">public enum FxmlFile {</span>
+<span class="fc" id="L4">	ADDVAULT_EXISTING(&quot;/fxml/addvault_existing.fxml&quot;), //</span>
+<span class="fc" id="L5">	ADDVAULT_NEW_NAME(&quot;/fxml/addvault_new_name.fxml&quot;), //</span>
+<span class="fc" id="L6">	ADDVAULT_NEW_LOCATION(&quot;/fxml/addvault_new_location.fxml&quot;), //</span>
+<span class="fc" id="L7">	ADDVAULT_NEW_EXPERT_SETTINGS(&quot;/fxml/addvault_new_expert_settings.fxml&quot;), //</span>
+<span class="fc" id="L8">	ADDVAULT_NEW_PASSWORD(&quot;/fxml/addvault_new_password.fxml&quot;), //</span>
+<span class="fc" id="L9">	ADDVAULT_NEW_RECOVERYKEY(&quot;/fxml/addvault_new_recoverykey.fxml&quot;), //</span>
+<span class="fc" id="L10">	ADDVAULT_SUCCESS(&quot;/fxml/addvault_success.fxml&quot;), //</span>
+<span class="fc" id="L11">	CHANGEPASSWORD(&quot;/fxml/changepassword.fxml&quot;), //</span>
+<span class="fc" id="L12">	CONVERTVAULT_HUBTOPASSWORD_START(&quot;/fxml/convertvault_hubtopassword_start.fxml&quot;), //</span>
+<span class="fc" id="L13">	CONVERTVAULT_HUBTOPASSWORD_CONVERT(&quot;/fxml/convertvault_hubtopassword_convert.fxml&quot;), //</span>
+<span class="fc" id="L14">	CONVERTVAULT_HUBTOPASSWORD_SUCCESS(&quot;/fxml/convertvault_hubtopassword_success.fxml&quot;), //</span>
+<span class="fc" id="L15">	DOKANY_SUPPORT_END(&quot;/fxml/dokany_support_end.fxml&quot;), //</span>
+<span class="fc" id="L16">	ERROR(&quot;/fxml/error.fxml&quot;), //</span>
+<span class="fc" id="L17">	FORGET_PASSWORD(&quot;/fxml/forget_password.fxml&quot;), //</span>
+<span class="fc" id="L18">	HEALTH_START(&quot;/fxml/health_start.fxml&quot;), //</span>
+<span class="fc" id="L19">	HEALTH_CHECK_LIST(&quot;/fxml/health_check_list.fxml&quot;), //</span>
+<span class="fc" id="L20">	HUB_NO_KEYCHAIN(&quot;/fxml/hub_no_keychain.fxml&quot;), //</span>
+<span class="fc" id="L21">	HUB_AUTH_FLOW(&quot;/fxml/hub_auth_flow.fxml&quot;), //</span>
+<span class="fc" id="L22">	HUB_INVALID_LICENSE(&quot;/fxml/hub_invalid_license.fxml&quot;), //</span>
+<span class="fc" id="L23">	HUB_RECEIVE_KEY(&quot;/fxml/hub_receive_key.fxml&quot;), //</span>
+<span class="fc" id="L24">	HUB_LEGACY_REGISTER_DEVICE(&quot;/fxml/hub_legacy_register_device.fxml&quot;), //</span>
+<span class="fc" id="L25">	HUB_LEGACY_REGISTER_SUCCESS(&quot;/fxml/hub_legacy_register_success.fxml&quot;), //</span>
+<span class="fc" id="L26">	HUB_REGISTER_SUCCESS(&quot;/fxml/hub_register_success.fxml&quot;), //</span>
+<span class="fc" id="L27">	HUB_REGISTER_DEVICE_ALREADY_EXISTS(&quot;/fxml/hub_register_device_already_exists.fxml&quot;), //</span>
+<span class="fc" id="L28">	HUB_REGISTER_FAILED(&quot;/fxml/hub_register_failed.fxml&quot;), //</span>
+<span class="fc" id="L29">	HUB_REGISTER_DEVICE(&quot;/fxml/hub_register_device.fxml&quot;), //</span>
+<span class="fc" id="L30">	HUB_UNAUTHORIZED_DEVICE(&quot;/fxml/hub_unauthorized_device.fxml&quot;), //</span>
+<span class="fc" id="L31">	HUB_REQUIRE_ACCOUNT_INIT(&quot;/fxml/hub_require_account_init.fxml&quot;), //</span>
+<span class="fc" id="L32">	LOCK_FORCED(&quot;/fxml/lock_forced.fxml&quot;), //</span>
+<span class="fc" id="L33">	LOCK_FAILED(&quot;/fxml/lock_failed.fxml&quot;), //</span>
+<span class="fc" id="L34">	MAIN_WINDOW(&quot;/fxml/main_window.fxml&quot;), //</span>
+<span class="fc" id="L35">	MIGRATION_CAPABILITY_ERROR(&quot;/fxml/migration_capability_error.fxml&quot;), //</span>
+<span class="fc" id="L36">	MIGRATION_IMPOSSIBLE(&quot;/fxml/migration_impossible.fxml&quot;),</span>
+<span class="fc" id="L37">	MIGRATION_RUN(&quot;/fxml/migration_run.fxml&quot;), //</span>
+<span class="fc" id="L38">	MIGRATION_START(&quot;/fxml/migration_start.fxml&quot;), //</span>
+<span class="fc" id="L39">	MIGRATION_SUCCESS(&quot;/fxml/migration_success.fxml&quot;), //</span>
+<span class="fc" id="L40">	PREFERENCES(&quot;/fxml/preferences.fxml&quot;), //</span>
+<span class="fc" id="L41">	QUIT(&quot;/fxml/quit.fxml&quot;), //</span>
+<span class="fc" id="L42">	QUIT_FORCED(&quot;/fxml/quit_forced.fxml&quot;), //</span>
+<span class="fc" id="L43">	RECOVERYKEY_CREATE(&quot;/fxml/recoverykey_create.fxml&quot;), //</span>
+<span class="fc" id="L44">	RECOVERYKEY_RECOVER(&quot;/fxml/recoverykey_recover.fxml&quot;), //</span>
+<span class="fc" id="L45">	RECOVERYKEY_RESET_PASSWORD(&quot;/fxml/recoverykey_reset_password.fxml&quot;), //</span>
+<span class="fc" id="L46">	RECOVERYKEY_RESET_PASSWORD_SUCCESS(&quot;/fxml/recoverykey_reset_password_success.fxml&quot;), //</span>
+<span class="fc" id="L47">	RECOVERYKEY_SUCCESS(&quot;/fxml/recoverykey_success.fxml&quot;), //</span>
+<span class="fc" id="L48">	REMOVE_VAULT(&quot;/fxml/remove_vault.fxml&quot;), //</span>
+<span class="fc" id="L49">	SHARE_VAULT(&quot;/fxml/share_vault.fxml&quot;), //</span>
+<span class="fc" id="L50">	UPDATE_REMINDER(&quot;/fxml/update_reminder.fxml&quot;), //</span>
+<span class="fc" id="L51">	UNLOCK_ENTER_PASSWORD(&quot;/fxml/unlock_enter_password.fxml&quot;),</span>
+<span class="fc" id="L52">	UNLOCK_REQUIRES_RESTART(&quot;/fxml/unlock_requires_restart.fxml&quot;), //</span>
+<span class="fc" id="L53">	UNLOCK_INVALID_MOUNT_POINT(&quot;/fxml/unlock_invalid_mount_point.fxml&quot;), //</span>
+<span class="fc" id="L54">	UNLOCK_SELECT_MASTERKEYFILE(&quot;/fxml/unlock_select_masterkeyfile.fxml&quot;), //</span>
+<span class="fc" id="L55">	UNLOCK_SUCCESS(&quot;/fxml/unlock_success.fxml&quot;), //</span>
+<span class="fc" id="L56">	VAULT_OPTIONS(&quot;/fxml/vault_options.fxml&quot;), //</span>
+<span class="fc" id="L57">	VAULT_STATISTICS(&quot;/fxml/stats.fxml&quot;), //</span>
+<span class="fc" id="L58">	WRONGFILEALERT(&quot;/fxml/wrongfilealert.fxml&quot;);</span>
+
+	private final String ressourcePathString;
+
+<span class="fc" id="L62">	FxmlFile(String ressourcePathString) {</span>
+<span class="fc" id="L63">		this.ressourcePathString = ressourcePathString;</span>
+<span class="fc" id="L64">	}</span>
+
+	public String getRessourcePathString() {
+<span class="nc" id="L67">		return ressourcePathString;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

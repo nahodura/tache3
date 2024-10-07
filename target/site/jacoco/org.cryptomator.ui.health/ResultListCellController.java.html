@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ResultListCellController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.health</a> &gt; <span class="el_source">ResultListCellController.java</span></div><h1>ResultListCellController.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.health;
+
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.Subscription;
+import org.cryptomator.cryptofs.health.api.DiagnosticResult;
+import org.cryptomator.ui.common.Animations;
+import org.cryptomator.ui.common.AutoAnimator;
+import org.cryptomator.ui.common.FxController;
+import org.cryptomator.ui.controls.FontAwesome5Icon;
+import org.cryptomator.ui.controls.FontAwesome5IconView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.ObjectBinding;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.fxml.FXML;
+import javafx.scene.control.Tooltip;
+import javafx.util.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+
+// unscoped because each cell needs its own controller
+public class ResultListCellController implements FxController {
+
+<span class="nc" id="L31">	private static final FontAwesome5Icon INFO_ICON = FontAwesome5Icon.INFO_CIRCLE;</span>
+<span class="nc" id="L32">	private static final FontAwesome5Icon GOOD_ICON = FontAwesome5Icon.CHECK;</span>
+<span class="nc" id="L33">	private static final FontAwesome5Icon WARN_ICON = FontAwesome5Icon.EXCLAMATION_TRIANGLE;</span>
+<span class="nc" id="L34">	private static final FontAwesome5Icon CRIT_ICON = FontAwesome5Icon.TIMES;</span>
+
+
+	private final ObjectProperty&lt;Result&gt; result;
+	private final ObservableValue&lt;DiagnosticResult.Severity&gt; severity;
+	private final ObservableValue&lt;String&gt; description;
+	private final ResultFixApplier fixApplier;
+	private final ObservableValue&lt;Result.FixState&gt; fixState;
+	private final ObjectBinding&lt;FontAwesome5Icon&gt; severityGlyph;
+	private final BooleanBinding fixable;
+	private final BooleanBinding fixing;
+	private final BooleanBinding fixed;
+	private final BooleanBinding fixFailed;
+	private final BooleanBinding fixRunningOrDone;
+	private final ObservableValue&lt;FontAwesome5Icon&gt; fixGlyph;
+	private final List&lt;Subscription&gt; subscriptions;
+	private final Tooltip fixStateTip;
+	private final Tooltip severityTip;
+	private AutoAnimator fixRunningRotator;
+	private final ResourceBundle resourceBundle;
+
+	/* FXML */
+	public FontAwesome5IconView severityView;
+	public FontAwesome5IconView fixView;
+
+	@Inject
+<span class="nc" id="L60">	public ResultListCellController(ResultFixApplier fixApplier, ResourceBundle resourceBundle) {</span>
+<span class="nc" id="L61">		this.resourceBundle = resourceBundle;</span>
+<span class="nc" id="L62">		this.result = new SimpleObjectProperty&lt;&gt;(null);</span>
+<span class="nc" id="L63">		this.severity = result.map(Result::diagnosis).map(DiagnosticResult::getSeverity);</span>
+<span class="nc" id="L64">		this.description = result.map(Result::getDescription).orElse(&quot;&quot;);</span>
+<span class="nc" id="L65">		this.fixApplier = fixApplier;</span>
+<span class="nc" id="L66">		this.fixState = result.flatMap(Result::fixState);</span>
+<span class="nc" id="L67">		this.severityGlyph = Bindings.createObjectBinding(this::getSeverityGlyph, result);</span>
+<span class="nc" id="L68">		this.fixable = Bindings.createBooleanBinding(this::isFixable, fixState);</span>
+<span class="nc" id="L69">		this.fixing = Bindings.createBooleanBinding(this::isFixing, fixState);</span>
+<span class="nc" id="L70">		this.fixed = Bindings.createBooleanBinding(this::isFixed, fixState);</span>
+<span class="nc" id="L71">		this.fixFailed = Bindings.createBooleanBinding(this::isFixFailed, fixState);</span>
+<span class="nc" id="L72">		this.fixRunningOrDone = fixing.or(fixed).or(fixFailed);</span>
+<span class="nc" id="L73">		this.fixGlyph = fixState.map(this::getFixGlyph);</span>
+<span class="nc" id="L74">		this.subscriptions = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L76">		this.fixStateTip = new Tooltip();</span>
+<span class="nc" id="L77">		fixStateTip.textProperty().bind(fixState.map(this::getFixStateDescription));</span>
+<span class="nc" id="L78">		fixStateTip.setShowDelay(Duration.millis(100));</span>
+
+<span class="nc" id="L80">		this.severityTip = new Tooltip();</span>
+<span class="nc" id="L81">		severityTip.textProperty().bind(severity.map(this::getSeverityDescription));</span>
+<span class="nc" id="L82">		severityTip.setShowDelay(Duration.millis(150));</span>
+<span class="nc" id="L83">	}</span>
+
+	public FontAwesome5Icon getFixGlyph(Result.FixState state) {
+<span class="nc bnc" id="L86" title="All 4 branches missed.">		return switch (state) {</span>
+<span class="nc" id="L87">			case FIXING -&gt; FontAwesome5Icon.SPINNER;</span>
+<span class="nc" id="L88">			case FIXED -&gt; FontAwesome5Icon.CHECK;</span>
+<span class="nc" id="L89">			case FIX_FAILED -&gt; FontAwesome5Icon.TIMES;</span>
+<span class="nc" id="L90">			default -&gt; null;</span>
+		};
+	}
+
+	private String getFixStateDescription(Result.FixState fixState) {
+<span class="nc bnc" id="L95" title="All 3 branches missed.">		return switch (fixState) {</span>
+<span class="nc" id="L96">			case FIXED -&gt; resourceBundle.getString(&quot;health.fix.successTip&quot;);</span>
+<span class="nc" id="L97">			case FIX_FAILED -&gt; resourceBundle.getString(&quot;health.fix.failTip&quot;);</span>
+<span class="nc" id="L98">			default -&gt; &quot;&quot;;</span>
+		};
+	}
+
+	private String getSeverityDescription(DiagnosticResult.Severity severity) {
+<span class="nc bnc" id="L103" title="All 4 branches missed.">		return resourceBundle.getString(switch (severity) {</span>
+<span class="nc" id="L104">			case GOOD -&gt; &quot;health.result.severityTip.good&quot;;</span>
+<span class="nc" id="L105">			case INFO -&gt; &quot;health.result.severityTip.info&quot;;</span>
+<span class="nc" id="L106">			case WARN -&gt; &quot;health.result.severityTip.warn&quot;;</span>
+<span class="nc" id="L107">			case CRITICAL -&gt; &quot;health.result.severityTip.crit&quot;;</span>
+		});
+	}
+
+	@FXML
+	public void initialize() {
+		// see getGlyph() for relevant glyphs:
+<span class="nc" id="L114">		subscriptions.addAll(List.of(EasyBind.includeWhen(severityView.getStyleClass(), &quot;glyph-icon-muted&quot;, severity.map(DiagnosticResult.Severity.INFO::equals).orElse(false)), //</span>
+<span class="nc" id="L115">				EasyBind.includeWhen(severityView.getStyleClass(), &quot;glyph-icon-primary&quot;, severity.map(DiagnosticResult.Severity.GOOD::equals).orElse(false)), //</span>
+<span class="nc" id="L116">				EasyBind.includeWhen(severityView.getStyleClass(), &quot;glyph-icon-orange&quot;, severity.map(DiagnosticResult.Severity.WARN::equals).orElse(false)), //</span>
+<span class="nc" id="L117">				EasyBind.includeWhen(severityView.getStyleClass(), &quot;glyph-icon-red&quot;, severity.map(DiagnosticResult.Severity.CRITICAL::equals).orElse(false)) //</span>
+		));
+
+<span class="nc" id="L120">		var animation = Animations.createDiscrete360Rotation(fixView);</span>
+<span class="nc" id="L121">		this.fixRunningRotator = AutoAnimator.animate(animation) //</span>
+<span class="nc" id="L122">				.onCondition(fixing) //</span>
+<span class="nc" id="L123">				.afterStop(() -&gt; fixView.setRotate(0)) //</span>
+<span class="nc" id="L124">				.build();</span>
+<span class="nc" id="L125">		fixState.addListener(((observable, oldValue, newValue) -&gt; {</span>
+<span class="nc bnc" id="L126" title="All 4 branches missed.">			if (newValue == Result.FixState.FIXED || newValue == Result.FixState.FIX_FAILED) {</span>
+<span class="nc" id="L127">				Tooltip.install(fixView, fixStateTip);</span>
+			}
+<span class="nc" id="L129">		}));</span>
+<span class="nc" id="L130">		Tooltip.install(severityView, severityTip);</span>
+<span class="nc" id="L131">	}</span>
+
+	@FXML
+	public void fix() {
+<span class="nc" id="L135">		Result r = result.get();</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">		if (r != null) {</span>
+<span class="nc" id="L137">			fixApplier.fix(r);</span>
+		}
+<span class="nc" id="L139">	}</span>
+
+
+	/* Getter &amp; Setter */
+
+	public Result getResult() {
+<span class="nc" id="L145">		return result.get();</span>
+	}
+
+	public void setResult(Result result) {
+<span class="nc" id="L149">		this.result.set(result);</span>
+<span class="nc" id="L150">	}</span>
+
+	public ObjectProperty&lt;Result&gt; resultProperty() {
+<span class="nc" id="L153">		return result;</span>
+	}
+
+	public ObservableValue&lt;String&gt; descriptionProperty() {
+<span class="nc" id="L157">		return description;</span>
+	}
+
+	public String getDescription() {
+<span class="nc" id="L161">		return description.getValue();</span>
+	}
+
+	public ObjectBinding&lt;FontAwesome5Icon&gt; severityGlyphProperty() {
+<span class="nc" id="L165">		return severityGlyph;</span>
+	}
+
+	public FontAwesome5Icon getSeverityGlyph() {
+<span class="nc" id="L169">		var r = result.get();</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">		if (r == null) {</span>
+<span class="nc" id="L171">			return null;</span>
+		}
+<span class="nc bnc" id="L173" title="All 4 branches missed.">		return switch (r.diagnosis().getSeverity()) {</span>
+<span class="nc" id="L174">			case INFO -&gt; INFO_ICON;</span>
+<span class="nc" id="L175">			case GOOD -&gt; GOOD_ICON;</span>
+<span class="nc" id="L176">			case WARN -&gt; WARN_ICON;</span>
+<span class="nc" id="L177">			case CRITICAL -&gt; CRIT_ICON;</span>
+		};
+	}
+
+	public ObservableValue&lt;FontAwesome5Icon&gt; fixGlyphProperty() {
+<span class="nc" id="L182">		return fixGlyph;</span>
+	}
+
+	public FontAwesome5Icon getFixGlyph() {
+<span class="nc" id="L186">		return fixGlyph.getValue();</span>
+	}
+
+	public BooleanBinding fixableProperty() {
+<span class="nc" id="L190">		return fixable;</span>
+	}
+
+	public boolean isFixable() {
+<span class="nc" id="L194">		return Result.FixState.FIXABLE.equals(fixState.getValue());</span>
+	}
+
+	public BooleanBinding fixingProperty() {
+<span class="nc" id="L198">		return fixing;</span>
+	}
+
+	public boolean isFixing() {
+<span class="nc" id="L202">		return Result.FixState.FIXING.equals(fixState.getValue());</span>
+	}
+
+	public BooleanBinding fixedProperty() {
+<span class="nc" id="L206">		return fixed;</span>
+	}
+
+	public boolean isFixed() {
+<span class="nc" id="L210">		return Result.FixState.FIXED.equals(fixState.getValue());</span>
+	}
+
+	public BooleanBinding fixFailedProperty() {
+<span class="nc" id="L214">		return fixFailed;</span>
+	}
+
+	public Boolean isFixFailed() {
+<span class="nc" id="L218">		return Result.FixState.FIX_FAILED.equals(fixState.getValue());</span>
+	}
+
+	public BooleanBinding fixRunningOrDoneProperty() {
+<span class="nc" id="L222">		return fixRunningOrDone;</span>
+	}
+
+	public boolean isFixRunningOrDone() {
+<span class="nc" id="L226">		return fixRunningOrDone.get();</span>
+	}
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

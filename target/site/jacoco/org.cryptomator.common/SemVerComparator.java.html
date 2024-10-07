@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SemVerComparator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.common</a> &gt; <span class="el_source">SemVerComparator.java</span></div><h1>SemVerComparator.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * Copyright (c) 2016, 2017 Sebastian Stenzel and others.
+ * All rights reserved.
+ * This program and the accompanying materials are made available under the terms of the accompanying LICENSE file.
+ *
+ * Contributors:
+ *     Sebastian Stenzel - initial API and implementation
+ *******************************************************************************/
+package org.cryptomator.common;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Comparator;
+
+/**
+ * Compares version strings according to &lt;a href=&quot;http://semver.org/spec/v2.0.0.html&quot;&gt;SemVer 2.0.0&lt;/a&gt;.
+ */
+<span class="fc" id="L18">public class SemVerComparator implements Comparator&lt;String&gt; {</span>
+
+	private static final char VERSION_SEP = '.'; // http://semver.org/spec/v2.0.0.html#spec-item-2
+	private static final String PRE_RELEASE_SEP = &quot;-&quot;; // http://semver.org/spec/v2.0.0.html#spec-item-9
+	private static final String BUILD_SEP = &quot;+&quot;; // http://semver.org/spec/v2.0.0.html#spec-item-10
+
+	@Override
+	public int compare(String version1, String version2) {
+		// &quot;Build metadata SHOULD be ignored when determining version precedence.
+		// Thus two versions that differ only in the build metadata, have the same precedence.&quot;
+<span class="fc" id="L28">		String v1WithoutBuildMetadata = StringUtils.substringBefore(version1, BUILD_SEP);</span>
+<span class="fc" id="L29">		String v2WithoutBuildMetadata = StringUtils.substringBefore(version2, BUILD_SEP);</span>
+
+<span class="fc bfc" id="L31" title="All 2 branches covered.">		if (v1WithoutBuildMetadata.equals(v2WithoutBuildMetadata)) {</span>
+<span class="fc" id="L32">			return 0;</span>
+		}
+
+<span class="fc" id="L35">		String v1MajorMinorPatch = StringUtils.substringBefore(v1WithoutBuildMetadata, PRE_RELEASE_SEP);</span>
+<span class="fc" id="L36">		String v2MajorMinorPatch = StringUtils.substringBefore(v2WithoutBuildMetadata, PRE_RELEASE_SEP);</span>
+<span class="fc" id="L37">		String v1PreReleaseVersion = StringUtils.substringAfter(v1WithoutBuildMetadata, PRE_RELEASE_SEP);</span>
+<span class="fc" id="L38">		String v2PreReleaseVersion = StringUtils.substringAfter(v2WithoutBuildMetadata, PRE_RELEASE_SEP);</span>
+<span class="fc" id="L39">		return compare(v1MajorMinorPatch, v1PreReleaseVersion, v2MajorMinorPatch, v2PreReleaseVersion);</span>
+	}
+
+	private int compare(String v1MajorMinorPatch, String v1PreReleaseVersion, String v2MajorMinorPatch, String v2PreReleaseVersion) {
+<span class="fc" id="L43">		int comparisonResult = compareNumericallyThenLexicographically(v1MajorMinorPatch, v2MajorMinorPatch);</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">		if (comparisonResult == 0) {</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">			if (v1PreReleaseVersion.isEmpty()) {</span>
+<span class="fc" id="L46">				return 1; // 1.0.0 &gt; 1.0.0-BETA</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">			} else if (v2PreReleaseVersion.isEmpty()) {</span>
+<span class="fc" id="L48">				return -1; // 1.0.0-BETA &lt; 1.0.0</span>
+			} else {
+<span class="fc" id="L50">				return compareNumericallyThenLexicographically(v1PreReleaseVersion, v2PreReleaseVersion);</span>
+			}
+		} else {
+<span class="fc" id="L53">			return comparisonResult;</span>
+		}
+	}
+
+	private int compareNumericallyThenLexicographically(String version1, String version2) {
+<span class="fc" id="L58">		final String[] vComps1 = StringUtils.split(version1, VERSION_SEP);</span>
+<span class="fc" id="L59">		final String[] vComps2 = StringUtils.split(version2, VERSION_SEP);</span>
+<span class="fc" id="L60">		final int commonCompCount = Math.min(vComps1.length, vComps2.length);</span>
+
+<span class="fc bfc" id="L62" title="All 2 branches covered.">		for (int i = 0; i &lt; commonCompCount; i++) {</span>
+<span class="fc" id="L63">			int subversionComparisonResult = 0;</span>
+			try {
+<span class="fc" id="L65">				final int v1 = Integer.parseInt(vComps1[i]);</span>
+<span class="fc" id="L66">				final int v2 = Integer.parseInt(vComps2[i]);</span>
+<span class="fc" id="L67">				subversionComparisonResult = v1 - v2;</span>
+<span class="fc" id="L68">			} catch (NumberFormatException ex) {</span>
+				// ok, lets compare this fragment lexicographically
+<span class="fc" id="L70">				subversionComparisonResult = vComps1[i].compareTo(vComps2[i]);</span>
+<span class="fc" id="L71">			}</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">			if (subversionComparisonResult != 0) {</span>
+<span class="fc" id="L73">				return subversionComparisonResult;</span>
+			}
+		}
+
+		// all in common so far? longest version string is considered the higher version:
+<span class="fc" id="L78">		return vComps1.length - vComps2.length;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

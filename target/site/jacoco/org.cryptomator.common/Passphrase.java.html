@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Passphrase.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.common</a> &gt; <span class="el_source">Passphrase.java</span></div><h1>Passphrase.java</h1><pre class="source lang-java linenums">package org.cryptomator.common;
+
+import javax.security.auth.Destroyable;
+import java.util.Arrays;
+
+/**
+ * A destroyable CharSequence.
+ */
+public class Passphrase implements Destroyable, CharSequence {
+
+	private final char[] data;
+	private final int offset;
+	private final int length;
+	private boolean destroyed;
+
+	/**
+	 * Wraps (doesn't copy) the given data.
+	 *
+	 * @param data The wrapped data. Any changes to this will be reflected in this passphrase
+	 */
+	public Passphrase(char[] data) {
+<span class="fc" id="L22">		this(data, 0, data.length);</span>
+<span class="fc" id="L23">	}</span>
+
+	/**
+	 * Wraps (doesn't copy) a subarray of the given data.
+	 *
+	 * @param data The wrapped data. Any changes to this will be reflected in this passphrase
+	 * @param offset The subarray offset, i.e. the first character of this passphrase
+	 * @param length The subarray length, i.e. the length of this passphrase
+	 */
+<span class="fc" id="L32">	public Passphrase(char[] data, int offset, int length) {</span>
+<span class="fc bfc" id="L33" title="All 6 branches covered.">		if (offset &lt; 0 || length &lt; 0 || offset + length &gt; data.length) {</span>
+<span class="fc" id="L34">			throw new IndexOutOfBoundsException(&quot;[%1$d %1$d + %2$d[ not within [0, %3$d[&quot;.formatted(offset, length, data.length));</span>
+		}
+<span class="fc" id="L36">		this.data = data;</span>
+<span class="fc" id="L37">		this.offset = offset;</span>
+<span class="fc" id="L38">		this.length = length;</span>
+<span class="fc" id="L39">	}</span>
+
+	public static Passphrase copyOf(CharSequence cs) {
+<span class="fc" id="L42">		char[] result = new char[cs.length()];</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">		for (int i = 0; i &lt; cs.length(); i++) {</span>
+<span class="fc" id="L44">			result[i] = cs.charAt(i);</span>
+		}
+<span class="fc" id="L46">		return new Passphrase(result);</span>
+	}
+
+	@Override
+	public boolean equals(Object o) {
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		if (this == o) return true;</span>
+<span class="pc bpc" id="L52" title="2 of 4 branches missed.">		if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L53">		Passphrase that = (Passphrase) o;</span>
+		// time-constant comparison
+<span class="fc" id="L55">		int diff = 0;</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">		for (int i = 0; i &lt; length; i++) {</span>
+<span class="fc" id="L57">			diff |= charAt(i) ^ that.charAt(i);</span>
+		}
+<span class="fc bfc" id="L59" title="All 2 branches covered.">		return diff == 0;</span>
+	}
+
+	@Override
+	public int hashCode() {
+		// basically Arrays.hashCode, but only for a certain subarray
+<span class="fc" id="L65">		int result = 1;</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">		for (int i = 0; i &lt; length; i++) {</span>
+<span class="fc" id="L67">			result = 31 * result + charAt(i);</span>
+		}
+<span class="fc" id="L69">		return result;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L74">		return new String(data, offset, length);</span>
+	}
+
+	@Override
+	public int length() {
+<span class="fc" id="L79">		return length;</span>
+	}
+
+	@Override
+	public char charAt(int index) {
+<span class="fc bfc" id="L84" title="All 4 branches covered.">		if (index &lt; 0 || index &gt;= length) {</span>
+<span class="fc" id="L85">			throw new IndexOutOfBoundsException(&quot;%d not within [0, %d[&quot;.formatted(index, length));</span>
+		}
+<span class="fc" id="L87">		return data[offset + index];</span>
+	}
+
+	@Override
+	public Passphrase subSequence(int start, int end) {
+<span class="fc bfc" id="L92" title="All 8 branches covered.">		if (start &lt; 0 || end &lt; 0 || end &gt; length || start &gt; end) {</span>
+<span class="fc" id="L93">			throw new IndexOutOfBoundsException(&quot;[%d, %d[ not within [0, %d[&quot;.formatted(start, end, length));</span>
+		}
+<span class="fc" id="L95">		return new Passphrase(Arrays.copyOfRange(data, offset + start, offset + end));</span>
+	}
+
+	@Override
+	public boolean isDestroyed() {
+<span class="fc" id="L100">		return destroyed;</span>
+	}
+
+	@Override
+	public void destroy() {
+<span class="fc" id="L105">		Arrays.fill(data, offset, offset + length, '\0');</span>
+<span class="fc" id="L106">		destroyed = true;</span>
+<span class="fc" id="L107">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

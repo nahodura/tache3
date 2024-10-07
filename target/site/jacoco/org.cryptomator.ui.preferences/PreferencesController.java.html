@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PreferencesController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.preferences</a> &gt; <span class="el_source">PreferencesController.java</span></div><h1>PreferencesController.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.preferences;
+
+import org.cryptomator.common.Environment;
+import org.cryptomator.ui.common.FxController;
+import org.cryptomator.ui.fxapp.UpdateChecker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.ObjectProperty;
+import javafx.fxml.FXML;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+
+@PreferencesScoped
+public class PreferencesController implements FxController {
+
+<span class="nc" id="L21">	private static final Logger LOG = LoggerFactory.getLogger(PreferencesController.class);</span>
+
+	private final Environment env;
+	private final Stage window;
+	private final ObjectProperty&lt;SelectedPreferencesTab&gt; selectedTabProperty;
+	private final BooleanBinding updateAvailable;
+	public TabPane tabPane;
+	public Tab generalTab;
+	public Tab interfaceTab;
+	public Tab volumeTab;
+	public Tab updatesTab;
+	public Tab contributeTab;
+	public Tab aboutTab;
+
+	@Inject
+<span class="nc" id="L36">	public PreferencesController(Environment env, @PreferencesWindow Stage window, ObjectProperty&lt;SelectedPreferencesTab&gt; selectedTabProperty, UpdateChecker updateChecker) {</span>
+<span class="nc" id="L37">		this.env = env;</span>
+<span class="nc" id="L38">		this.window = window;</span>
+<span class="nc" id="L39">		this.selectedTabProperty = selectedTabProperty;</span>
+<span class="nc" id="L40">		this.updateAvailable = updateChecker.updateAvailableProperty();</span>
+<span class="nc" id="L41">	}</span>
+
+	@FXML
+	public void initialize() {
+<span class="nc" id="L45">		window.setOnShowing(this::windowWillAppear);</span>
+<span class="nc" id="L46">		selectedTabProperty.addListener(observable -&gt; this.selectChosenTab());</span>
+<span class="nc" id="L47">		tabPane.getSelectionModel().selectedItemProperty().addListener(observable -&gt; this.selectedTabChanged());</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">		if (env.disableUpdateCheck()) {</span>
+<span class="nc" id="L49">			tabPane.getTabs().remove(updatesTab);</span>
+		}
+<span class="nc" id="L51">	}</span>
+
+	private void selectChosenTab() {
+<span class="nc" id="L54">		Tab toBeSelected = getTabToSelect(selectedTabProperty.get());</span>
+<span class="nc" id="L55">		tabPane.getSelectionModel().select(toBeSelected);</span>
+<span class="nc" id="L56">	}</span>
+
+	private Tab getTabToSelect(SelectedPreferencesTab selectedTab) {
+<span class="nc bnc" id="L59" title="All 7 branches missed.">		return switch (selectedTab) {</span>
+<span class="nc" id="L60">			case GENERAL -&gt; generalTab;</span>
+<span class="nc" id="L61">			case INTERFACE -&gt; interfaceTab;</span>
+<span class="nc" id="L62">			case VOLUME -&gt; volumeTab;</span>
+<span class="nc" id="L63">			case UPDATES -&gt; updatesTab;</span>
+<span class="nc" id="L64">			case CONTRIBUTE -&gt; contributeTab;</span>
+<span class="nc" id="L65">			case ABOUT -&gt; aboutTab;</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">			case ANY -&gt; updateAvailable.get() ? updatesTab : generalTab;</span>
+		};
+	}
+
+	private void selectedTabChanged() {
+<span class="nc" id="L71">		Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();</span>
+		try {
+<span class="nc" id="L73">			SelectedPreferencesTab selectedPreferencesTab = SelectedPreferencesTab.valueOf(selectedTab.getId());</span>
+<span class="nc" id="L74">			selectedTabProperty.set(selectedPreferencesTab);</span>
+<span class="nc" id="L75">		} catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L76">			LOG.error(&quot;Unknown preferences tab id: {}&quot;, selectedTab.getId());</span>
+<span class="nc" id="L77">		}</span>
+<span class="nc" id="L78">	}</span>
+
+	private void windowWillAppear(@SuppressWarnings(&quot;unused&quot;) WindowEvent windowEvent) {
+<span class="nc" id="L81">		selectChosenTab();</span>
+<span class="nc" id="L82">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

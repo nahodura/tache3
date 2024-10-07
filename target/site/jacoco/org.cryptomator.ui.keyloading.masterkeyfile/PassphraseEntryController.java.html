@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PassphraseEntryController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.keyloading.masterkeyfile</a> &gt; <span class="el_source">PassphraseEntryController.java</span></div><h1>PassphraseEntryController.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.keyloading.masterkeyfile;
+
+import org.cryptomator.common.Nullable;
+import org.cryptomator.common.Passphrase;
+import org.cryptomator.common.keychain.KeychainManager;
+import org.cryptomator.common.vaults.Vault;
+import org.cryptomator.ui.common.FxController;
+import org.cryptomator.ui.common.WeakBindings;
+import org.cryptomator.ui.controls.NiceSecurePasswordField;
+import org.cryptomator.ui.forgetpassword.ForgetPasswordComponent;
+import org.cryptomator.ui.keyloading.KeyLoading;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
+import javafx.beans.binding.StringBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.image.ImageView;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Translate;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+import javafx.util.Duration;
+import java.util.concurrent.CompletableFuture;
+
+@PassphraseEntryScoped
+public class PassphraseEntryController implements FxController {
+
+<span class="nc" id="L43">	private static final Logger LOG = LoggerFactory.getLogger(PassphraseEntryController.class);</span>
+
+	private final Stage window;
+	private final Vault vault;
+	private final CompletableFuture&lt;PassphraseEntryResult&gt; result;
+	private final Passphrase savedPassword;
+	private final ForgetPasswordComponent.Builder forgetPassword;
+	private final KeychainManager keychain;
+	private final StringBinding vaultName;
+<span class="nc" id="L52">	private final BooleanProperty unlockInProgress = new SimpleBooleanProperty();</span>
+<span class="nc" id="L53">	private final ObjectBinding&lt;ContentDisplay&gt; unlockButtonContentDisplay = Bindings.when(unlockInProgress).then(ContentDisplay.LEFT).otherwise(ContentDisplay.TEXT_ONLY);</span>
+<span class="nc" id="L54">	private final BooleanProperty unlockButtonDisabled = new SimpleBooleanProperty();</span>
+
+	/* FXML */
+	public NiceSecurePasswordField passwordField;
+	public CheckBox savePasswordCheckbox;
+	public ImageView face;
+	public ImageView leftArm;
+	public ImageView rightArm;
+	public ImageView legs;
+	public ImageView body;
+	public Animation unlockAnimation;
+
+	@Inject
+<span class="nc" id="L67">	public PassphraseEntryController(@KeyLoading Stage window, @KeyLoading Vault vault, CompletableFuture&lt;PassphraseEntryResult&gt; result, @Nullable @Named(&quot;savedPassword&quot;) Passphrase savedPassword, ForgetPasswordComponent.Builder forgetPassword, KeychainManager keychain) {</span>
+<span class="nc" id="L68">		this.window = window;</span>
+<span class="nc" id="L69">		this.vault = vault;</span>
+<span class="nc" id="L70">		this.result = result;</span>
+<span class="nc" id="L71">		this.savedPassword = savedPassword;</span>
+<span class="nc" id="L72">		this.forgetPassword = forgetPassword;</span>
+<span class="nc" id="L73">		this.keychain = keychain;</span>
+<span class="nc" id="L74">		this.vaultName = WeakBindings.bindString(vault.displayNameProperty());</span>
+<span class="nc" id="L75">		window.setOnHiding(this::windowClosed);</span>
+<span class="nc" id="L76">		result.whenCompleteAsync((r, t) -&gt; unlockInProgress.set(false), Platform::runLater);</span>
+<span class="nc" id="L77">	}</span>
+
+	@FXML
+	public void initialize() {
+<span class="nc bnc" id="L81" title="All 2 branches missed.">		if (savedPassword != null) {</span>
+<span class="nc" id="L82">			savePasswordCheckbox.setSelected(true);</span>
+<span class="nc" id="L83">			passwordField.setPassword(savedPassword);</span>
+		}
+<span class="nc" id="L85">		unlockButtonDisabled.bind(unlockInProgress.or(passwordField.textProperty().isEmpty()));</span>
+
+<span class="nc" id="L87">		var leftArmTranslation = new Translate(24, 0);</span>
+<span class="nc" id="L88">		var leftArmRotation = new Rotate(60, 16, 30, 0);</span>
+<span class="nc" id="L89">		var leftArmRetracted = new KeyValue(leftArmTranslation.xProperty(), 24);</span>
+<span class="nc" id="L90">		var leftArmExtended = new KeyValue(leftArmTranslation.xProperty(), 0.0);</span>
+<span class="nc" id="L91">		var leftArmHorizontal = new KeyValue(leftArmRotation.angleProperty(), 60, Interpolator.EASE_OUT);</span>
+<span class="nc" id="L92">		var leftArmHanging = new KeyValue(leftArmRotation.angleProperty(), 0);</span>
+<span class="nc" id="L93">		leftArm.getTransforms().setAll(leftArmTranslation, leftArmRotation);</span>
+
+<span class="nc" id="L95">		var rightArmTranslation = new Translate(-24, 0);</span>
+<span class="nc" id="L96">		var rightArmRotation = new Rotate(60, 48, 30, 0);</span>
+<span class="nc" id="L97">		var rightArmRetracted = new KeyValue(rightArmTranslation.xProperty(), -24);</span>
+<span class="nc" id="L98">		var rightArmExtended = new KeyValue(rightArmTranslation.xProperty(), 0.0);</span>
+<span class="nc" id="L99">		var rightArmHorizontal = new KeyValue(rightArmRotation.angleProperty(), -60);</span>
+<span class="nc" id="L100">		var rightArmHanging = new KeyValue(rightArmRotation.angleProperty(), 0, Interpolator.EASE_OUT);</span>
+<span class="nc" id="L101">		rightArm.getTransforms().setAll(rightArmTranslation, rightArmRotation);</span>
+
+<span class="nc" id="L103">		var legsRetractedY = new KeyValue(legs.scaleYProperty(), 0);</span>
+<span class="nc" id="L104">		var legsExtendedY = new KeyValue(legs.scaleYProperty(), 1, Interpolator.EASE_OUT);</span>
+<span class="nc" id="L105">		var legsRetractedX = new KeyValue(legs.scaleXProperty(), 0);</span>
+<span class="nc" id="L106">		var legsExtendedX = new KeyValue(legs.scaleXProperty(), 1, Interpolator.EASE_OUT);</span>
+<span class="nc" id="L107">		legs.setScaleY(0);</span>
+<span class="nc" id="L108">		legs.setScaleX(0);</span>
+
+<span class="nc" id="L110">		var faceHidden = new KeyValue(face.opacityProperty(), 0.0);</span>
+<span class="nc" id="L111">		var faceVisible = new KeyValue(face.opacityProperty(), 1.0, Interpolator.LINEAR);</span>
+<span class="nc" id="L112">		face.setOpacity(0);</span>
+
+<span class="nc" id="L114">		unlockAnimation = new Timeline( //</span>
+				new KeyFrame(Duration.ZERO, leftArmRetracted, leftArmHorizontal, rightArmRetracted, rightArmHorizontal, legsRetractedY, legsRetractedX, faceHidden), //
+<span class="nc" id="L116">				new KeyFrame(Duration.millis(200), leftArmExtended, leftArmHorizontal, rightArmRetracted, rightArmHorizontal), //</span>
+<span class="nc" id="L117">				new KeyFrame(Duration.millis(400), leftArmExtended, leftArmHanging, rightArmExtended, rightArmHorizontal), //</span>
+<span class="nc" id="L118">				new KeyFrame(Duration.millis(600), leftArmExtended, leftArmHanging, rightArmExtended, rightArmHanging), //</span>
+<span class="nc" id="L119">				new KeyFrame(Duration.millis(800), legsExtendedY, legsExtendedX, faceHidden), //</span>
+<span class="nc" id="L120">				new KeyFrame(Duration.millis(1000), faceVisible) //</span>
+		);
+
+<span class="nc" id="L123">		result.whenCompleteAsync((r, t) -&gt; stopUnlockAnimation());</span>
+<span class="nc" id="L124">	}</span>
+
+	@FXML
+	public void cancel() {
+<span class="nc" id="L128">		window.close();</span>
+<span class="nc" id="L129">	}</span>
+
+	private void windowClosed(WindowEvent windowEvent) {
+<span class="nc bnc" id="L132" title="All 2 branches missed.">		if(!result.isDone()) {</span>
+<span class="nc" id="L133">			result.cancel(true);</span>
+<span class="nc" id="L134">			LOG.debug(&quot;Unlock canceled by user.&quot;);</span>
+		}
+
+<span class="nc" id="L137">	}</span>
+
+	@FXML
+	public void unlock() {
+<span class="nc" id="L141">		LOG.trace(&quot;UnlockController.unlock()&quot;);</span>
+<span class="nc" id="L142">		unlockInProgress.set(true);</span>
+<span class="nc" id="L143">		CharSequence pwFieldContents = passwordField.getCharacters();</span>
+<span class="nc" id="L144">		Passphrase pw = Passphrase.copyOf(pwFieldContents);</span>
+<span class="nc" id="L145">		result.complete(new PassphraseEntryResult(pw, savePasswordCheckbox.isSelected()));</span>
+<span class="nc" id="L146">		startUnlockAnimation();</span>
+<span class="nc" id="L147">	}</span>
+
+	private void startUnlockAnimation() {
+<span class="nc" id="L150">		leftArm.setVisible(true);</span>
+<span class="nc" id="L151">		rightArm.setVisible(true);</span>
+<span class="nc" id="L152">		legs.setVisible(true);</span>
+<span class="nc" id="L153">		face.setVisible(true);</span>
+<span class="nc" id="L154">		unlockAnimation.playFromStart();</span>
+<span class="nc" id="L155">	}</span>
+
+	private void stopUnlockAnimation() {
+<span class="nc" id="L158">		unlockAnimation.stop();</span>
+<span class="nc" id="L159">		leftArm.setVisible(false);</span>
+<span class="nc" id="L160">		rightArm.setVisible(false);</span>
+<span class="nc" id="L161">		legs.setVisible(false);</span>
+<span class="nc" id="L162">		face.setVisible(false);</span>
+<span class="nc" id="L163">	}</span>
+
+	/* Save Password */
+
+	@FXML
+	private void didClickSavePasswordCheckbox() {
+<span class="nc bnc" id="L169" title="All 4 branches missed.">		if (!savePasswordCheckbox.isSelected() &amp;&amp; savedPassword != null) {</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">			forgetPassword.vault(vault).owner(window).build().showForgetPassword().thenAccept(forgotten -&gt; savePasswordCheckbox.setSelected(!forgotten));</span>
+		}
+<span class="nc" id="L172">	}</span>
+
+	/* Getter/Setter */
+
+	public String getVaultName() {
+<span class="nc" id="L177">		return vaultName.get();</span>
+	}
+
+	public StringBinding vaultNameProperty() {
+<span class="nc" id="L181">		return vaultName;</span>
+	}
+
+	public ObjectBinding&lt;ContentDisplay&gt; unlockButtonContentDisplayProperty() {
+<span class="nc" id="L185">		return unlockButtonContentDisplay;</span>
+	}
+
+	public ContentDisplay getUnlockButtonContentDisplay() {
+<span class="nc" id="L189">		return unlockButtonContentDisplay.get();</span>
+	}
+
+	public ReadOnlyBooleanProperty userInteractionDisabledProperty() {
+<span class="nc" id="L193">		return unlockInProgress;</span>
+	}
+
+	public boolean isUserInteractionDisabled() {
+<span class="nc" id="L197">		return unlockInProgress.get();</span>
+	}
+
+	public ReadOnlyBooleanProperty unlockButtonDisabledProperty() {
+<span class="nc" id="L201">		return unlockButtonDisabled;</span>
+	}
+
+	public boolean isUnlockButtonDisabled() {
+<span class="nc" id="L205">		return unlockButtonDisabled.get();</span>
+	}
+
+	public boolean isKeychainAccessAvailable() {
+<span class="nc" id="L209">		return keychain.isSupported();</span>
+	}
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

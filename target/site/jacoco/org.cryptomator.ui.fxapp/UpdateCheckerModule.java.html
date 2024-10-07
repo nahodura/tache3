@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UpdateCheckerModule.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.fxapp</a> &gt; <span class="el_source">UpdateCheckerModule.java</span></div><h1>UpdateCheckerModule.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.fxapp;
+
+import dagger.Module;
+import dagger.Provides;
+import org.apache.commons.lang3.SystemUtils;
+import org.cryptomator.common.Environment;
+import org.cryptomator.common.settings.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Named;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
+import javafx.concurrent.ScheduledService;
+import javafx.concurrent.Task;
+import javafx.util.Duration;
+import java.io.UncheckedIOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+
+@Module
+<span class="nc" id="L25">public abstract class UpdateCheckerModule {</span>
+
+<span class="nc" id="L27">	private static final Logger LOG = LoggerFactory.getLogger(UpdateCheckerModule.class);</span>
+
+<span class="nc" id="L29">	private static final URI LATEST_VERSION_URI = URI.create(&quot;https://api.cryptomator.org/desktop/latest-version.json&quot;);</span>
+<span class="nc" id="L30">	private static final Duration UPDATE_CHECK_INTERVAL = Duration.hours(3);</span>
+<span class="nc" id="L31">	private static final Duration DISABLED_UPDATE_CHECK_INTERVAL = Duration.hours(100000); // Duration.INDEFINITE leads to overflows...</span>
+
+	@Provides
+	@FxApplicationScoped
+	static Optional&lt;HttpClient&gt; provideHttpClient() {
+		try {
+<span class="nc" id="L37">			return Optional.of(HttpClient.newBuilder() //</span>
+<span class="nc" id="L38">					.followRedirects(HttpClient.Redirect.NORMAL) // from version 1.6.11 onwards, Cryptomator can follow redirects, in case this URL ever changes</span>
+<span class="nc" id="L39">					.build());</span>
+<span class="nc" id="L40">		} catch (UncheckedIOException e) {</span>
+<span class="nc" id="L41">			LOG.error(&quot;HttpClient for update check cannot be created.&quot;, e);</span>
+<span class="nc" id="L42">			return Optional.empty();</span>
+		}
+	}
+
+	@Provides
+	@FxApplicationScoped
+	static HttpRequest provideCheckForUpdatesRequest(Environment env) {
+<span class="nc" id="L49">		String userAgent = String.format(&quot;Cryptomator VersionChecker/%s %s %s (%s)&quot;, //</span>
+<span class="nc" id="L50">				env.getAppVersion(), //</span>
+				SystemUtils.OS_NAME, //
+				SystemUtils.OS_VERSION, //
+				SystemUtils.OS_ARCH); //
+<span class="nc" id="L54">		return HttpRequest.newBuilder() //</span>
+<span class="nc" id="L55">				.uri(LATEST_VERSION_URI) //</span>
+<span class="nc" id="L56">				.header(&quot;User-Agent&quot;, userAgent) //</span>
+<span class="nc" id="L57">				.timeout(java.time.Duration.ofSeconds(10))</span>
+<span class="nc" id="L58">				.build();</span>
+	}
+
+	@Provides
+	@Named(&quot;checkForUpdatesInterval&quot;)
+	@FxApplicationScoped
+	static ObjectBinding&lt;Duration&gt; provideCheckForUpdateInterval(Settings settings) {
+<span class="nc" id="L65">		return Bindings.when(settings.checkForUpdates).then(UPDATE_CHECK_INTERVAL).otherwise(DISABLED_UPDATE_CHECK_INTERVAL);</span>
+	}
+
+	@Provides
+	@FxApplicationScoped
+	static ScheduledService&lt;String&gt; provideCheckForUpdatesService(ExecutorService executor, Optional&lt;HttpClient&gt; httpClient, HttpRequest checkForUpdatesRequest, @Named(&quot;checkForUpdatesInterval&quot;) ObjectBinding&lt;Duration&gt; period) {
+<span class="nc" id="L71">		ScheduledService&lt;String&gt; service = new ScheduledService&lt;&gt;() {</span>
+			@Override
+			protected Task&lt;String&gt; createTask() {
+<span class="nc bnc" id="L74" title="All 2 branches missed.">				if (httpClient.isPresent()) {</span>
+<span class="nc" id="L75">					return new UpdateCheckerTask(httpClient.get(), checkForUpdatesRequest);</span>
+				} else {
+<span class="nc" id="L77">					return new Task&lt;&gt;() {</span>
+						@Override
+						protected String call() {
+<span class="nc" id="L80">							throw new NullPointerException(&quot;No HttpClient present.&quot;);</span>
+						}
+					};
+				}
+			}
+		};
+<span class="nc" id="L86">		service.setOnFailed(event -&gt; LOG.error(&quot;Failed to execute update service&quot;, service.getException()));</span>
+<span class="nc" id="L87">		service.setExecutor(executor);</span>
+<span class="nc" id="L88">		service.periodProperty().bind(period);</span>
+<span class="nc" id="L89">		return service;</span>
+	}
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

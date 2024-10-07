@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Constants.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.common</a> &gt; <span class="el_source">Constants.java</span></div><h1>Constants.java</h1><pre class="source lang-java linenums">package org.cryptomator.common;
+
+import org.cryptomator.ui.keyloading.masterkeyfile.MasterkeyFileLoadingStrategy;
+
+import java.net.URI;
+
+public interface Constants {
+
+	String MASTERKEY_FILENAME = &quot;masterkey.cryptomator&quot;;
+	String MASTERKEY_BACKUP_SUFFIX = &quot;.bkup&quot;;
+	String VAULTCONFIG_FILENAME = &quot;vault.cryptomator&quot;;
+	String CRYPTOMATOR_FILENAME_EXT = &quot;.cryptomator&quot;;
+	String CRYPTOMATOR_FILENAME_GLOB = &quot;*.cryptomator&quot;;
+<span class="fc" id="L14">	URI DEFAULT_KEY_ID = URI.create(MasterkeyFileLoadingStrategy.SCHEME + &quot;:&quot; + MASTERKEY_FILENAME);</span>
+<span class="fc" id="L15">	byte[] PEPPER = new byte[0];</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

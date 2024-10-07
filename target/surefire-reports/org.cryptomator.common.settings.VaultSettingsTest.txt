@@ -1,0 +1,10 @@
+-------------------------------------------------------------------------------
+Test set: org.cryptomator.common.settings.VaultSettingsTest
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in org.cryptomator.common.settings.VaultSettingsTest
+org.cryptomator.common.settings.VaultSettingsTest.testNormalize(String, String)[1] -- Time elapsed: 0.002 s
+org.cryptomator.common.settings.VaultSettingsTest.testNormalize(String, String)[2] -- Time elapsed: 0.001 s
+org.cryptomator.common.settings.VaultSettingsTest.testNormalize(String, String)[3] -- Time elapsed: 0 s
+org.cryptomator.common.settings.VaultSettingsTest.testNormalize(String, String)[4] -- Time elapsed: 0 s
+org.cryptomator.common.settings.VaultSettingsTest.testNormalize(String, String)[5] -- Time elapsed: 0 s
+org.cryptomator.common.settings.VaultSettingsTest.testNormalize(String, String)[6] -- Time elapsed: 0 s

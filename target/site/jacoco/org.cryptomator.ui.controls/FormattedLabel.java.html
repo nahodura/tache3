@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FormattedLabel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.controls</a> &gt; <span class="el_source">FormattedLabel.java</span></div><h1>FormattedLabel.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.controls;
+
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.StringBinding;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.scene.control.Label;
+
+public class FormattedLabel extends Label {
+
+<span class="nc" id="L13">	private final StringProperty format = new SimpleStringProperty(&quot;&quot;);</span>
+<span class="nc" id="L14">	private final ObjectProperty&lt;Object&gt; arg1 = new SimpleObjectProperty&lt;&gt;();</span>
+<span class="nc" id="L15">	private final ObjectProperty&lt;Object&gt; arg2 = new SimpleObjectProperty&lt;&gt;();</span>
+<span class="nc" id="L16">	private final ObjectProperty&lt;Object&gt; arg3 = new SimpleObjectProperty&lt;&gt;();</span>
+	// add arg4, arg5, ... on demand
+
+<span class="nc" id="L19">	public FormattedLabel() {</span>
+<span class="nc" id="L20">		textProperty().bind(createStringBinding());</span>
+<span class="nc" id="L21">	}</span>
+
+	protected StringBinding createStringBinding() {
+<span class="nc" id="L24">		return Bindings.createStringBinding(this::updateText, format, arg1, arg2, arg3);</span>
+	}
+
+	private String updateText() {
+<span class="nc" id="L28">		return String.format(format.get(), arg1.get(), arg2.get(), arg3.get());</span>
+	}
+
+	/* Observables */
+
+	public StringProperty formatProperty() {
+<span class="nc" id="L34">		return format;</span>
+	}
+
+	public String getFormat() {
+<span class="nc" id="L38">		return format.get();</span>
+	}
+
+	public void setFormat(String format) {
+<span class="nc" id="L42">		this.format.set(format);</span>
+<span class="nc" id="L43">	}</span>
+
+	public ObjectProperty&lt;Object&gt; arg1Property() {
+<span class="nc" id="L46">		return arg1;</span>
+	}
+
+	public Object getArg1() {
+<span class="nc" id="L50">		return arg1.get();</span>
+	}
+
+	public void setArg1(Object arg1) {
+<span class="nc" id="L54">		this.arg1.set(arg1);</span>
+<span class="nc" id="L55">	}</span>
+
+	public ObjectProperty&lt;Object&gt; arg2Property() {
+<span class="nc" id="L58">		return arg2;</span>
+	}
+
+	public Object getArg2() {
+<span class="nc" id="L62">		return arg2.get();</span>
+	}
+
+	public void setArg2(Object arg2) {
+<span class="nc" id="L66">		this.arg2.set(arg2);</span>
+<span class="nc" id="L67">	}</span>
+
+	public ObjectProperty&lt;Object&gt; arg3Property() {
+<span class="nc" id="L70">		return arg3;</span>
+	}
+
+	public Object getArg3() {
+<span class="nc" id="L74">		return arg3.get();</span>
+	}
+
+	public void setArg3(Object arg3) {
+<span class="nc" id="L78">		this.arg3.set(arg3);</span>
+<span class="nc" id="L79">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

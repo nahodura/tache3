@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VaultListCellController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.mainwindow</a> &gt; <span class="el_source">VaultListCellController.java</span></div><h1>VaultListCellController.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.mainwindow;
+
+import org.cryptomator.common.vaults.Vault;
+import org.cryptomator.common.vaults.VaultState;
+import org.cryptomator.ui.common.Animations;
+import org.cryptomator.ui.common.AutoAnimator;
+import org.cryptomator.ui.common.FxController;
+import org.cryptomator.ui.controls.FontAwesome5Icon;
+import org.cryptomator.ui.controls.FontAwesome5IconView;
+
+import javax.inject.Inject;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
+
+// unscoped because each cell needs its own controller
+public class VaultListCellController implements FxController {
+
+<span class="nc" id="L19">	private final ObjectProperty&lt;Vault&gt; vault = new SimpleObjectProperty&lt;&gt;();</span>
+	private final ObservableValue&lt;FontAwesome5Icon&gt; glyph;
+
+	private AutoAnimator spinAnimation;
+
+	/* FXML */
+	public FontAwesome5IconView vaultStateView;
+
+	@Inject
+<span class="nc" id="L28">	VaultListCellController() {</span>
+<span class="nc" id="L29">		this.glyph = vault.flatMap(Vault::stateProperty).map(this::getGlyphForVaultState);</span>
+<span class="nc" id="L30">	}</span>
+
+	public void initialize() {
+<span class="nc" id="L33">		this.spinAnimation = AutoAnimator.animate(Animations.createDiscrete360Rotation(vaultStateView)) //</span>
+<span class="nc" id="L34">				.onCondition(vault.flatMap(Vault::stateProperty).map(VaultState.Value.PROCESSING::equals).orElse(false)) //</span>
+<span class="nc" id="L35">				.afterStop(() -&gt; vaultStateView.setRotate(0)) //</span>
+<span class="nc" id="L36">				.build();</span>
+<span class="nc" id="L37">	}</span>
+
+	// TODO deduplicate w/ VaultDetailController
+	private FontAwesome5Icon getGlyphForVaultState(VaultState.Value state) {
+<span class="nc bnc" id="L41" title="All 2 branches missed.">		if (state != null) {</span>
+<span class="nc bnc" id="L42" title="All 4 branches missed.">			return switch (state) {</span>
+<span class="nc" id="L43">				case LOCKED -&gt; FontAwesome5Icon.LOCK;</span>
+<span class="nc" id="L44">				case PROCESSING -&gt; FontAwesome5Icon.SPINNER;</span>
+<span class="nc" id="L45">				case UNLOCKED -&gt; FontAwesome5Icon.LOCK_OPEN;</span>
+<span class="nc" id="L46">				case NEEDS_MIGRATION, MISSING, ERROR -&gt; FontAwesome5Icon.EXCLAMATION_TRIANGLE;</span>
+			};
+		} else {
+<span class="nc" id="L49">			return FontAwesome5Icon.EXCLAMATION_TRIANGLE;</span>
+		}
+	}
+
+	/* Getter/Setter */
+
+	public ObservableValue&lt;FontAwesome5Icon&gt; glyphProperty() {
+<span class="nc" id="L56">		return glyph;</span>
+	}
+
+	public FontAwesome5Icon getGlyph() {
+<span class="nc" id="L60">		return glyph.getValue();</span>
+	}
+
+	public ObjectProperty&lt;Vault&gt; vaultProperty() {
+<span class="nc" id="L64">		return vault;</span>
+	}
+
+	public Vault getVault() {
+<span class="nc" id="L68">		return vault.get();</span>
+	}
+
+	public void setVault(Vault value) {
+<span class="nc" id="L72">		vault.set(value);</span>
+<span class="nc" id="L73">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

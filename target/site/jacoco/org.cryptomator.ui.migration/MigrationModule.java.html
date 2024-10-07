@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MigrationModule.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.migration</a> &gt; <span class="el_source">MigrationModule.java</span></div><h1>MigrationModule.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.migration;
+
+import dagger.Binds;
+import dagger.Module;
+import dagger.Provides;
+import dagger.multibindings.IntoMap;
+import org.cryptomator.cryptofs.common.FileSystemCapabilityChecker;
+import org.cryptomator.ui.common.DefaultSceneFactory;
+import org.cryptomator.ui.common.FxController;
+import org.cryptomator.ui.common.FxControllerKey;
+import org.cryptomator.ui.common.FxmlFile;
+import org.cryptomator.ui.common.FxmlLoaderFactory;
+import org.cryptomator.ui.common.FxmlScene;
+import org.cryptomator.ui.common.StageFactory;
+import org.cryptomator.ui.fxapp.PrimaryStage;
+
+import javax.inject.Named;
+import javax.inject.Provider;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import java.util.Map;
+import java.util.ResourceBundle;
+
+@Module
+<span class="nc" id="L28">abstract class MigrationModule {</span>
+
+	@Provides
+	@MigrationWindow
+	@MigrationScoped
+	static FxmlLoaderFactory provideFxmlLoaderFactory(Map&lt;Class&lt;? extends FxController&gt;, Provider&lt;FxController&gt;&gt; factories, DefaultSceneFactory sceneFactory, ResourceBundle resourceBundle) {
+<span class="nc" id="L34">		return new FxmlLoaderFactory(factories, sceneFactory, resourceBundle);</span>
+	}
+
+	@Provides
+	@MigrationWindow
+	@MigrationScoped
+	static Stage provideStage(StageFactory factory, @PrimaryStage Stage owner, ResourceBundle resourceBundle) {
+<span class="nc" id="L41">		Stage stage = factory.create();</span>
+<span class="nc" id="L42">		stage.setTitle(resourceBundle.getString(&quot;migration.title&quot;));</span>
+<span class="nc" id="L43">		stage.setResizable(false);</span>
+<span class="nc" id="L44">		stage.initModality(Modality.WINDOW_MODAL);</span>
+<span class="nc" id="L45">		stage.initOwner(owner);</span>
+<span class="nc" id="L46">		return stage;</span>
+	}
+
+	@Provides
+	@Named(&quot;capabilityErrorCause&quot;)
+	@MigrationScoped
+	static ObjectProperty&lt;FileSystemCapabilityChecker.Capability&gt; provideCapabilityErrorCause() {
+<span class="nc" id="L53">		return new SimpleObjectProperty&lt;&gt;();</span>
+	}
+
+	@Provides
+	@FxmlScene(FxmlFile.MIGRATION_START)
+	@MigrationScoped
+	static Scene provideMigrationStartScene(@MigrationWindow FxmlLoaderFactory fxmlLoaders) {
+<span class="nc" id="L60">		return fxmlLoaders.createScene(FxmlFile.MIGRATION_START);</span>
+	}
+
+	@Provides
+	@FxmlScene(FxmlFile.MIGRATION_RUN)
+	@MigrationScoped
+	static Scene provideMigrationRunScene(@MigrationWindow FxmlLoaderFactory fxmlLoaders) {
+<span class="nc" id="L67">		return fxmlLoaders.createScene(FxmlFile.MIGRATION_RUN);</span>
+	}
+
+	@Provides
+	@FxmlScene(FxmlFile.MIGRATION_SUCCESS)
+	@MigrationScoped
+	static Scene provideMigrationSuccessScene(@MigrationWindow FxmlLoaderFactory fxmlLoaders) {
+<span class="nc" id="L74">		return fxmlLoaders.createScene(FxmlFile.MIGRATION_SUCCESS);</span>
+	}
+
+	@Provides
+	@FxmlScene(FxmlFile.MIGRATION_CAPABILITY_ERROR)
+	@MigrationScoped
+	static Scene provideMigrationCapabilityErrorScene(@MigrationWindow FxmlLoaderFactory fxmlLoaders) {
+<span class="nc" id="L81">		return fxmlLoaders.createScene(FxmlFile.MIGRATION_CAPABILITY_ERROR);</span>
+	}
+
+	@Provides
+	@FxmlScene(FxmlFile.MIGRATION_IMPOSSIBLE)
+	@MigrationScoped
+	static Scene provideMigrationImpossibleScene(@MigrationWindow FxmlLoaderFactory fxmlLoaders) {
+<span class="nc" id="L88">		return fxmlLoaders.createScene(FxmlFile.MIGRATION_IMPOSSIBLE);</span>
+	}
+
+	// ------------------
+
+	@Binds
+	@IntoMap
+	@FxControllerKey(MigrationStartController.class)
+	abstract FxController bindMigrationStartController(MigrationStartController controller);
+
+	@Binds
+	@IntoMap
+	@FxControllerKey(MigrationRunController.class)
+	abstract FxController bindMigrationRunController(MigrationRunController controller);
+
+	@Binds
+	@IntoMap
+	@FxControllerKey(MigrationSuccessController.class)
+	abstract FxController bindMigrationSuccessController(MigrationSuccessController controller);
+
+	@Binds
+	@IntoMap
+	@FxControllerKey(MigrationCapabilityErrorController.class)
+	abstract FxController bindMigrationCapabilityErrorController(MigrationCapabilityErrorController controller);
+
+	@Binds
+	@IntoMap
+	@FxControllerKey(MigrationImpossibleController.class)
+	abstract FxController bindMigrationImpossibleController(MigrationImpossibleController controller);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

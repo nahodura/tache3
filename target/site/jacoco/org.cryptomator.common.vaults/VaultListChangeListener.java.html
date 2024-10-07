@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VaultListChangeListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.common.vaults</a> &gt; <span class="el_source">VaultListChangeListener.java</span></div><h1>VaultListChangeListener.java</h1><pre class="source lang-java linenums">package org.cryptomator.common.vaults;
+
+import org.cryptomator.common.settings.VaultSettings;
+
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * This listener makes sure to reflect any changes to the vault list back to the settings.
+ */
+class VaultListChangeListener implements ListChangeListener&lt;Vault&gt; {
+
+	private final ObservableList&lt;VaultSettings&gt; vaultSettingsList;
+
+<span class="nc" id="L17">	public VaultListChangeListener(ObservableList&lt;VaultSettings&gt; vaultSettingsList) {</span>
+<span class="nc" id="L18">		this.vaultSettingsList = vaultSettingsList;</span>
+<span class="nc" id="L19">	}</span>
+
+	@Override
+	public void onChanged(Change&lt;? extends Vault&gt; c) {
+<span class="nc bnc" id="L23" title="All 2 branches missed.">		while (c.next()) {</span>
+<span class="nc bnc" id="L24" title="All 2 branches missed.">			if (c.wasAdded()) {</span>
+<span class="nc" id="L25">				List&lt;VaultSettings&gt; addedSettings = c.getAddedSubList().stream().map(Vault::getVaultSettings).toList();</span>
+<span class="nc" id="L26">				vaultSettingsList.addAll(c.getFrom(), addedSettings);</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed.">			} else if (c.wasRemoved()) {</span>
+<span class="nc" id="L28">				List&lt;VaultSettings&gt; removedSettings = c.getRemoved().stream().map(Vault::getVaultSettings).toList();</span>
+<span class="nc" id="L29">				vaultSettingsList.removeAll(removedSettings);</span>
+<span class="nc" id="L30">			}</span>
+		}
+<span class="nc" id="L32">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

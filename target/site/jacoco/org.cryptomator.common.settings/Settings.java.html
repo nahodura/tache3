@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Settings.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.common.settings</a> &gt; <span class="el_source">Settings.java</span></div><h1>Settings.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * Copyright (c) 2014, 2017 Sebastian Stenzel
+ * All rights reserved.
+ * This program and the accompanying materials are made available under the terms of the accompanying LICENSE file.
+ *
+ * Contributors:
+ *     Sebastian Stenzel - initial API and implementation
+ ******************************************************************************/
+package org.cryptomator.common.settings;
+
+import org.apache.commons.lang3.SystemUtils;
+import org.cryptomator.common.Environment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javafx.beans.Observable;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.NodeOrientation;
+import java.time.Instant;
+import java.util.function.Consumer;
+
+public class Settings {
+
+<span class="fc" id="L33">	private static final Logger LOG = LoggerFactory.getLogger(Settings.class);</span>
+
+	static final boolean DEFAULT_ASKED_FOR_UPDATE_CHECK = false;
+	static final boolean DEFAULT_CHECK_FOR_UPDATES = false;
+	static final boolean DEFAULT_START_HIDDEN = false;
+	static final boolean DEFAULT_AUTO_CLOSE_VAULTS = false;
+	static final boolean DEFAULT_USE_KEYCHAIN = true;
+	static final boolean DEFAULT_USE_QUICKACCESS = true;
+	static final int DEFAULT_PORT = 42427;
+	static final int DEFAULT_NUM_TRAY_NOTIFICATIONS = 3;
+	static final boolean DEFAULT_DEBUG_MODE = false;
+<span class="fc" id="L44">	static final UiTheme DEFAULT_THEME = UiTheme.LIGHT;</span>
+	@Deprecated // to be changed to &quot;whatever is available&quot; eventually
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">	static final String DEFAULT_KEYCHAIN_PROVIDER = SystemUtils.IS_OS_WINDOWS ? &quot;org.cryptomator.windows.keychain.WindowsProtectedKeychainAccess&quot; : //</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">			SystemUtils.IS_OS_MAC ? &quot;org.cryptomator.macos.keychain.MacSystemKeychainAccess&quot; : //</span>
+<span class="pc" id="L48">					&quot;org.cryptomator.linux.keychain.SecretServiceKeychainAccess&quot;;</span>
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">	static final String DEFAULT_QUICKACCESS_SERVICE = SystemUtils.IS_OS_WINDOWS ? &quot;org.cryptomator.windows.quickaccess.ExplorerQuickAccessService&quot; : //</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">			SystemUtils.IS_OS_LINUX ? &quot;org.cryptomator.linux.quickaccess.NautilusBookmarks&quot; : null;</span>
+
+<span class="fc" id="L52">	static final String DEFAULT_USER_INTERFACE_ORIENTATION = NodeOrientation.LEFT_TO_RIGHT.name();</span>
+	static final boolean DEFAULT_SHOW_MINIMIZE_BUTTON = false;
+<span class="fc" id="L54">	public static final Instant DEFAULT_TIMESTAMP = Instant.parse(&quot;2000-01-01T00:00:00Z&quot;);</span>
+	public final ObservableList&lt;VaultSettings&gt; directories;
+	public final BooleanProperty askedForUpdateCheck;
+	public final BooleanProperty checkForUpdates;
+	public final BooleanProperty startHidden;
+	public final BooleanProperty autoCloseVaults;
+	public final BooleanProperty useKeychain;
+	public final IntegerProperty port;
+	public final IntegerProperty numTrayNotifications;
+	public final BooleanProperty debugMode;
+	public final ObjectProperty&lt;UiTheme&gt; theme;
+	public final StringProperty keychainProvider;
+	public final BooleanProperty useQuickAccess;
+	public final StringProperty quickAccessService;
+	public final ObjectProperty&lt;NodeOrientation&gt; userInterfaceOrientation;
+	public final StringProperty licenseKey;
+	public final BooleanProperty showMinimizeButton;
+	public final BooleanProperty showTrayIcon;
+	public final IntegerProperty windowXPosition;
+	public final IntegerProperty windowYPosition;
+	public final IntegerProperty windowWidth;
+	public final IntegerProperty windowHeight;
+	public final StringProperty language;
+	public final StringProperty mountService;
+	public final ObjectProperty&lt;Instant&gt; lastSuccessfulUpdateCheck;
+
+	private Consumer&lt;Settings&gt; saveCmd;
+
+	public static Settings create(Environment env) {
+<span class="fc" id="L83">		var defaults = new SettingsJson();</span>
+<span class="fc" id="L84">		defaults.showTrayIcon = env.showTrayIcon();</span>
+<span class="fc" id="L85">		return new Settings(defaults);</span>
+	}
+
+	/**
+	 * Recreate settings from json
+	 *
+	 * @param json The parsed settings.json
+	 */
+<span class="fc" id="L93">	Settings(SettingsJson json) {</span>
+<span class="fc" id="L94">		this.directories = FXCollections.observableArrayList(VaultSettings::observables);</span>
+<span class="fc" id="L95">		this.askedForUpdateCheck = new SimpleBooleanProperty(this, &quot;askedForUpdateCheck&quot;, json.askedForUpdateCheck);</span>
+<span class="fc" id="L96">		this.checkForUpdates = new SimpleBooleanProperty(this, &quot;checkForUpdates&quot;, json.checkForUpdatesEnabled);</span>
+<span class="fc" id="L97">		this.startHidden = new SimpleBooleanProperty(this, &quot;startHidden&quot;, json.startHidden);</span>
+<span class="fc" id="L98">		this.autoCloseVaults = new SimpleBooleanProperty(this, &quot;autoCloseVaults&quot;, json.autoCloseVaults);</span>
+<span class="fc" id="L99">		this.useKeychain = new SimpleBooleanProperty(this, &quot;useKeychain&quot;, json.useKeychain);</span>
+<span class="fc" id="L100">		this.useQuickAccess = new SimpleBooleanProperty(this, &quot;addToQuickAccess&quot;, json.useQuickAccess);</span>
+<span class="fc" id="L101">		this.port = new SimpleIntegerProperty(this, &quot;webDavPort&quot;, json.port);</span>
+<span class="fc" id="L102">		this.numTrayNotifications = new SimpleIntegerProperty(this, &quot;numTrayNotifications&quot;, json.numTrayNotifications);</span>
+<span class="fc" id="L103">		this.debugMode = new SimpleBooleanProperty(this, &quot;debugMode&quot;, json.debugMode);</span>
+<span class="fc" id="L104">		this.theme = new SimpleObjectProperty&lt;&gt;(this, &quot;theme&quot;, json.theme);</span>
+<span class="fc" id="L105">		this.keychainProvider = new SimpleStringProperty(this, &quot;keychainProvider&quot;, json.keychainProvider);</span>
+<span class="fc" id="L106">		this.userInterfaceOrientation = new SimpleObjectProperty&lt;&gt;(this, &quot;userInterfaceOrientation&quot;, parseEnum(json.uiOrientation, NodeOrientation.class, NodeOrientation.LEFT_TO_RIGHT));</span>
+<span class="fc" id="L107">		this.licenseKey = new SimpleStringProperty(this, &quot;licenseKey&quot;, json.licenseKey);</span>
+<span class="fc" id="L108">		this.showMinimizeButton = new SimpleBooleanProperty(this, &quot;showMinimizeButton&quot;, json.showMinimizeButton);</span>
+<span class="fc" id="L109">		this.showTrayIcon = new SimpleBooleanProperty(this, &quot;showTrayIcon&quot;, json.showTrayIcon);</span>
+<span class="fc" id="L110">		this.windowXPosition = new SimpleIntegerProperty(this, &quot;windowXPosition&quot;, json.windowXPosition);</span>
+<span class="fc" id="L111">		this.windowYPosition = new SimpleIntegerProperty(this, &quot;windowYPosition&quot;, json.windowYPosition);</span>
+<span class="fc" id="L112">		this.windowWidth = new SimpleIntegerProperty(this, &quot;windowWidth&quot;, json.windowWidth);</span>
+<span class="fc" id="L113">		this.windowHeight = new SimpleIntegerProperty(this, &quot;windowHeight&quot;, json.windowHeight);</span>
+<span class="fc" id="L114">		this.language = new SimpleStringProperty(this, &quot;language&quot;, json.language);</span>
+<span class="fc" id="L115">		this.mountService = new SimpleStringProperty(this, &quot;mountService&quot;, json.mountService);</span>
+<span class="fc" id="L116">		this.quickAccessService = new SimpleStringProperty(this, &quot;quickAccessService&quot;, json.quickAccessService);</span>
+<span class="fc" id="L117">		this.lastSuccessfulUpdateCheck = new SimpleObjectProperty&lt;&gt;(this, &quot;lastSuccessfulUpdateCheck&quot;, json.lastSuccessfulUpdateCheck);</span>
+
+<span class="fc" id="L119">		this.directories.addAll(json.directories.stream().map(VaultSettings::new).toList());</span>
+
+<span class="fc" id="L121">		migrateLegacySettings(json);</span>
+
+<span class="fc" id="L123">		directories.addListener(this::somethingChanged);</span>
+<span class="fc" id="L124">		askedForUpdateCheck.addListener(this::somethingChanged);</span>
+<span class="fc" id="L125">		checkForUpdates.addListener(this::somethingChanged);</span>
+<span class="fc" id="L126">		startHidden.addListener(this::somethingChanged);</span>
+<span class="fc" id="L127">		autoCloseVaults.addListener(this::somethingChanged);</span>
+<span class="fc" id="L128">		useKeychain.addListener(this::somethingChanged);</span>
+<span class="fc" id="L129">		useQuickAccess.addListener(this::somethingChanged);</span>
+<span class="fc" id="L130">		port.addListener(this::somethingChanged);</span>
+<span class="fc" id="L131">		numTrayNotifications.addListener(this::somethingChanged);</span>
+<span class="fc" id="L132">		debugMode.addListener(this::somethingChanged);</span>
+<span class="fc" id="L133">		theme.addListener(this::somethingChanged);</span>
+<span class="fc" id="L134">		keychainProvider.addListener(this::somethingChanged);</span>
+<span class="fc" id="L135">		userInterfaceOrientation.addListener(this::somethingChanged);</span>
+<span class="fc" id="L136">		licenseKey.addListener(this::somethingChanged);</span>
+<span class="fc" id="L137">		showMinimizeButton.addListener(this::somethingChanged);</span>
+<span class="fc" id="L138">		showTrayIcon.addListener(this::somethingChanged);</span>
+<span class="fc" id="L139">		windowXPosition.addListener(this::somethingChanged);</span>
+<span class="fc" id="L140">		windowYPosition.addListener(this::somethingChanged);</span>
+<span class="fc" id="L141">		windowWidth.addListener(this::somethingChanged);</span>
+<span class="fc" id="L142">		windowHeight.addListener(this::somethingChanged);</span>
+<span class="fc" id="L143">		language.addListener(this::somethingChanged);</span>
+<span class="fc" id="L144">		mountService.addListener(this::somethingChanged);</span>
+<span class="fc" id="L145">		quickAccessService.addListener(this::somethingChanged);</span>
+<span class="fc" id="L146">		lastSuccessfulUpdateCheck.addListener(this::somethingChanged);</span>
+<span class="fc" id="L147">	}</span>
+
+	@SuppressWarnings(&quot;deprecation&quot;)
+	private void migrateLegacySettings(SettingsJson json) {
+		// implicit migration of 1.6.x legacy setting &quot;preferredVolumeImpl&quot;:
+<span class="pc bpc" id="L152" title="2 of 4 branches missed.">		if (this.mountService.get() == null &amp;&amp; json.preferredVolumeImpl != null) {</span>
+<span class="nc bnc" id="L153" title="All 3 branches missed.">			this.mountService.set(switch (json.preferredVolumeImpl) {</span>
+<span class="nc" id="L154">				case &quot;Dokany&quot; -&gt; &quot;org.cryptomator.frontend.dokany.mount.DokanyMountProvider&quot;;</span>
+				case &quot;FUSE&quot; -&gt; {
+<span class="nc bnc" id="L156" title="All 2 branches missed.">					if (SystemUtils.IS_OS_WINDOWS) {</span>
+<span class="nc" id="L157">						yield &quot;org.cryptomator.frontend.fuse.mount.WinFspNetworkMountProvider&quot;;</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">					} else if (SystemUtils.IS_OS_MAC) {</span>
+<span class="nc" id="L159">						yield &quot;org.cryptomator.frontend.fuse.mount.MacFuseMountProvider&quot;;</span>
+					} else {
+<span class="nc" id="L161">						yield &quot;org.cryptomator.frontend.fuse.mount.LinuxFuseMountProvider&quot;;</span>
+					}
+				}
+				default -&gt; {
+<span class="nc bnc" id="L165" title="All 2 branches missed.">					if (SystemUtils.IS_OS_WINDOWS) {</span>
+<span class="nc" id="L166">						yield &quot;org.cryptomator.frontend.webdav.mount.WindowsMounter&quot;;</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">					} else if (SystemUtils.IS_OS_MAC) {</span>
+<span class="nc" id="L168">						yield &quot;org.cryptomator.frontend.webdav.mount.MacAppleScriptMounter&quot;;</span>
+					} else {
+<span class="nc" id="L170">						yield &quot;org.cryptomator.frontend.webdav.mount.LinuxGioMounter&quot;;</span>
+					}
+				}
+			});
+		}
+<span class="fc" id="L175">	}</span>
+
+	SettingsJson serialized() {
+<span class="nc" id="L178">		var json = new SettingsJson();</span>
+<span class="nc" id="L179">		json.directories = directories.stream().map(VaultSettings::serialized).toList();</span>
+<span class="nc" id="L180">		json.askedForUpdateCheck = askedForUpdateCheck.get();</span>
+<span class="nc" id="L181">		json.checkForUpdatesEnabled = checkForUpdates.get();</span>
+<span class="nc" id="L182">		json.startHidden = startHidden.get();</span>
+<span class="nc" id="L183">		json.autoCloseVaults = autoCloseVaults.get();</span>
+<span class="nc" id="L184">		json.useKeychain = useKeychain.get();</span>
+<span class="nc" id="L185">		json.useQuickAccess = useQuickAccess.get();</span>
+<span class="nc" id="L186">		json.port = port.get();</span>
+<span class="nc" id="L187">		json.numTrayNotifications = numTrayNotifications.get();</span>
+<span class="nc" id="L188">		json.debugMode = debugMode.get();</span>
+<span class="nc" id="L189">		json.theme = theme.get();</span>
+<span class="nc" id="L190">		json.keychainProvider = keychainProvider.get();</span>
+<span class="nc" id="L191">		json.uiOrientation = userInterfaceOrientation.get().name();</span>
+<span class="nc" id="L192">		json.licenseKey = licenseKey.get();</span>
+<span class="nc" id="L193">		json.showMinimizeButton = showMinimizeButton.get();</span>
+<span class="nc" id="L194">		json.showTrayIcon = showTrayIcon.get();</span>
+<span class="nc" id="L195">		json.windowXPosition = windowXPosition.get();</span>
+<span class="nc" id="L196">		json.windowYPosition = windowYPosition.get();</span>
+<span class="nc" id="L197">		json.windowWidth = windowWidth.get();</span>
+<span class="nc" id="L198">		json.windowHeight = windowHeight.get();</span>
+<span class="nc" id="L199">		json.language = language.get();</span>
+<span class="nc" id="L200">		json.mountService = mountService.get();</span>
+<span class="nc" id="L201">		json.quickAccessService = quickAccessService.get();</span>
+<span class="nc" id="L202">		json.lastSuccessfulUpdateCheck = lastSuccessfulUpdateCheck.get();</span>
+<span class="nc" id="L203">		return json;</span>
+	}
+
+	private &lt;E extends Enum&lt;E&gt;&gt; E parseEnum(String value, Class&lt;E&gt; clazz, E defaultValue) {
+		try {
+<span class="fc" id="L208">			return Enum.valueOf(clazz, value.toUpperCase());</span>
+<span class="nc" id="L209">		} catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L210">			LOG.warn(&quot;No value {}.{}. Defaulting to {}.&quot;, clazz.getSimpleName(), value, defaultValue);</span>
+<span class="nc" id="L211">			return defaultValue;</span>
+		}
+	}
+
+
+	// TODO rename to setChangeListener
+	void setSaveCmd(Consumer&lt;Settings&gt; saveCmd) {
+<span class="fc" id="L218">		this.saveCmd = saveCmd;</span>
+<span class="fc" id="L219">	}</span>
+
+	private void somethingChanged(@SuppressWarnings(&quot;unused&quot;) Observable observable) {
+<span class="fc" id="L222">		this.save();</span>
+<span class="fc" id="L223">	}</span>
+
+	void save() {
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">		if (saveCmd != null) {</span>
+<span class="fc" id="L227">			saveCmd.accept(this);</span>
+		}
+<span class="fc" id="L229">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

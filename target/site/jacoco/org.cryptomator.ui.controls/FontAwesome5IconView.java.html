@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FontAwesome5IconView.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.controls</a> &gt; <span class="el_source">FontAwesome5IconView.java</span></div><h1>FontAwesome5IconView.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.controls;
+
+import org.cryptomator.ui.common.FontLoader;
+
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import java.io.UncheckedIOException;
+
+/**
+ * Inspired by de.jensd:fontawesomefx-fontawesome
+ */
+public class FontAwesome5IconView extends Text {
+
+<span class="nc" id="L19">	private static final FontAwesome5Icon DEFAULT_GLYPH = FontAwesome5Icon.ANCHOR;</span>
+	private static final double DEFAULT_GLYPH_SIZE = 12.0;
+	private static final String FONT_PATH = &quot;/css/fontawesome5-free-solid.otf&quot;;
+	private static final Font FONT;
+
+<span class="nc" id="L24">	protected final ObjectProperty&lt;FontAwesome5Icon&gt; glyph = new SimpleObjectProperty&lt;&gt;(this, &quot;glyph&quot;, DEFAULT_GLYPH);</span>
+<span class="nc" id="L25">	protected final DoubleProperty glyphSize = new SimpleDoubleProperty(this, &quot;glyphSize&quot;, DEFAULT_GLYPH_SIZE);</span>
+
+	static {
+		try {
+<span class="nc" id="L29">			FONT = FontLoader.load(FONT_PATH);</span>
+<span class="nc" id="L30">		} catch (FontLoader.FontLoaderException e) {</span>
+<span class="nc" id="L31">			throw new UncheckedIOException(e);</span>
+<span class="nc" id="L32">		}</span>
+<span class="nc" id="L33">	}</span>
+
+<span class="nc" id="L35">	public FontAwesome5IconView() {</span>
+<span class="nc" id="L36">		getStyleClass().addAll(&quot;glyph-icon&quot;);</span>
+<span class="nc" id="L37">		glyphProperty().addListener(this::glyphChanged);</span>
+<span class="nc" id="L38">		glyphSizeProperty().addListener(this::glyphSizeChanged);</span>
+<span class="nc" id="L39">		setFont(FONT);</span>
+<span class="nc" id="L40">		setGlyph(DEFAULT_GLYPH);</span>
+<span class="nc" id="L41">		setGlyphSize(DEFAULT_GLYPH_SIZE);</span>
+<span class="nc" id="L42">	}</span>
+
+	private void glyphChanged(@SuppressWarnings(&quot;unused&quot;) ObservableValue&lt;? extends FontAwesome5Icon&gt; observable, @SuppressWarnings(&quot;unused&quot;) FontAwesome5Icon oldValue, FontAwesome5Icon newValue) {
+<span class="nc bnc" id="L45" title="All 2 branches missed.">		setText(newValue == null ? null : newValue.unicode());</span>
+<span class="nc" id="L46">	}</span>
+
+	private void glyphSizeChanged(@SuppressWarnings(&quot;unused&quot;) ObservableValue&lt;? extends Number&gt; observable, @SuppressWarnings(&quot;unused&quot;) Number oldValue, Number newValue) {
+<span class="nc" id="L49">		setFont(new Font(FONT.getFamily(), newValue.doubleValue()));</span>
+<span class="nc" id="L50">	}</span>
+
+	/* Getter/Setter */
+
+	public ObjectProperty&lt;FontAwesome5Icon&gt; glyphProperty() {
+<span class="nc" id="L55">		return glyph;</span>
+	}
+
+	public FontAwesome5Icon getGlyph() {
+<span class="nc" id="L59">		return glyph.get();</span>
+	}
+
+	public void setGlyph(FontAwesome5Icon glyph) {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">		this.glyph.set(glyph == null ? DEFAULT_GLYPH : glyph);</span>
+<span class="nc" id="L64">	}</span>
+
+	public DoubleProperty glyphSizeProperty() {
+<span class="nc" id="L67">		return glyphSize;</span>
+	}
+
+	public double getGlyphSize() {
+<span class="nc" id="L71">		return glyphSize.get();</span>
+	}
+
+	public void setGlyphSize(double glyphSize) {
+<span class="nc" id="L75">		this.glyphSize.set(glyphSize);</span>
+<span class="nc" id="L76">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

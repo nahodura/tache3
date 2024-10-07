@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SupportedLanguages.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.launcher</a> &gt; <span class="el_source">SupportedLanguages.java</span></div><h1>SupportedLanguages.java</h1><pre class="source lang-java linenums">package org.cryptomator.launcher;
+
+import org.cryptomator.common.settings.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
+@Singleton
+public class SupportedLanguages {
+
+<span class="fc" id="L18">	private static final Logger LOG = LoggerFactory.getLogger(SupportedLanguages.class);</span>
+	// these are BCP 47 language codes, not ISO. Note the &quot;-&quot; instead of the &quot;_&quot;.
+	// &quot;en&quot; is not part of this list - it is always inserted at the top.
+<span class="fc" id="L21">	public static final List&lt;String&gt; LANGUAGE_TAGS = List.of(&quot;ar&quot;, &quot;be&quot;, &quot;bn&quot;, &quot;bs&quot;, &quot;ca&quot;, &quot;cs&quot;, &quot;da&quot;, &quot;de&quot;, &quot;el&quot;, &quot;es&quot;, &quot;fr&quot;, &quot;gl&quot;, &quot;he&quot;, //</span>
+			&quot;hi&quot;, &quot;hr&quot;, &quot;hu&quot;, &quot;id&quot;, &quot;it&quot;, &quot;ja&quot;, &quot;ko&quot;, &quot;lv&quot;, &quot;nb&quot;, &quot;nl&quot;, &quot;nn&quot;, &quot;pa&quot;, &quot;pl&quot;, &quot;pt&quot;, &quot;pt-BR&quot;, &quot;ro&quot;, &quot;ru&quot;, &quot;sk&quot;, &quot;sr&quot;, &quot;sr-Latn&quot;, &quot;sv&quot;, &quot;sw&quot;, //
+			&quot;ta&quot;, &quot;th&quot;, &quot;tr&quot;, &quot;uk&quot;, &quot;vi&quot;, &quot;zh&quot;, &quot;zh-HK&quot;, &quot;zh-TW&quot;);
+	public static final String ENGLISH = &quot;en&quot;;
+
+	private final List&lt;String&gt; sortedLanguageTags;
+
+	private final Locale preferredLocale;
+
+	@Inject
+<span class="nc" id="L31">	public SupportedLanguages(Settings settings) {</span>
+<span class="nc" id="L32">		var preferredLanguage = settings.language.get();</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">		preferredLocale = preferredLanguage == null ? Locale.getDefault() : Locale.forLanguageTag(preferredLanguage);</span>
+<span class="nc" id="L34">		var collator = Collator.getInstance(preferredLocale);</span>
+<span class="nc" id="L35">		collator.setStrength(Collator.PRIMARY);</span>
+<span class="nc" id="L36">		var sorted = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L37">		sorted.add(0, null);</span>
+<span class="nc" id="L38">		sorted.add(1, ENGLISH);</span>
+<span class="nc" id="L39">		LANGUAGE_TAGS.stream() //</span>
+<span class="nc" id="L40">				.sorted((a, b) -&gt; collator.compare(Locale.forLanguageTag(a).getDisplayName(), Locale.forLanguageTag(b).getDisplayName())) //</span>
+<span class="nc" id="L41">				.forEach(sorted::add);</span>
+<span class="nc" id="L42">		sortedLanguageTags = Collections.unmodifiableList(sorted);</span>
+<span class="nc" id="L43">	}</span>
+
+	public void applyPreferred() {
+<span class="nc" id="L46">		LOG.debug(&quot;Using locale {}&quot;, preferredLocale);</span>
+<span class="nc" id="L47">		Locale.setDefault(preferredLocale);</span>
+<span class="nc" id="L48">	}</span>
+
+	public List&lt;String&gt; getLanguageTags() {
+<span class="nc" id="L51">		return sortedLanguageTags;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,5 @@
+-------------------------------------------------------------------------------
+Test set: org.cryptomator.ipc.IpcCommunicatorTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.041 s -- in org.cryptomator.ipc.IpcCommunicatorTest
+org.cryptomator.ipc.IpcCommunicatorTest.testSendAndReceive(Path) -- Time elapsed: 0.041 s

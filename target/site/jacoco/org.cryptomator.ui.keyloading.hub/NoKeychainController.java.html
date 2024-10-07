@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NoKeychainController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.keyloading.hub</a> &gt; <span class="el_source">NoKeychainController.java</span></div><h1>NoKeychainController.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.keyloading.hub;
+
+import org.cryptomator.ui.common.FxController;
+import org.cryptomator.ui.fxapp.FxApplicationWindows;
+import org.cryptomator.ui.keyloading.KeyLoading;
+import org.cryptomator.ui.preferences.SelectedPreferencesTab;
+
+import javax.inject.Inject;
+import javafx.stage.Stage;
+
+public class NoKeychainController implements FxController {
+
+	private final Stage window;
+	private final FxApplicationWindows appWindows;
+
+	@Inject
+<span class="nc" id="L17">	public NoKeychainController(@KeyLoading Stage window, FxApplicationWindows appWindows) {</span>
+<span class="nc" id="L18">		this.window = window;</span>
+<span class="nc" id="L19">		this.appWindows = appWindows;</span>
+<span class="nc" id="L20">	}</span>
+
+
+	public void cancel() {
+<span class="nc" id="L24">		window.close();</span>
+<span class="nc" id="L25">	}</span>
+
+	public void openPreferences() {
+<span class="nc" id="L28">		appWindows.showPreferencesWindow(SelectedPreferencesTab.GENERAL);</span>
+<span class="nc" id="L29">		window.close();</span>
+<span class="nc" id="L30">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

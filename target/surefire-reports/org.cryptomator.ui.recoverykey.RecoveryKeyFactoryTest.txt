@@ -1,0 +1,12 @@
+-------------------------------------------------------------------------------
+Test set: org.cryptomator.ui.recoverykey.RecoveryKeyFactoryTest
+-------------------------------------------------------------------------------
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.093 s -- in org.cryptomator.ui.recoverykey.RecoveryKeyFactoryTest
+org.cryptomator.ui.recoverykey.RecoveryKeyFactoryTest.testValidateValidateRecoveryKeyWithTooShortInput -- Time elapsed: 0 s
+org.cryptomator.ui.recoverykey.RecoveryKeyFactoryTest.testValidateValidateRecoveryKeyWithOddNumberOfWords -- Time elapsed: 0 s
+org.cryptomator.ui.recoverykey.RecoveryKeyFactoryTest.testCreateRecoveryKey -- Time elapsed: 0.048 s
+org.cryptomator.ui.recoverykey.RecoveryKeyFactoryTest.testValidateValidateRecoveryKeyWithInvalidCrc -- Time elapsed: 0 s
+org.cryptomator.ui.recoverykey.RecoveryKeyFactoryTest.testValidateValidateRecoveryKeyWithGarbageInput -- Time elapsed: 0.001 s
+org.cryptomator.ui.recoverykey.RecoveryKeyFactoryTest.testValidateValidateRecoveryKeyWithValidKey -- Time elapsed: 0.001 s
+org.cryptomator.ui.recoverykey.RecoveryKeyFactoryTest.testValidateValidateRecoveryKeyWithValidKey(boolean)[1] -- Time elapsed: 0.025 s
+org.cryptomator.ui.recoverykey.RecoveryKeyFactoryTest.testValidateValidateRecoveryKeyWithValidKey(boolean)[2] -- Time elapsed: 0.001 s

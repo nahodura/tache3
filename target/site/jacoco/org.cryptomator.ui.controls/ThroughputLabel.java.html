@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ThroughputLabel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.controls</a> &gt; <span class="el_source">ThroughputLabel.java</span></div><h1>ThroughputLabel.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.controls;
+
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.StringBinding;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.scene.control.Label;
+
+public class ThroughputLabel extends Label {
+
+	private static final long KIBS_THRESHOLD = 1l &lt;&lt; 7; // 0.128 kiB/s
+	private static final long MIBS_THRESHOLD = 1l &lt;&lt; 19; // 0.512 MiB/s
+
+<span class="nc" id="L16">	private final StringProperty idleFormat = new SimpleStringProperty(&quot;-&quot;);</span>
+<span class="nc" id="L17">	private final StringProperty kibsFormat = new SimpleStringProperty(&quot;%.3f&quot;);</span>
+<span class="nc" id="L18">	private final StringProperty mibsFormat = new SimpleStringProperty(&quot;%.3f&quot;);</span>
+<span class="nc" id="L19">	private final LongProperty bytesPerSecond = new SimpleLongProperty();</span>
+
+<span class="nc" id="L21">	public ThroughputLabel() {</span>
+<span class="nc" id="L22">		textProperty().bind(createStringBinding());</span>
+<span class="nc" id="L23">	}</span>
+
+	protected StringBinding createStringBinding() {
+<span class="nc" id="L26">		return Bindings.createStringBinding(this::updateText, kibsFormat, mibsFormat, bytesPerSecond);</span>
+	}
+
+	private String updateText() {
+<span class="nc" id="L30">		long bps = bytesPerSecond.get();</span>
+<span class="nc bnc" id="L31" title="All 2 branches missed.">		if (bps &gt; MIBS_THRESHOLD) {</span>
+<span class="nc" id="L32">			double mibs = ((double) bps) / 1024.0 / 1024.0;</span>
+<span class="nc" id="L33">			return String.format(mibsFormat.get(), mibs);</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">		} else if (bps &gt; KIBS_THRESHOLD) {</span>
+<span class="nc" id="L35">			double kibs = ((double) bps) / 1024.0;</span>
+<span class="nc" id="L36">			return String.format(kibsFormat.get(), kibs);</span>
+		} else {
+<span class="nc" id="L38">			return String.format(idleFormat.get(), bps);</span>
+		}
+	}
+
+	/* Observables */
+
+	public StringProperty idleFormatProperty() {
+<span class="nc" id="L45">		return idleFormat;</span>
+	}
+
+	public String getIdleFormat() {
+<span class="nc" id="L49">		return idleFormat.get();</span>
+	}
+
+	public void setIdleFormat(String idleFormat) {
+<span class="nc" id="L53">		this.idleFormat.set(idleFormat);</span>
+<span class="nc" id="L54">	}</span>
+
+	public StringProperty kibsFormatProperty() {
+<span class="nc" id="L57">		return kibsFormat;</span>
+	}
+
+	public String getKibsFormat() {
+<span class="nc" id="L61">		return kibsFormat.get();</span>
+	}
+
+	public void setKibsFormat(String kibsFormat) {
+<span class="nc" id="L65">		this.kibsFormat.set(kibsFormat);</span>
+<span class="nc" id="L66">	}</span>
+
+	public StringProperty mibsFormatProperty() {
+<span class="nc" id="L69">		return mibsFormat;</span>
+	}
+
+	public String getMibsFormat() {
+<span class="nc" id="L73">		return mibsFormat.get();</span>
+	}
+
+	public void setMibsFormat(String mibsFormat) {
+<span class="nc" id="L77">		this.mibsFormat.set(mibsFormat);</span>
+<span class="nc" id="L78">	}</span>
+
+	public LongProperty bytesPerSecondProperty() {
+<span class="nc" id="L81">		return bytesPerSecond;</span>
+	}
+
+	public long getBytesPerSecond() {
+<span class="nc" id="L85">		return bytesPerSecond.get();</span>
+	}
+
+	public void setBytesPerSecond(long bytesPerSecond) {
+<span class="nc" id="L89">		this.bytesPerSecond.set(bytesPerSecond);</span>
+<span class="nc" id="L90">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

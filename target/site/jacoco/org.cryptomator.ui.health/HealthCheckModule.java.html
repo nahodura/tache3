@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HealthCheckModule.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.health</a> &gt; <span class="el_source">HealthCheckModule.java</span></div><h1>HealthCheckModule.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.health;
+
+import dagger.Binds;
+import dagger.Module;
+import dagger.Provides;
+import dagger.multibindings.IntoMap;
+import org.cryptomator.common.vaults.Vault;
+import org.cryptomator.cryptofs.VaultConfig;
+import org.cryptomator.cryptofs.health.api.HealthCheck;
+import org.cryptomator.cryptolib.api.Masterkey;
+import org.cryptomator.ui.common.DefaultSceneFactory;
+import org.cryptomator.ui.common.FxController;
+import org.cryptomator.ui.common.FxControllerKey;
+import org.cryptomator.ui.common.FxmlFile;
+import org.cryptomator.ui.common.FxmlLoaderFactory;
+import org.cryptomator.ui.common.FxmlScene;
+import org.cryptomator.ui.common.StageFactory;
+import org.cryptomator.ui.keyloading.KeyLoadingComponent;
+import org.cryptomator.ui.keyloading.KeyLoadingStrategy;
+
+import javax.inject.Named;
+import javax.inject.Provider;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicReference;
+
+@Module(subcomponents = {KeyLoadingComponent.class})
+<span class="nc" id="L37">abstract class HealthCheckModule {</span>
+
+	@Provides
+	@HealthCheckScoped
+	static AtomicReference&lt;Masterkey&gt; provideMasterkeyRef() {
+<span class="nc" id="L42">		return new AtomicReference&lt;&gt;();</span>
+	}
+
+	@Provides
+	@HealthCheckScoped
+	static AtomicReference&lt;VaultConfig&gt; provideVaultConfigRef() {
+<span class="nc" id="L48">		return new AtomicReference&lt;&gt;();</span>
+	}
+
+	@Provides
+	@HealthCheckScoped
+	static ObjectProperty&lt;Check&gt; provideSelectedCheck() {
+<span class="nc" id="L54">		return new SimpleObjectProperty&lt;&gt;();</span>
+	}
+
+	@Provides
+	@HealthCheckScoped
+	static List&lt;Check&gt; provideAvailableChecks() {
+<span class="nc" id="L60">		return HealthCheck.allChecks().stream().map(Check::new).toList();</span>
+	}
+
+	@Provides
+	@HealthCheckWindow
+	@HealthCheckScoped
+	static KeyLoadingStrategy provideKeyLoadingStrategy(KeyLoadingComponent.Builder compBuilder, @HealthCheckWindow Vault vault, @Named(&quot;unlockWindow&quot;) Stage window ) {
+<span class="nc" id="L67">		return compBuilder.vault(vault).window(window).build().keyloadingStrategy();</span>
+	}
+
+	@Provides
+	@HealthCheckWindow
+	@HealthCheckScoped
+	static FxmlLoaderFactory provideFxmlLoaderFactory(Map&lt;Class&lt;? extends FxController&gt;, Provider&lt;FxController&gt;&gt; factories, DefaultSceneFactory sceneFactory, ResourceBundle resourceBundle) {
+<span class="nc" id="L74">		return new FxmlLoaderFactory(factories, sceneFactory, resourceBundle);</span>
+	}
+
+	@Provides
+	@Named(&quot;unlockWindow&quot;)
+	@HealthCheckScoped
+	static Stage provideUnlockWindow (@HealthCheckWindow Stage window, @HealthCheckWindow Vault vault, StageFactory factory, ResourceBundle resourceBundle) {
+<span class="nc" id="L81">		Stage stage = factory.create();</span>
+<span class="nc" id="L82">		stage.initModality(Modality.WINDOW_MODAL);</span>
+<span class="nc" id="L83">		stage.initOwner(window);</span>
+<span class="nc" id="L84">		stage.setTitle(String.format(resourceBundle.getString(&quot;unlock.title&quot;), vault.getDisplayName()));</span>
+<span class="nc" id="L85">		stage.setResizable(false);</span>
+<span class="nc" id="L86">		return stage;</span>
+	}
+
+	@Provides
+	@HealthCheckWindow
+	@HealthCheckScoped
+	static Stage provideStage(StageFactory factory, @Named(&quot;healthCheckOwner&quot;) Stage owner, @HealthCheckWindow Vault vault, ChangeListener&lt;Boolean&gt; showingListener, ResourceBundle resourceBundle) {
+<span class="nc" id="L93">		Stage stage = factory.create();</span>
+<span class="nc" id="L94">		stage.initModality(Modality.WINDOW_MODAL);</span>
+<span class="nc" id="L95">		stage.initOwner(owner);</span>
+<span class="nc" id="L96">		stage.setTitle(String.format(resourceBundle.getString(&quot;health.title&quot;), vault.getDisplayName()));</span>
+<span class="nc" id="L97">		stage.setResizable(true);</span>
+<span class="nc" id="L98">		stage.showingProperty().addListener(showingListener); // bind masterkey lifecycle to window</span>
+<span class="nc" id="L99">		return stage;</span>
+	}
+
+	@Provides
+	@HealthCheckScoped
+	static ChangeListener&lt;Boolean&gt; provideWindowShowingChangeListener(AtomicReference&lt;Masterkey&gt; masterkey) {
+<span class="nc" id="L105">		return (observable, wasShowing, isShowing) -&gt; {</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">			if (!isShowing) {</span>
+<span class="nc" id="L107">				Optional.ofNullable(masterkey.getAndSet(null)).ifPresent(Masterkey::destroy);</span>
+			}
+<span class="nc" id="L109">		};</span>
+	}
+
+	@Provides
+	@FxmlScene(FxmlFile.HEALTH_START)
+	@HealthCheckScoped
+	static Scene provideHealthStartScene(@HealthCheckWindow FxmlLoaderFactory fxmlLoaders) {
+<span class="nc" id="L116">		return fxmlLoaders.createScene(FxmlFile.HEALTH_START);</span>
+	}
+
+	@Provides
+	@FxmlScene(FxmlFile.HEALTH_CHECK_LIST)
+	@HealthCheckScoped
+	static Scene provideHealthCheckListScene(@HealthCheckWindow FxmlLoaderFactory fxmlLoaders) {
+<span class="nc" id="L123">		return fxmlLoaders.createScene(FxmlFile.HEALTH_CHECK_LIST);</span>
+	}
+
+	@Binds
+	@IntoMap
+	@FxControllerKey(StartController.class)
+	abstract FxController bindStartController(StartController controller);
+
+	@Binds
+	@IntoMap
+	@FxControllerKey(CheckListController.class)
+	abstract FxController bindCheckController(CheckListController controller);
+
+	@Binds
+	@IntoMap
+	@FxControllerKey(CheckDetailController.class)
+	abstract FxController bindCheckDetailController(CheckDetailController controller);
+
+	@Binds
+	@IntoMap
+	@FxControllerKey(ResultListCellController.class)
+	abstract FxController bindResultListCellController(ResultListCellController controller);
+
+	@Binds
+	@IntoMap
+	@FxControllerKey(CheckListCellController.class)
+	abstract FxController bindCheckListCellController(CheckListCellController controller);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

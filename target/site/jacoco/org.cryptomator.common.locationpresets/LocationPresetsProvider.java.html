@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LocationPresetsProvider.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.common.locationpresets</a> &gt; <span class="el_source">LocationPresetsProvider.java</span></div><h1>LocationPresetsProvider.java</h1><pre class="source lang-java linenums">package org.cryptomator.common.locationpresets;
+
+import org.cryptomator.integrations.common.CheckAvailability;
+import org.cryptomator.integrations.common.IntegrationsLoader;
+import org.cryptomator.integrations.common.OperatingSystem;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.ServiceLoader;
+import java.util.stream.Stream;
+
+<span class="nc bnc" id="L17" title="All 2 branches missed.">public interface LocationPresetsProvider {</span>
+
+<span class="nc" id="L19">	Logger LOG = LoggerFactory.getLogger(LocationPresetsProvider.class);</span>
+<span class="nc" id="L20">	String USER_HOME = System.getProperty(&quot;user.home&quot;);</span>
+
+	/**
+	 * Streams account-separated location presets found by this provider
+	 * @return Stream of LocationPresets
+	 */
+	Stream&lt;LocationPreset&gt; getLocations();
+
+	static Path resolveLocation(String p) {
+<span class="nc bnc" id="L29" title="All 2 branches missed.">		if (p.startsWith(&quot;~/&quot;)) {</span>
+<span class="nc" id="L30">			return Path.of(USER_HOME, p.substring(2));</span>
+		} else {
+<span class="nc" id="L32">			return Path.of(p);</span>
+		}
+	}
+
+	//copied from org.cryptomator.integrations.common.IntegrationsLoader
+	//TODO: delete, once migrated to integrations-api
+	static &lt;T&gt; Stream&lt;T&gt; loadAll(Class&lt;T&gt; clazz) {
+<span class="nc" id="L39">		return ServiceLoader.load(clazz)</span>
+<span class="nc" id="L40">				.stream()</span>
+<span class="nc" id="L41">				.filter(LocationPresetsProvider::isSupportedOperatingSystem)</span>
+<span class="nc" id="L42">				.filter(LocationPresetsProvider::passesStaticAvailabilityCheck)</span>
+<span class="nc" id="L43">				.map(ServiceLoader.Provider::get)</span>
+<span class="nc" id="L44">				.peek(impl -&gt; logServiceIsAvailable(clazz, impl.getClass()));</span>
+	}
+
+
+	private static boolean isSupportedOperatingSystem(ServiceLoader.Provider&lt;?&gt; provider) {
+<span class="nc" id="L49">		var annotations = provider.type().getAnnotationsByType(OperatingSystem.class);</span>
+<span class="nc bnc" id="L50" title="All 4 branches missed.">		return annotations.length == 0 || Arrays.stream(annotations).anyMatch(OperatingSystem.Value::isCurrent);</span>
+	}
+
+	private static boolean passesStaticAvailabilityCheck(ServiceLoader.Provider&lt;?&gt; provider) {
+<span class="nc" id="L54">		return passesStaticAvailabilityCheck(provider.type());</span>
+	}
+
+	static boolean passesStaticAvailabilityCheck(Class&lt;?&gt; type) {
+<span class="nc" id="L58">		return passesAvailabilityCheck(type, null);</span>
+	}
+
+	private static void logServiceIsAvailable(Class&lt;?&gt; apiType, Class&lt;?&gt; implType) {
+<span class="nc bnc" id="L62" title="All 2 branches missed.">		if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L63">			LOG.debug(&quot;{}: Implementation is available: {}&quot;, apiType.getSimpleName(), implType.getName());</span>
+		}
+<span class="nc" id="L65">	}</span>
+
+	private static &lt;T&gt; boolean passesAvailabilityCheck(Class&lt;? extends T&gt; type, @Nullable T instance) {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">		if (!type.isAnnotationPresent(CheckAvailability.class)) {</span>
+<span class="nc" id="L69">			return true; // if type is not annotated, skip tests</span>
+		}
+<span class="nc bnc" id="L71" title="All 2 branches missed.">		if (!type.getModule().isExported(type.getPackageName(), IntegrationsLoader.class.getModule())) {</span>
+<span class="nc" id="L72">			LOG.error(&quot;Can't run @CheckAvailability tests for class {}. Make sure to export {} to {}!&quot;, type.getName(), type.getPackageName(), IntegrationsLoader.class.getPackageName());</span>
+<span class="nc" id="L73">			return false;</span>
+		}
+<span class="nc" id="L75">		return Arrays.stream(type.getMethods())</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">				.filter(m -&gt; isAvailabilityCheck(m, instance == null))</span>
+<span class="nc" id="L77">				.allMatch(m -&gt; passesAvailabilityCheck(m, instance));</span>
+	}
+
+	private static boolean passesAvailabilityCheck(Method m, @Nullable Object instance) {
+<span class="nc bnc" id="L81" title="All 4 branches missed.">		assert Boolean.TYPE.equals(m.getReturnType());</span>
+		try {
+<span class="nc" id="L83">			return (boolean) m.invoke(instance);</span>
+<span class="nc" id="L84">		} catch (ReflectiveOperationException e) {</span>
+<span class="nc" id="L85">			LOG.warn(&quot;Failed to invoke @CheckAvailability test {}#{}&quot;, m.getDeclaringClass(), m.getName(), e);</span>
+<span class="nc" id="L86">			return false;</span>
+		}
+	}
+
+	private static boolean isAvailabilityCheck(Method m, boolean isStatic) {
+<span class="nc bnc" id="L91" title="All 2 branches missed.">		return m.isAnnotationPresent(CheckAvailability.class)</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">				&amp;&amp; Boolean.TYPE.equals(m.getReturnType())</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">				&amp;&amp; m.getParameterCount() == 0</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">				&amp;&amp; Modifier.isStatic(m.getModifiers()) == isStatic;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

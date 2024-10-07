@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AutoUnlocker.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.fxapp</a> &gt; <span class="el_source">AutoUnlocker.java</span></div><h1>AutoUnlocker.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.fxapp;
+
+import org.cryptomator.common.vaults.Vault;
+import org.cryptomator.common.vaults.VaultListManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javafx.collections.ObservableList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+@FxApplicationScoped
+public class AutoUnlocker {
+
+<span class="nc" id="L22">	private static final Logger LOG = LoggerFactory.getLogger(AutoUnlocker.class);</span>
+
+	private final ObservableList&lt;Vault&gt; vaults;
+	private final FxApplicationWindows appWindows;
+	private final ScheduledExecutorService scheduler;
+	private ScheduledFuture&lt;?&gt; unlockMissingFuture;
+	private ScheduledFuture&lt;?&gt; timeoutFuture;
+
+	@Inject
+<span class="nc" id="L31">	public AutoUnlocker(ObservableList&lt;Vault&gt; vaults, FxApplicationWindows appWindows, ScheduledExecutorService scheduler) {</span>
+<span class="nc" id="L32">		this.vaults = vaults;</span>
+<span class="nc" id="L33">		this.appWindows = appWindows;</span>
+<span class="nc" id="L34">		this.scheduler = scheduler;</span>
+<span class="nc" id="L35">	}</span>
+
+	public void tryUnlockForTimespan(int timespan, TimeUnit timeUnit) {
+		// Unlock all available auto unlock vaults
+<span class="nc" id="L39">		Predicate&lt;Vault&gt; shouldAutoUnlock = v -&gt; v.getVaultSettings().unlockAfterStartup.get();</span>
+<span class="nc" id="L40">		unlockSequentially(vaults.stream().filter(shouldAutoUnlock)).thenRun(() -&gt; startUnlockMissing(timespan, timeUnit));</span>
+<span class="nc" id="L41">	}</span>
+
+	private CompletionStage&lt;Void&gt; unlockSequentially(Stream&lt;Vault&gt; vaultStream) {
+		// this is an attempt to run all the unlock workflows sequentially, i.e. start the next workflow only after completing/failing the previous workflow.
+<span class="nc" id="L45">		return vaultStream.filter(Vault::isLocked).reduce(CompletableFuture.completedFuture(null),</span>
+<span class="nc" id="L46">				(prevUnlock, nextVault) -&gt; prevUnlock.thenCompose(unused -&gt; appWindows.startUnlockWorkflow(nextVault, null)),</span>
+<span class="nc" id="L47">				(prevUnlock, nextUnlock) -&gt; nextUnlock.exceptionally(e -&gt; null) // we don't care here about the exception, logged elsewhere</span>
+				);
+	}
+
+	private void startUnlockMissing(int timespan, TimeUnit timeUnit) {
+		// Start a temporary service if there are missing auto unlock vaults
+<span class="nc bnc" id="L53" title="All 2 branches missed.">		if (getMissingAutoUnlockVaults().findAny().isPresent()) {</span>
+<span class="nc" id="L54">			LOG.info(&quot;Found MISSING vaults, starting periodic check&quot;);</span>
+<span class="nc" id="L55">			unlockMissingFuture = scheduler.scheduleWithFixedDelay(this::unlockMissing, 0, 1, TimeUnit.SECONDS);</span>
+<span class="nc" id="L56">			timeoutFuture = scheduler.schedule(this::timeout, timespan, timeUnit);</span>
+		}
+<span class="nc" id="L58">	}</span>
+
+	private void unlockMissing() {
+<span class="nc" id="L61">		List&lt;Vault&gt; missingAutoUnlockVaults = getMissingAutoUnlockVaults().toList();</span>
+<span class="nc" id="L62">		missingAutoUnlockVaults.forEach(VaultListManager::redetermineVaultState);</span>
+<span class="nc" id="L63">		unlockSequentially(missingAutoUnlockVaults.stream()).thenRun(this::stopUnlockMissing);</span>
+<span class="nc" id="L64">	}</span>
+
+	private void stopUnlockMissing() {
+		// Stop checking if there are no more missing vaults
+<span class="nc bnc" id="L68" title="All 2 branches missed.">		if (getMissingAutoUnlockVaults().findAny().isEmpty()) {</span>
+<span class="nc" id="L69">			LOG.info(&quot;No more MISSING vaults, stopping periodic check&quot;);</span>
+<span class="nc" id="L70">			unlockMissingFuture.cancel(false);</span>
+<span class="nc" id="L71">			timeoutFuture.cancel(false);</span>
+		}
+<span class="nc" id="L73">	}</span>
+
+	private void timeout() {
+<span class="nc" id="L76">		LOG.info(&quot;MISSING vaults periodic check timed out&quot;);</span>
+<span class="nc" id="L77">		unlockMissingFuture.cancel(false);</span>
+<span class="nc" id="L78">	}</span>
+
+	private Stream&lt;Vault&gt; getMissingAutoUnlockVaults() {
+<span class="nc" id="L81">		return vaults.stream()</span>
+<span class="nc" id="L82">				.filter(Vault::isMissing)</span>
+<span class="nc" id="L83">				.filter(v -&gt; v.getVaultSettings().unlockAfterStartup.get());</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UpdateChecker.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.fxapp</a> &gt; <span class="el_source">UpdateChecker.java</span></div><h1>UpdateChecker.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.fxapp;
+
+import org.cryptomator.common.Environment;
+import org.cryptomator.common.SemVerComparator;
+import org.cryptomator.common.settings.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.concurrent.ScheduledService;
+import javafx.concurrent.Worker;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.util.Duration;
+import java.time.Instant;
+import java.util.Comparator;
+
+@FxApplicationScoped
+public class UpdateChecker {
+
+<span class="nc" id="L27">	private static final Logger LOG = LoggerFactory.getLogger(UpdateChecker.class);</span>
+<span class="nc" id="L28">	private static final Duration AUTO_CHECK_DELAY = Duration.seconds(5);</span>
+
+	private final Environment env;
+	private final Settings settings;
+<span class="nc" id="L32">	private final StringProperty latestVersion = new SimpleStringProperty();</span>
+	private final ScheduledService&lt;String&gt; updateCheckerService;
+<span class="nc" id="L34">	private final ObjectProperty&lt;UpdateCheckState&gt; state = new SimpleObjectProperty&lt;&gt;(UpdateCheckState.NOT_CHECKED);</span>
+	private final ObjectProperty&lt;Instant&gt; lastSuccessfulUpdateCheck;
+<span class="nc" id="L36">	private final Comparator&lt;String&gt; versionComparator = new SemVerComparator();</span>
+	private final BooleanBinding updateAvailable;
+	private final BooleanBinding checkFailed;
+
+	@Inject
+	UpdateChecker(Settings settings, //
+				  Environment env, //
+<span class="nc" id="L43">				  ScheduledService&lt;String&gt; updateCheckerService) {</span>
+<span class="nc" id="L44">		this.env = env;</span>
+<span class="nc" id="L45">		this.settings = settings;</span>
+<span class="nc" id="L46">		this.updateCheckerService = updateCheckerService;</span>
+<span class="nc" id="L47">		this.lastSuccessfulUpdateCheck = settings.lastSuccessfulUpdateCheck;</span>
+<span class="nc" id="L48">		this.updateAvailable = Bindings.createBooleanBinding(this::isUpdateAvailable, latestVersion);</span>
+<span class="nc" id="L49">		this.checkFailed = Bindings.equal(UpdateCheckState.CHECK_FAILED, state);</span>
+<span class="nc" id="L50">	}</span>
+
+	public void automaticallyCheckForUpdatesIfEnabled() {
+<span class="nc bnc" id="L53" title="All 4 branches missed.">		if (!env.disableUpdateCheck() &amp;&amp; settings.checkForUpdates.get()) {</span>
+<span class="nc" id="L54">			startCheckingForUpdates(AUTO_CHECK_DELAY);</span>
+		}
+<span class="nc" id="L56">	}</span>
+
+	public void checkForUpdatesNow() {
+<span class="nc" id="L59">		startCheckingForUpdates(Duration.ZERO);</span>
+<span class="nc" id="L60">	}</span>
+
+	private void startCheckingForUpdates(Duration initialDelay) {
+<span class="nc" id="L63">		updateCheckerService.cancel();</span>
+<span class="nc" id="L64">		updateCheckerService.reset();</span>
+<span class="nc" id="L65">		updateCheckerService.setDelay(initialDelay);</span>
+<span class="nc" id="L66">		updateCheckerService.setOnRunning(this::checkStarted);</span>
+<span class="nc" id="L67">		updateCheckerService.setOnSucceeded(this::checkSucceeded);</span>
+<span class="nc" id="L68">		updateCheckerService.setOnFailed(this::checkFailed);</span>
+<span class="nc" id="L69">		updateCheckerService.start();</span>
+<span class="nc" id="L70">	}</span>
+
+	private void checkStarted(WorkerStateEvent event) {
+<span class="nc" id="L73">		LOG.debug(&quot;Checking for updates...&quot;);</span>
+<span class="nc" id="L74">		state.set(UpdateCheckState.IS_CHECKING);</span>
+<span class="nc" id="L75">	}</span>
+
+	private void checkSucceeded(WorkerStateEvent event) {
+<span class="nc" id="L78">		var latestVersionString = updateCheckerService.getValue();</span>
+<span class="nc" id="L79">		LOG.info(&quot;Current version: {}, latest version: {}&quot;, getCurrentVersion(), latestVersionString);</span>
+<span class="nc" id="L80">		lastSuccessfulUpdateCheck.set(Instant.now());</span>
+<span class="nc" id="L81">		latestVersion.set(latestVersionString);</span>
+<span class="nc" id="L82">		state.set(UpdateCheckState.CHECK_SUCCESSFUL);</span>
+<span class="nc" id="L83">	}</span>
+
+	private void checkFailed(WorkerStateEvent event) {
+<span class="nc" id="L86">		state.set(UpdateCheckState.CHECK_FAILED);</span>
+<span class="nc" id="L87">	}</span>
+
+<span class="nc" id="L89">	public enum UpdateCheckState {</span>
+<span class="nc" id="L90">		NOT_CHECKED,</span>
+<span class="nc" id="L91">		IS_CHECKING,</span>
+<span class="nc" id="L92">		CHECK_SUCCESSFUL,</span>
+<span class="nc" id="L93">		CHECK_FAILED;</span>
+	}
+
+	/* Observable Properties */
+	public BooleanBinding checkingForUpdatesProperty() {
+<span class="nc" id="L98">		return updateCheckerService.stateProperty().isEqualTo(Worker.State.RUNNING);</span>
+	}
+
+	public ReadOnlyStringProperty latestVersionProperty() {
+<span class="nc" id="L102">		return latestVersion;</span>
+	}
+
+	public BooleanBinding updateAvailableProperty() {
+<span class="nc" id="L106">		return updateAvailable;</span>
+	}
+
+	public BooleanBinding checkFailedProperty() {
+<span class="nc" id="L110">		return checkFailed;</span>
+	}
+
+	public boolean isUpdateAvailable() {
+<span class="nc" id="L114">		String currentVersion = getCurrentVersion();</span>
+<span class="nc" id="L115">		String latestVersionString = latestVersion.get();</span>
+
+<span class="nc bnc" id="L117" title="All 4 branches missed.">		if (currentVersion == null || latestVersionString == null) {</span>
+<span class="nc" id="L118">			return false;</span>
+		} else {
+<span class="nc bnc" id="L120" title="All 2 branches missed.">			return versionComparator.compare(currentVersion, latestVersionString) &lt; 0;</span>
+		}
+	}
+
+	public ObjectProperty&lt;Instant&gt; lastSuccessfulUpdateCheckProperty() {
+<span class="nc" id="L125">		return lastSuccessfulUpdateCheck;</span>
+	}
+
+	public ObjectProperty&lt;UpdateCheckState&gt; updateCheckStateProperty() {
+<span class="nc" id="L129">		return state;</span>
+	}
+
+	public String getCurrentVersion() {
+<span class="nc" id="L133">		return env.getAppVersion();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReceivedKey.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.keyloading.hub</a> &gt; <span class="el_source">ReceivedKey.java</span></div><h1>ReceivedKey.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.keyloading.hub;
+
+import com.nimbusds.jose.JWEObject;
+import org.cryptomator.cryptolib.api.Masterkey;
+
+import java.security.interfaces.ECPrivateKey;
+
+@FunctionalInterface
+interface ReceivedKey {
+
+	/**
+	 * Decrypts the vault key.
+	 *
+	 * @param deviceKey This device's private key.
+	 * @return The decrypted vault key
+	 */
+	Masterkey decryptMasterkey(ECPrivateKey deviceKey);
+
+	/**
+	 * Creates an unlock response object from the user key + vault key.
+	 *
+	 * @param vaultKeyJwe a JWE containing the symmetric vault key, encrypted for this device's user.
+	 * @param userKeyJwe a JWE containing the user's private key, encrypted for this device.
+	 * @return Ciphertext received by Hub, which can be decrypted using this device's private key.
+	 */
+	static ReceivedKey vaultKeyAndUserKey(JWEObject vaultKeyJwe, JWEObject userKeyJwe) {
+<span class="nc" id="L27">		return deviceKey -&gt; {</span>
+<span class="nc" id="L28">			var userKey = JWEHelper.decryptUserKey(userKeyJwe, deviceKey);</span>
+<span class="nc" id="L29">			return JWEHelper.decryptVaultKey(vaultKeyJwe, userKey);</span>
+		};
+	}
+
+	/**
+	 * Creates an unlock response object from the received legacy &quot;access token&quot; JWE.
+	 *
+	 * @param vaultKeyJwe a JWE containing the symmetric vault key, encrypted for this device.
+	 * @return Ciphertext received by Hub, which can be decrypted using this device's private key.
+	 * @deprecated Only for compatibility with Hub 1.0 - 1.2
+	 */
+	@Deprecated
+	static ReceivedKey legacyDeviceKey(JWEObject vaultKeyJwe) {
+<span class="nc" id="L42">		return deviceKey -&gt; JWEHelper.decryptVaultKey(vaultKeyJwe, deviceKey);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

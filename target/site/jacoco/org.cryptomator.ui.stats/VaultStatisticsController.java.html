@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VaultStatisticsController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.stats</a> &gt; <span class="el_source">VaultStatisticsController.java</span></div><h1>VaultStatisticsController.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.stats;
+
+import org.cryptomator.common.vaults.Vault;
+import org.cryptomator.common.vaults.VaultStats;
+import org.cryptomator.ui.common.FxController;
+import org.cryptomator.ui.common.WeakBindings;
+
+import javax.inject.Inject;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
+import javafx.beans.binding.LongBinding;
+import javafx.beans.property.LongProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart.Data;
+import javafx.scene.chart.XYChart.Series;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+import java.util.Arrays;
+import java.util.concurrent.Callable;
+
+@VaultStatisticsScoped
+public class VaultStatisticsController implements FxController {
+
+	private static final int IO_SAMPLING_STEPS = 30;
+	private static final double IO_SAMPLING_INTERVAL = 1;
+
+	private final VaultStatisticsComponent component; // keep a strong reference to the component (see component's javadoc)
+	private final VaultStats stats;
+	private final Series&lt;Number, Number&gt; readData;
+	private final Series&lt;Number, Number&gt; writeData;
+	private final Series&lt;Number, Number&gt; accessData;
+	private final Timeline ioAnimation;
+	private final LongBinding bpsRead;
+	private final LongBinding bpsWritten;
+	private final DoubleBinding cacheHitRate;
+	private final DoubleBinding cacheHitDegrees;
+	private final DoubleBinding cacheHitPercentage;
+	private final LongBinding totalBytesRead;
+	private final LongBinding totalBytesWritten;
+	private final LongBinding totalBytesEncrypted;
+	private final LongBinding totalBytesDecrypted;
+	private final LongBinding filesRead;
+	private final LongBinding filesWritten;
+	private final LongBinding filesAccessed;
+	private final LongBinding totalFilesAccessed;
+	private final LongBinding bpsEncrypted;
+	private final LongBinding bpsDecrypted;
+
+	public AreaChart&lt;Number, Number&gt; readChart;
+	public AreaChart&lt;Number, Number&gt; writeChart;
+	public AreaChart&lt;Number, Number&gt; accessChart;
+	public NumberAxis readChartXAxis;
+	public NumberAxis readChartYAxis;
+	public NumberAxis writeChartXAxis;
+	public NumberAxis writeChartYAxis;
+	public NumberAxis accessChartXAxis;
+	public NumberAxis accessChartYAxis;
+
+	@Inject
+<span class="nc" id="L67">	public VaultStatisticsController(VaultStatisticsComponent component, @VaultStatisticsWindow Stage window, @VaultStatisticsWindow Vault vault) {</span>
+<span class="nc" id="L68">		this.component = component;</span>
+<span class="nc" id="L69">		this.stats = vault.getStats();</span>
+<span class="nc" id="L70">		this.readData = new Series&lt;&gt;();</span>
+<span class="nc" id="L71">		this.writeData = new Series&lt;&gt;();</span>
+<span class="nc" id="L72">		this.accessData = new Series&lt;&gt;();</span>
+<span class="nc" id="L73">		this.bpsRead = WeakBindings.bindLong(stats.bytesPerSecondReadProperty());</span>
+<span class="nc" id="L74">		this.bpsWritten = WeakBindings.bindLong(stats.bytesPerSecondWrittenProperty());</span>
+<span class="nc" id="L75">		this.cacheHitRate = WeakBindings.bindDouble(stats.cacheHitRateProperty());</span>
+<span class="nc" id="L76">		this.cacheHitDegrees = cacheHitRate.multiply(-270);</span>
+<span class="nc" id="L77">		this.cacheHitPercentage = cacheHitRate.multiply(100);</span>
+<span class="nc" id="L78">		this.totalBytesRead = WeakBindings.bindLong(stats.totalBytesReadProperty());</span>
+<span class="nc" id="L79">		this.totalBytesWritten = WeakBindings.bindLong(stats.totalBytesWrittenProperty());</span>
+<span class="nc" id="L80">		this.totalBytesDecrypted = WeakBindings.bindLong(stats.totalBytesDecryptedProperty());</span>
+<span class="nc" id="L81">		this.totalBytesEncrypted = WeakBindings.bindLong(stats.totalBytesEncryptedProperty());</span>
+<span class="nc" id="L82">		this.filesRead = WeakBindings.bindLong(stats.filesRead());</span>
+<span class="nc" id="L83">		this.filesWritten = WeakBindings.bindLong(stats.filesWritten());</span>
+<span class="nc" id="L84">		this.filesAccessed = WeakBindings.bindLong(stats.filesAccessed());</span>
+<span class="nc" id="L85">		this.totalFilesAccessed = WeakBindings.bindLong(stats.totalFilesAccessed());</span>
+<span class="nc" id="L86">		this.bpsEncrypted = WeakBindings.bindLong(stats.bytesPerSecondEncryptedProperty());</span>
+<span class="nc" id="L87">		this.bpsDecrypted = WeakBindings.bindLong(stats.bytesPerSecondDecryptedProperty());</span>
+
+<span class="nc" id="L89">		this.ioAnimation = new Timeline(); //TODO Research better timer</span>
+<span class="nc" id="L90">		ioAnimation.getKeyFrames().add(new KeyFrame(Duration.seconds(IO_SAMPLING_INTERVAL), new IoSamplingAnimationHandler(readData, writeData, accessData)));</span>
+<span class="nc" id="L91">		ioAnimation.setCycleCount(Animation.INDEFINITE);</span>
+<span class="nc" id="L92">		ioAnimation.play();</span>
+
+		// make sure to stop animating while window is closed
+		// otherwise a global timer (GC root) will keep a strong reference to animation
+<span class="nc" id="L96">		window.setOnHiding(evt -&gt; ioAnimation.stop());</span>
+<span class="nc" id="L97">		window.setOnShowing(evt -&gt; ioAnimation.play());</span>
+<span class="nc" id="L98">	}</span>
+
+	@FXML
+	public void initialize() {
+<span class="nc" id="L102">		readChart.getData().addAll(readData);</span>
+<span class="nc" id="L103">		writeChart.getData().addAll(writeData);</span>
+<span class="nc" id="L104">		accessChart.getData().addAll(accessData);</span>
+<span class="nc" id="L105">	}</span>
+
+	private class IoSamplingAnimationHandler implements EventHandler&lt;ActionEvent&gt; {
+
+<span class="nc" id="L109">		private long step = IO_SAMPLING_STEPS;</span>
+		private final Series&lt;Number, Number&gt; decryptedBytesRead;
+		private final Series&lt;Number, Number&gt; encryptedBytesWrite;
+		private final Series&lt;Number, Number&gt; accessedFiles;
+<span class="nc" id="L113">		private final long[] maxBuf = new long[IO_SAMPLING_STEPS];</span>
+<span class="nc" id="L114">		private final long[] maxAccessBuf = new long[IO_SAMPLING_STEPS];</span>
+
+
+<span class="nc" id="L117">		public IoSamplingAnimationHandler(Series&lt;Number, Number&gt; readData, Series&lt;Number, Number&gt; writeData, Series&lt;Number, Number&gt; accessData) {</span>
+<span class="nc" id="L118">			this.decryptedBytesRead = readData;</span>
+<span class="nc" id="L119">			this.encryptedBytesWrite = writeData;</span>
+<span class="nc" id="L120">			this.accessedFiles = accessData;</span>
+
+			// initialize data once and change value of data points later:
+<span class="nc bnc" id="L123" title="All 2 branches missed.">			for (int i = 0; i &lt; IO_SAMPLING_STEPS; i++) {</span>
+<span class="nc" id="L124">				decryptedBytesRead.getData().add(new Data&lt;&gt;(i, 0));</span>
+<span class="nc" id="L125">				encryptedBytesWrite.getData().add(new Data&lt;&gt;(i, 0));</span>
+<span class="nc" id="L126">				accessedFiles.getData().add(new Data&lt;&gt;(i, 0));</span>
+			}
+<span class="nc" id="L128">		}</span>
+
+		@Override
+		public void handle(ActionEvent event) {
+<span class="nc" id="L132">			final long currentStep = step++;</span>
+<span class="nc" id="L133">			final long decBytes = stats.bytesPerSecondReadProperty().get();</span>
+<span class="nc" id="L134">			final long encBytes = stats.bytesPerSecondWrittenProperty().get();</span>
+<span class="nc" id="L135">			final long accFiles = stats.filesAccessed().get();</span>
+
+<span class="nc" id="L137">			maxBuf[(int) currentStep % IO_SAMPLING_STEPS] = Math.max(decBytes, encBytes);</span>
+<span class="nc" id="L138">			long allTimeMax = Arrays.stream(maxBuf).max().orElse(0L);</span>
+<span class="nc" id="L139">			maxAccessBuf[(int) currentStep % IO_SAMPLING_STEPS] = accFiles;</span>
+<span class="nc" id="L140">			long allTimeMaxAccessedFiles = Arrays.stream(maxAccessBuf).max().orElse(0L);</span>
+
+			// remove oldest value:
+<span class="nc" id="L143">			decryptedBytesRead.getData().remove(0);</span>
+<span class="nc" id="L144">			encryptedBytesWrite.getData().remove(0);</span>
+<span class="nc" id="L145">			accessedFiles.getData().remove(0);</span>
+
+			// add latest value:
+<span class="nc" id="L148">			decryptedBytesRead.getData().add(new Data&lt;&gt;(currentStep, decBytes));</span>
+<span class="nc" id="L149">			encryptedBytesWrite.getData().add(new Data&lt;&gt;(currentStep, encBytes));</span>
+<span class="nc" id="L150">			accessedFiles.getData().add(new Data&lt;&gt;(currentStep, accFiles));</span>
+
+			// adjust ranges:
+<span class="nc" id="L153">			readChartXAxis.setLowerBound(currentStep - IO_SAMPLING_STEPS * 1.0);</span>
+<span class="nc" id="L154">			readChartXAxis.setUpperBound(currentStep);</span>
+<span class="nc" id="L155">			readChartYAxis.setUpperBound(allTimeMax);</span>
+<span class="nc" id="L156">			writeChartXAxis.setLowerBound(currentStep - IO_SAMPLING_STEPS * 1.0);</span>
+<span class="nc" id="L157">			writeChartXAxis.setUpperBound(currentStep);</span>
+<span class="nc" id="L158">			writeChartYAxis.setUpperBound(allTimeMax);</span>
+<span class="nc" id="L159">			accessChartXAxis.setLowerBound(currentStep - IO_SAMPLING_STEPS * 1.0);</span>
+<span class="nc" id="L160">			accessChartXAxis.setUpperBound(currentStep);</span>
+<span class="nc" id="L161">			accessChartYAxis.setUpperBound(allTimeMaxAccessedFiles);</span>
+<span class="nc" id="L162">		}</span>
+	}
+
+	/* Getter/Setter */
+
+	public LongBinding bpsReadProperty() {
+<span class="nc" id="L168">		return bpsRead;</span>
+	}
+
+	public long getBpsRead() {
+<span class="nc" id="L172">		return bpsRead.get();</span>
+	}
+
+	public LongBinding bpsWrittenProperty() {
+<span class="nc" id="L176">		return bpsWritten;</span>
+	}
+
+	public long getBpsWritten() {
+<span class="nc" id="L180">		return bpsWritten.get();</span>
+	}
+
+	public DoubleBinding cacheHitPercentageProperty() {
+<span class="nc" id="L184">		return cacheHitPercentage;</span>
+	}
+
+<span class="nc" id="L187">	public double getCacheHitPercentage() { return cacheHitPercentage.get(); }</span>
+
+	public DoubleBinding cacheHitDegreesProperty() {
+<span class="nc" id="L190">		return cacheHitDegrees;</span>
+	}
+
+	public double getCacheHitDegrees() {
+<span class="nc" id="L194">		return cacheHitDegrees.get();</span>
+	}
+
+<span class="nc" id="L197">	public LongBinding totalBytesReadProperty() { return totalBytesRead;}</span>
+
+<span class="nc" id="L199">	public long getTotalBytesRead() { return totalBytesRead.get();}</span>
+
+<span class="nc" id="L201">	public LongBinding totalBytesWrittenProperty() { return totalBytesWritten;}</span>
+
+<span class="nc" id="L203">	public long getTotalBytesWritten() { return totalBytesWritten.get();}</span>
+
+<span class="nc" id="L205">	public LongBinding totalBytesEncryptedProperty() {return totalBytesEncrypted;}</span>
+
+<span class="nc" id="L207">	public long getTotalBytesEncrypted() { return totalBytesEncrypted.get();}</span>
+
+<span class="nc" id="L209">	public LongBinding totalBytesDecryptedProperty() {return totalBytesDecrypted;}</span>
+
+<span class="nc" id="L211">	public long getTotalBytesDecrypted() { return totalBytesDecrypted.get();}</span>
+
+	public LongBinding bpsEncryptedProperty() {
+<span class="nc" id="L214">		return bpsEncrypted;</span>
+	}
+
+	public long getBpsEncrypted() {
+<span class="nc" id="L218">		return bpsEncrypted.get();</span>
+	}
+
+	public LongBinding bpsDecryptedProperty() {
+<span class="nc" id="L222">		return bpsDecrypted;</span>
+	}
+
+	public long getBpsDecrypted() {
+<span class="nc" id="L226">		return bpsDecrypted.get();</span>
+	}
+
+<span class="nc" id="L229">	public LongBinding filesReadProperty() { return filesRead;}</span>
+
+<span class="nc" id="L231">	public long getFilesRead() { return filesRead.get();}</span>
+
+<span class="nc" id="L233">	public LongBinding filesWrittenProperty() {return filesWritten;}</span>
+
+<span class="nc" id="L235">	public long getFilesWritten() {return filesWritten.get();}</span>
+
+<span class="nc" id="L237">	public LongBinding filesAccessedProperty() {return filesAccessed;}</span>
+
+<span class="nc" id="L239">	public long getFilesAccessed() {return filesAccessed.get();}</span>
+
+<span class="nc" id="L241">	public LongBinding totalFilesAccessedProperty() {return totalFilesAccessed;}</span>
+
+<span class="nc" id="L243">	public long getTotalFilesAccessed() {return totalFilesAccessed.get();}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

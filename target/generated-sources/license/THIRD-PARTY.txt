@@ -1,0 +1,67 @@
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see http://www.gnu.org/licenses/.
+
+Cryptomator uses 33 third-party dependencies under the following licenses:
+    Apache License v2.0:
+        - Jackson-annotations (com.fasterxml.jackson.core:jackson-annotations:2.17.2 - https://github.com/FasterXML/jackson)
+        - Jackson-core (com.fasterxml.jackson.core:jackson-core:2.17.2 - https://github.com/FasterXML/jackson-core)
+        - jackson-databind (com.fasterxml.jackson.core:jackson-databind:2.17.2 - https://github.com/FasterXML/jackson)
+        - Jackson datatype: JSR310 (com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2 - https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jsr310)
+        - Caffeine cache (com.github.ben-manes.caffeine:caffeine:3.1.8 - https://github.com/ben-manes/caffeine)
+        - JCIP Annotations under Apache License (com.github.stephenc.jcip:jcip-annotations:1.0-1 - http://stephenc.github.com/jcip-annotations)
+        - Gson (com.google.code.gson:gson:2.10.1 - https://github.com/google/gson/gson)
+        - Dagger (com.google.dagger:dagger:2.51.1 - https://github.com/google/dagger)
+        - Guava InternalFutureFailureAccess and InternalFutures (com.google.guava:failureaccess:1.0.2 - https://github.com/google/guava/failureaccess)
+        - Guava: Google Core Libraries for Java (com.google.guava:guava:33.3.0-jre - https://github.com/google/guava)
+        - Nimbus JOSE+JWT (com.nimbusds:nimbus-jose-jwt:9.37.3 - https://bitbucket.org/connect2id/nimbus-jose-jwt)
+        - javax.inject (javax.inject:javax.inject:1 - http://code.google.com/p/atinject/)
+        - Apache Commons Lang (org.apache.commons:commons-lang3:3.16.0 - https://commons.apache.org/proper/commons-lang/)
+        - Apache HttpCore (org.apache.httpcomponents:httpcore:4.4.16 - http://hc.apache.org/httpcomponents-core-ga)
+        - Jackrabbit WebDAV Library (org.apache.jackrabbit:jackrabbit-webdav:2.21.22 - http://jackrabbit.apache.org/jackrabbit-webdav/)
+        - Jetty :: Http Utility (org.eclipse.jetty:jetty-http:10.0.20 - https://eclipse.dev/jetty/jetty-http)
+        - Jetty :: IO Utility (org.eclipse.jetty:jetty-io:10.0.20 - https://eclipse.dev/jetty/jetty-io)
+        - Jetty :: Security (org.eclipse.jetty:jetty-security:10.0.20 - https://eclipse.dev/jetty/jetty-security)
+        - Jetty :: Server Core (org.eclipse.jetty:jetty-server:10.0.20 - https://eclipse.dev/jetty/jetty-server)
+        - Jetty :: Servlet Handling (org.eclipse.jetty:jetty-servlet:10.0.20 - https://eclipse.dev/jetty/jetty-servlet)
+        - Jetty :: Utilities (org.eclipse.jetty:jetty-util:10.0.20 - https://eclipse.dev/jetty/jetty-util)
+        - Jetty :: Servlet API and Schemas for JPMS and OSGi (org.eclipse.jetty.toolchain:jetty-servlet-api:4.0.6 - https://eclipse.org/jetty/jetty-servlet-api)
+    Eclipse Public License - Version 1.0:
+        - Logback Classic Module (ch.qos.logback:logback-classic:1.5.7 - http://logback.qos.ch/logback-classic)
+        - Logback Core Module (ch.qos.logback:logback-core:1.5.7 - http://logback.qos.ch/logback-core)
+        - Jetty :: Servlet API and Schemas for JPMS and OSGi (org.eclipse.jetty.toolchain:jetty-servlet-api:4.0.6 - https://eclipse.org/jetty/jetty-servlet-api)
+    Eclipse Public License - Version 2.0:
+        - Jetty :: Http Utility (org.eclipse.jetty:jetty-http:10.0.20 - https://eclipse.dev/jetty/jetty-http)
+        - Jetty :: IO Utility (org.eclipse.jetty:jetty-io:10.0.20 - https://eclipse.dev/jetty/jetty-io)
+        - Jetty :: Security (org.eclipse.jetty:jetty-security:10.0.20 - https://eclipse.dev/jetty/jetty-security)
+        - Jetty :: Server Core (org.eclipse.jetty:jetty-server:10.0.20 - https://eclipse.dev/jetty/jetty-server)
+        - Jetty :: Servlet Handling (org.eclipse.jetty:jetty-servlet:10.0.20 - https://eclipse.dev/jetty/jetty-servlet)
+        - Jetty :: Utilities (org.eclipse.jetty:jetty-util:10.0.20 - https://eclipse.dev/jetty/jetty-util)
+    GNU Lesser General Public License:
+        - Logback Classic Module (ch.qos.logback:logback-classic:1.5.7 - http://logback.qos.ch/logback-classic)
+        - Logback Core Module (ch.qos.logback:logback-core:1.5.7 - http://logback.qos.ch/logback-core)
+    GPLv2+CE:
+        - javafx-base (org.openjfx:javafx-base:22.0.2 - https://openjdk.java.net/projects/openjfx/javafx-base/)
+        - javafx-controls (org.openjfx:javafx-controls:22.0.2 - https://openjdk.java.net/projects/openjfx/javafx-controls/)
+        - javafx-fxml (org.openjfx:javafx-fxml:22.0.2 - https://openjdk.java.net/projects/openjfx/javafx-fxml/)
+        - javafx-graphics (org.openjfx:javafx-graphics:22.0.2 - https://openjdk.java.net/projects/openjfx/javafx-graphics/)
+    MIT License:
+        - java jwt (com.auth0:java-jwt:4.4.0 - https://github.com/auth0/java-jwt)
+        - zxcvbn4j (com.nulab-inc:zxcvbn:1.9.0 - https://github.com/nulab/zxcvbn4j)
+        - Tiny OAuth2 Client (io.github.coffeelibs:tiny-oauth2-client:0.8.0 - https://github.com/coffeelibs/tiny-oauth2-client)
+        - SLF4J API Module (org.slf4j:slf4j-api:2.0.16 - http://www.slf4j.org)
+    The BSD 2-Clause License:
+        - EasyBind (com.tobiasdiez:easybind:2.2 - https://github.com/tobiasdiez/EasyBind)
+
+Cryptomator uses other third-party assets under the following licenses:
+    SIL OFL 1.1 License:
+        - Font Awesome (5.12.0 - https://fontawesome.com/)

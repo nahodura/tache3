@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VaultService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.common</a> &gt; <span class="el_source">VaultService.java</span></div><h1>VaultService.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.common;
+
+import dagger.Lazy;
+import org.cryptomator.common.vaults.Vault;
+import org.cryptomator.common.vaults.VaultState;
+import org.cryptomator.integrations.mount.Mountpoint;
+import org.cryptomator.integrations.mount.UnmountFailedException;
+import org.cryptomator.ui.fxapp.FxApplicationScoped;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javafx.application.Application;
+import javafx.application.HostServices;
+import javafx.concurrent.Task;
+import javafx.stage.Stage;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
+
+@FxApplicationScoped
+public class VaultService {
+
+<span class="nc" id="L29">	private static final Logger LOG = LoggerFactory.getLogger(VaultService.class);</span>
+
+	private final Lazy&lt;Application&gt; application;
+	private final ExecutorService executorService;
+
+	@Inject
+<span class="nc" id="L35">	public VaultService(Lazy&lt;Application&gt; application, ExecutorService executorService) {</span>
+<span class="nc" id="L36">		this.application = application;</span>
+<span class="nc" id="L37">		this.executorService = executorService;</span>
+<span class="nc" id="L38">	}</span>
+
+	public void reveal(Vault vault) {
+<span class="nc" id="L41">		executorService.execute(createRevealTask(vault));</span>
+<span class="nc" id="L42">	}</span>
+
+	/**
+	 * Creates but doesn't start a reveal task.
+	 *
+	 * @param vault The vault to reveal
+	 */
+	public Task&lt;Vault&gt; createRevealTask(Vault vault) {
+<span class="nc" id="L50">		Task&lt;Vault&gt; task = new RevealVaultTask(vault, application.get().getHostServices());</span>
+<span class="nc" id="L51">		task.setOnSucceeded(evt -&gt; LOG.info(&quot;Revealed {}&quot;, vault.getDisplayName()));</span>
+<span class="nc" id="L52">		task.setOnFailed(evt -&gt; LOG.error(&quot;Failed to reveal &quot; + vault.getDisplayName(), evt.getSource().getException()));</span>
+<span class="nc" id="L53">		return task;</span>
+	}
+
+	/**
+	 * Locks a vault in a background thread.
+	 *
+	 * @param vault The vault to lock
+	 * @param forced Whether to attempt a forced lock
+	 * @deprecated use {@link org.cryptomator.ui.fxapp.FxApplicationWindows#startLockWorkflow(Vault, Stage)}
+	 */
+	@Deprecated
+	public void lock(Vault vault, boolean forced) {
+<span class="nc" id="L65">		executorService.execute(createLockTask(vault, forced));</span>
+<span class="nc" id="L66">	}</span>
+
+	/**
+	 * Creates but doesn't start a lock task.
+	 *
+	 * @param vault The vault to lock
+	 * @param forced Whether to attempt a forced lock
+	 * @return The task
+	 */
+	public Task&lt;Vault&gt; createLockTask(Vault vault, boolean forced) {
+<span class="nc" id="L76">		Task&lt;Vault&gt; task = new LockVaultTask(vault, forced);</span>
+<span class="nc" id="L77">		task.setOnSucceeded(evt -&gt; LOG.info(&quot;Locked {}&quot;, vault.getDisplayName()));</span>
+<span class="nc" id="L78">		task.setOnFailed(evt -&gt; LOG.info(&quot;Failed to lock {}.&quot;, vault.getDisplayName(), evt.getSource().getException()));</span>
+<span class="nc" id="L79">		return task;</span>
+	}
+
+	/**
+	 * Locks all given vaults in a background thread.
+	 *
+	 * @param vaults The vaults to lock
+	 * @param forced Whether to attempt a forced lock
+	 */
+	public void lockAll(Collection&lt;Vault&gt; vaults, boolean forced) {
+<span class="nc" id="L89">		executorService.execute(createLockAllTask(vaults, forced));</span>
+<span class="nc" id="L90">	}</span>
+
+	/**
+	 * Creates a lock-all task.
+	 * This task itself is _not started_, but its subtasks locking each vault will be already executed.
+	 *
+	 * @param vaults The list of vaults to be locked
+	 * @param forced Whether to attempt a forced lock
+	 * @return Meta-Task that waits until all vaults are locked or fails after the first failure of a subtask
+	 */
+	public Task&lt;Collection&lt;Vault&gt;&gt; createLockAllTask(Collection&lt;Vault&gt; vaults, boolean forced) {
+<span class="nc" id="L101">		List&lt;Task&lt;Vault&gt;&gt; lockTasks = vaults.stream().&lt;Task&lt;Vault&gt;&gt;map(v -&gt; new LockVaultTask(v, forced)).toList();</span>
+<span class="nc" id="L102">		lockTasks.forEach(executorService::execute);</span>
+<span class="nc" id="L103">		Task&lt;Collection&lt;Vault&gt;&gt; task = new WaitForTasksTask(lockTasks);</span>
+<span class="nc" id="L104">		String vaultNames = vaults.stream().map(Vault::getDisplayName).collect(Collectors.joining(&quot;, &quot;));</span>
+<span class="nc" id="L105">		task.setOnSucceeded(evt -&gt; LOG.info(&quot;Locked {}&quot;, vaultNames));</span>
+<span class="nc" id="L106">		task.setOnFailed(evt -&gt; LOG.error(&quot;Failed to lock vaults &quot; + vaultNames, evt.getSource().getException()));</span>
+<span class="nc" id="L107">		return task;</span>
+	}
+
+	private static class RevealVaultTask extends Task&lt;Vault&gt; {
+
+		private final Vault vault;
+		private final HostServices hostServices;
+
+<span class="nc" id="L115">		public RevealVaultTask(Vault vault, HostServices hostServices) {</span>
+<span class="nc" id="L116">			this.vault = vault;</span>
+<span class="nc" id="L117">			this.hostServices = hostServices;</span>
+<span class="nc" id="L118">			setOnFailed(evt -&gt; LOG.error(&quot;Failed to reveal &quot; + vault.getDisplayName(), getException()));</span>
+<span class="nc" id="L119">		}</span>
+
+		@Override
+		protected Vault call() {
+<span class="nc bnc" id="L123" title="All 3 branches missed.">			switch (vault.getMountPoint()) {</span>
+<span class="nc" id="L124">				case null -&gt; LOG.warn(&quot;Not currently mounted&quot;);</span>
+<span class="nc" id="L125">				case Mountpoint.WithPath m -&gt; hostServices.showDocument(m.uri().toString());</span>
+<span class="nc" id="L126">				case Mountpoint.WithUri m -&gt; LOG.info(&quot;Vault mounted at {}&quot;, m.uri()); // TODO show in UI?</span>
+			}
+<span class="nc" id="L128">			return vault;</span>
+		}
+	}
+
+	/**
+	 * A task that waits for completion of multiple other tasks
+	 */
+	private static class WaitForTasksTask extends Task&lt;Collection&lt;Vault&gt;&gt; {
+
+		private final Collection&lt;Task&lt;Vault&gt;&gt; startedTasks;
+
+<span class="nc" id="L139">		public WaitForTasksTask(Collection&lt;Task&lt;Vault&gt;&gt; tasks) {</span>
+<span class="nc" id="L140">			this.startedTasks = List.copyOf(tasks);</span>
+
+<span class="nc" id="L142">			setOnFailed(event -&gt; LOG.error(&quot;Failed to lock multiple vaults&quot;, getException()));</span>
+<span class="nc" id="L143">		}</span>
+
+		@Override
+		protected Collection&lt;Vault&gt; call() throws ExecutionException, InterruptedException {
+<span class="nc" id="L147">			Iterator&lt;Task&lt;Vault&gt;&gt; remainingTasks = startedTasks.iterator();</span>
+<span class="nc" id="L148">			Collection&lt;Vault&gt; completed = new ArrayList&lt;&gt;();</span>
+			try {
+				// wait for all tasks:
+<span class="nc bnc" id="L151" title="All 2 branches missed.">				while (remainingTasks.hasNext()) {</span>
+<span class="nc" id="L152">					Vault done = remainingTasks.next().get();</span>
+<span class="nc" id="L153">					completed.add(done);</span>
+<span class="nc" id="L154">				}</span>
+<span class="nc" id="L155">			} catch (ExecutionException e) {</span>
+				// cancel all remaining:
+<span class="nc bnc" id="L157" title="All 2 branches missed.">				while (remainingTasks.hasNext()) {</span>
+<span class="nc" id="L158">					remainingTasks.next().cancel(true);</span>
+				}
+<span class="nc" id="L160">				throw e;</span>
+<span class="nc" id="L161">			}</span>
+<span class="nc" id="L162">			return completed;</span>
+		}
+	}
+
+	/**
+	 * A task that locks a vault
+	 */
+	private static class LockVaultTask extends Task&lt;Vault&gt; {
+
+		private final Vault vault;
+		private final boolean forced;
+
+		/**
+		 * @param vault The vault to lock
+		 * @param forced Whether to attempt a forced lock
+		 */
+<span class="nc" id="L178">		public LockVaultTask(Vault vault, boolean forced) {</span>
+<span class="nc" id="L179">			this.vault = vault;</span>
+<span class="nc" id="L180">			this.forced = forced;</span>
+
+<span class="nc" id="L182">			setOnFailed(event -&gt; LOG.error(&quot;Failed to lock &quot; + vault.getDisplayName(), event.getSource().getException()));</span>
+<span class="nc" id="L183">		}</span>
+
+		@Override
+		protected Vault call() throws UnmountFailedException, IOException {
+<span class="nc" id="L187">			vault.lock(forced);</span>
+<span class="nc" id="L188">			return vault;</span>
+		}
+
+		@Override
+		protected void scheduled() {
+<span class="nc" id="L193">			vault.stateProperty().transition(VaultState.Value.UNLOCKED, VaultState.Value.PROCESSING);</span>
+<span class="nc" id="L194">		}</span>
+
+		@Override
+		protected void succeeded() {
+<span class="nc" id="L198">			vault.stateProperty().transition(VaultState.Value.PROCESSING, VaultState.Value.LOCKED);</span>
+<span class="nc" id="L199">		}</span>
+
+		@Override
+		protected void failed() {
+<span class="nc" id="L203">			vault.stateProperty().transition(VaultState.Value.PROCESSING, VaultState.Value.UNLOCKED);</span>
+<span class="nc" id="L204">		}</span>
+
+		@Override
+		protected void cancelled() {
+<span class="nc" id="L208">			vault.stateProperty().transition(VaultState.Value.PROCESSING, VaultState.Value.UNLOCKED);</span>
+<span class="nc" id="L209">		}</span>
+
+	}
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

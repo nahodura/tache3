@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DataLabel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.controls</a> &gt; <span class="el_source">DataLabel.java</span></div><h1>DataLabel.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.controls;
+
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.StringBinding;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.scene.control.Label;
+
+public class DataLabel extends Label {
+
+	private static final long KIB_THRESHOLD = 1l &lt;&lt; 7; // 0.128 kiB
+	private static final long MIB_THRESHOLD = 1l &lt;&lt; 19; // 0.512 MiB
+	private static final long GIB_THRESHOLD = 1l &lt;&lt; 29; // 0.512 GiB
+
+<span class="nc" id="L17">	private final StringProperty byteFormat = new SimpleStringProperty(&quot;-&quot;);</span>
+<span class="nc" id="L18">	private final StringProperty kibFormat = new SimpleStringProperty(&quot;%.3f&quot;);</span>
+<span class="nc" id="L19">	private final StringProperty mibFormat = new SimpleStringProperty(&quot;%.3f&quot;);</span>
+<span class="nc" id="L20">	private final StringProperty gibFormat = new SimpleStringProperty(&quot;%.3f&quot;);</span>
+<span class="nc" id="L21">	private final LongProperty dataInBytes = new SimpleLongProperty();</span>
+
+<span class="nc" id="L23">	public DataLabel() {</span>
+<span class="nc" id="L24">		textProperty().bind(createStringBinding());</span>
+<span class="nc" id="L25">	}</span>
+
+	protected StringBinding createStringBinding() {
+<span class="nc" id="L28">		return Bindings.createStringBinding(this::updateText, kibFormat, mibFormat, gibFormat, dataInBytes);</span>
+	}
+
+	private String updateText() {
+<span class="nc" id="L32">		long data = dataInBytes.get();</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">		if (data &gt; GIB_THRESHOLD) {</span>
+<span class="nc" id="L34">			double giB = ((double) data) / 1024.0 / 1024.0 / 1024.0;</span>
+<span class="nc" id="L35">			return String.format(gibFormat.get(), giB);</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">		} else if (data &gt; MIB_THRESHOLD) {</span>
+<span class="nc" id="L37">			double miB = ((double) data) / 1024.0 / 1024.0;</span>
+<span class="nc" id="L38">			return String.format(mibFormat.get(), miB);</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">		} else if (data &gt; KIB_THRESHOLD) {</span>
+<span class="nc" id="L40">			double kiB = ((double) data) / 1024.0;</span>
+<span class="nc" id="L41">			return String.format(kibFormat.get(), kiB);</span>
+		} else {
+<span class="nc" id="L43">			return String.format(byteFormat.get(), data);</span>
+		}
+	}
+
+<span class="nc" id="L47">	public StringProperty byteFormatProperty() { return byteFormat; }</span>
+
+<span class="nc" id="L49">	public String getByteFormat() { return byteFormat.get(); }</span>
+
+	public void setByteFormat(String byteFormat) {
+<span class="nc" id="L52">		this.byteFormat.set(byteFormat);</span>
+<span class="nc" id="L53">	}</span>
+
+<span class="nc" id="L55">	public StringProperty kibFormatProperty() { return kibFormat; }</span>
+
+<span class="nc" id="L57">	public String getKibFormat() { return kibFormat.get(); }</span>
+
+	public void setKibFormat(String kibFormat) {
+<span class="nc" id="L60">		this.kibFormat.set(kibFormat);</span>
+<span class="nc" id="L61">	}</span>
+
+<span class="nc" id="L63">	public StringProperty mibFormatProperty() { return mibFormat; }</span>
+
+<span class="nc" id="L65">	public String getMibFormat() { return mibFormat.get(); }</span>
+
+	public void setMibFormat(String mibFormat) {
+<span class="nc" id="L68">		this.mibFormat.set(mibFormat);</span>
+<span class="nc" id="L69">	}</span>
+
+<span class="nc" id="L71">	public StringProperty gibFormatProperty() { return gibFormat; }</span>
+
+<span class="nc" id="L73">	public String getGibFormat() { return gibFormat.get(); }</span>
+
+	public void setGibFormat(String gibFormat) {
+<span class="nc" id="L76">		this.gibFormat.set(gibFormat);</span>
+<span class="nc" id="L77">	}</span>
+
+<span class="nc" id="L79">	public LongProperty dataInBytesProperty() { return dataInBytes; }</span>
+
+	public long getDataInBytes() {
+<span class="nc" id="L82">		return dataInBytes.get();</span>
+	}
+
+<span class="nc" id="L85">	public void setDataInBytes(long dataInBytes) { this.dataInBytes.set(dataInBytes); }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

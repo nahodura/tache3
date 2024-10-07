@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LogbackConfigurator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.logging</a> &gt; <span class="el_source">LogbackConfigurator.java</span></div><h1>LogbackConfigurator.java</h1><pre class="source lang-java linenums">package org.cryptomator.logging;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.Configurator;
+import ch.qos.logback.classic.spi.ConfiguratorRank;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.FileAppender;
+import ch.qos.logback.core.helpers.NOPAppender;
+import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
+import ch.qos.logback.core.rolling.RollingFileAppender;
+import ch.qos.logback.core.spi.ContextAwareBase;
+import ch.qos.logback.core.util.FileSize;
+import org.cryptomator.common.Environment;
+
+import java.nio.file.Path;
+import java.util.Map;
+
+@ConfiguratorRank(ConfiguratorRank.CUSTOM_NORMAL_PRIORITY)
+public class LogbackConfigurator extends ContextAwareBase implements Configurator {
+
+	private static final String LOG_PATTERN = &quot;%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n&quot;;
+	private static final String UPGRADE_FILENAME = &quot;upgrade.log&quot;;
+	private static final String LOGFILE_NAME = &quot;cryptomator0.log&quot;;
+	private static final String LOGFILE_ROLLING_PATTERN = &quot;cryptomator%i.log&quot;;
+	private static final int LOGFILE_ROLLING_MIN = 1;
+	private static final int LOGFILE_ROLLING_MAX = 9;
+	private static final String LOG_MAX_SIZE = &quot;100mb&quot;;
+
+<span class="fc" id="L34">	static final Map&lt;String, Level&gt; DEFAULT_LOG_LEVELS = Map.of( //</span>
+			Logger.ROOT_LOGGER_NAME, Level.INFO, //
+			&quot;org.cryptomator&quot;, Level.INFO //
+	);
+<span class="fc" id="L38">	static final Map&lt;String, Level&gt; DEBUG_LOG_LEVELS = Map.of( //</span>
+			Logger.ROOT_LOGGER_NAME, Level.INFO, //
+			&quot;org.cryptomator&quot;, Level.TRACE //
+	);
+
+<span class="fc" id="L43">	LogbackConfigurator() {}</span>
+
+	/**
+	 * Adjust the log levels
+	 *
+	 * @param logLevels new log levels to use
+	 */
+	void setLogLevels(Map&lt;String, Level&gt; logLevels) {
+<span class="nc bnc" id="L51" title="All 2 branches missed.">		if (context instanceof LoggerContext lc) {</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">			for (var loglevel : logLevels.entrySet()) {</span>
+<span class="nc" id="L53">				Logger logger = lc.getLogger(loglevel.getKey());</span>
+<span class="nc" id="L54">				logger.setLevel(loglevel.getValue());</span>
+<span class="nc" id="L55">			}</span>
+		}
+<span class="nc" id="L57">	}</span>
+
+	@Override
+	public ExecutionStatus configure(LoggerContext context) {
+<span class="fc" id="L61">		var useCustomCfg = Environment.getInstance().useCustomLogbackConfig();</span>
+<span class="fc" id="L62">		var logDir = Environment.getInstance().getLogDir().orElse(null);</span>
+
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">		if (useCustomCfg) {</span>
+<span class="nc" id="L65">			addInfo(&quot;Using external logback configuration file.&quot;);</span>
+		} else {
+			// configure appenders:
+<span class="fc" id="L68">			var stdout = stdOutAppender(context);</span>
+<span class="fc" id="L69">			var noop = noopAppender(context);</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">			var file = logDir == null ? noop : fileAppender(context, logDir);</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">			var upgrade = logDir == null ? noop : upgradeAppender(context, logDir);</span>
+
+			// configure loggers:
+<span class="fc bfc" id="L74" title="All 2 branches covered.">			for (var loglevel : DEFAULT_LOG_LEVELS.entrySet()) {</span>
+<span class="fc" id="L75">				Logger logger = context.getLogger(loglevel.getKey());</span>
+<span class="fc" id="L76">				logger.setLevel(loglevel.getValue());</span>
+<span class="fc" id="L77">				logger.setAdditive(false);</span>
+<span class="fc" id="L78">				logger.addAppender(stdout);</span>
+<span class="fc" id="L79">				logger.addAppender(file);</span>
+<span class="fc" id="L80">			}</span>
+
+			// configure upgrade logger:
+<span class="fc" id="L83">			Logger upgrades = context.getLogger(&quot;org.cryptomator.cryptofs.migration&quot;);</span>
+<span class="fc" id="L84">			upgrades.setLevel(Level.DEBUG);</span>
+<span class="fc" id="L85">			upgrades.addAppender(stdout);</span>
+<span class="fc" id="L86">			upgrades.addAppender(upgrade);</span>
+<span class="fc" id="L87">			upgrades.addAppender(file);</span>
+<span class="fc" id="L88">			upgrades.setAdditive(false);</span>
+
+			// configure fuse file locking logger:
+<span class="fc" id="L91">			Logger fuseLocking = context.getLogger(&quot;org.cryptomator.frontend.fuse.locks&quot;);</span>
+<span class="fc" id="L92">			fuseLocking.setLevel(Level.OFF);</span>
+		}
+<span class="fc" id="L94">		return ExecutionStatus.DO_NOT_INVOKE_NEXT_IF_ANY;</span>
+	}
+
+	private Appender&lt;ILoggingEvent&gt; noopAppender(LoggerContext context) {
+<span class="fc" id="L98">		var appender = new NOPAppender&lt;ILoggingEvent&gt;();</span>
+<span class="fc" id="L99">		appender.setContext(context);</span>
+<span class="fc" id="L100">		return appender;</span>
+	}
+
+	private Appender&lt;ILoggingEvent&gt; stdOutAppender(LoggerContext context) {
+<span class="fc" id="L104">		var appender = new ConsoleAppender&lt;ILoggingEvent&gt;();</span>
+<span class="fc" id="L105">		appender.setContext(context);</span>
+<span class="fc" id="L106">		appender.setName(&quot;STDOUT&quot;);</span>
+<span class="fc" id="L107">		appender.setEncoder(encoder(context));</span>
+<span class="fc" id="L108">		appender.start();</span>
+<span class="fc" id="L109">		return appender;</span>
+	}
+
+	private Appender&lt;ILoggingEvent&gt; upgradeAppender(LoggerContext context, Path logDir) {
+<span class="nc" id="L113">		var appender = new FileAppender&lt;ILoggingEvent&gt;();</span>
+<span class="nc" id="L114">		appender.setContext(context);</span>
+<span class="nc" id="L115">		appender.setName(&quot;UPGRADE&quot;);</span>
+<span class="nc" id="L116">		appender.setFile(logDir.resolve(UPGRADE_FILENAME).toString());</span>
+<span class="nc" id="L117">		appender.setEncoder(encoder(context));</span>
+<span class="nc" id="L118">		appender.start();</span>
+<span class="nc" id="L119">		return appender;</span>
+	}
+
+	private Appender&lt;ILoggingEvent&gt; fileAppender(LoggerContext context, Path logDir) {
+<span class="nc" id="L123">		var appender = new RollingFileAppender&lt;ILoggingEvent&gt;();</span>
+<span class="nc" id="L124">		appender.setContext(context);</span>
+<span class="nc" id="L125">		appender.setName(&quot;FILE&quot;);</span>
+<span class="nc" id="L126">		appender.setFile(logDir.resolve(LOGFILE_NAME).toString());</span>
+<span class="nc" id="L127">		appender.setEncoder(encoder(context));</span>
+<span class="nc" id="L128">		var triggeringPolicy = new LaunchAndSizeBasedTriggeringPolicy&lt;ILoggingEvent&gt;(FileSize.valueOf(LOG_MAX_SIZE));</span>
+<span class="nc" id="L129">		triggeringPolicy.setContext(context);</span>
+<span class="nc" id="L130">		triggeringPolicy.start();</span>
+<span class="nc" id="L131">		appender.setTriggeringPolicy(triggeringPolicy);</span>
+<span class="nc" id="L132">		var rollingPolicy = new FixedWindowRollingPolicy();</span>
+<span class="nc" id="L133">		rollingPolicy.setContext(context);</span>
+<span class="nc" id="L134">		rollingPolicy.setFileNamePattern(logDir.resolve(LOGFILE_ROLLING_PATTERN).toString());</span>
+<span class="nc" id="L135">		rollingPolicy.setMinIndex(LOGFILE_ROLLING_MIN);</span>
+<span class="nc" id="L136">		rollingPolicy.setMaxIndex(LOGFILE_ROLLING_MAX);</span>
+<span class="nc" id="L137">		rollingPolicy.setParent(appender);</span>
+<span class="nc" id="L138">		rollingPolicy.start();</span>
+<span class="nc" id="L139">		appender.setRollingPolicy(rollingPolicy);</span>
+<span class="nc" id="L140">		appender.start();</span>
+<span class="nc" id="L141">		return appender;</span>
+	}
+
+	private PatternLayoutEncoder encoder(LoggerContext context) {
+<span class="fc" id="L145">		var encoder = new PatternLayoutEncoder();</span>
+<span class="fc" id="L146">		encoder.setContext(context);</span>
+<span class="fc" id="L147">		encoder.setPattern(LOG_PATTERN);</span>
+<span class="fc" id="L148">		encoder.start();</span>
+<span class="fc" id="L149">		return encoder;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Check.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.health</a> &gt; <span class="el_source">Check.java</span></div><h1>Check.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.health;
+
+import org.cryptomator.cryptofs.health.api.DiagnosticResult;
+import org.cryptomator.cryptofs.health.api.HealthCheck;
+
+import javafx.beans.Observable;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+public class Check {
+
+	private final HealthCheck check;
+
+<span class="nc" id="L19">	private final BooleanProperty chosenForExecution = new SimpleBooleanProperty(false);</span>
+<span class="nc" id="L20">	private final ObjectProperty&lt;CheckState&gt; state = new SimpleObjectProperty&lt;&gt;(CheckState.RUNNABLE);</span>
+<span class="nc" id="L21">	private final ObservableList&lt;Result&gt; results = FXCollections.observableArrayList(Result::observables);</span>
+<span class="nc" id="L22">	private final ObjectProperty&lt;DiagnosticResult.Severity&gt; highestResultSeverity = new SimpleObjectProperty&lt;&gt;(null);</span>
+<span class="nc" id="L23">	private final ObjectProperty&lt;Throwable&gt; error = new SimpleObjectProperty&lt;&gt;(null);</span>
+<span class="nc" id="L24">	private final BooleanBinding isInReRunState = state.isNotEqualTo(CheckState.RUNNING).or(state.isNotEqualTo(CheckState.SCHEDULED));</span>
+
+<span class="nc" id="L26">	Check(HealthCheck check) {</span>
+<span class="nc" id="L27">		this.check = check;</span>
+<span class="nc" id="L28">	}</span>
+
+	String getName() {
+<span class="nc" id="L31">		return check.name();</span>
+	}
+
+	HealthCheck getHealthCheck() {
+<span class="nc" id="L35">		return check;</span>
+	}
+
+	BooleanProperty chosenForExecutionProperty() {
+<span class="nc" id="L39">		return chosenForExecution;</span>
+	}
+
+	boolean isChosenForExecution() {
+<span class="nc" id="L43">		return chosenForExecution.get();</span>
+	}
+
+	ObjectProperty&lt;CheckState&gt; stateProperty() {
+<span class="nc" id="L47">		return state;</span>
+	}
+
+	CheckState getState() {
+<span class="nc" id="L51">		return state.get();</span>
+	}
+
+	void setState(CheckState newState) {
+<span class="nc" id="L55">		state.set(newState);</span>
+<span class="nc" id="L56">	}</span>
+
+	ObjectProperty&lt;Throwable&gt; errorProperty() {
+<span class="nc" id="L59">		return error;</span>
+	}
+
+	Throwable getError() {
+<span class="nc" id="L63">		return error.get();</span>
+	}
+
+	void setError(Throwable t) {
+<span class="nc" id="L67">		error.set(t);</span>
+<span class="nc" id="L68">	}</span>
+
+	ObjectProperty&lt;DiagnosticResult.Severity&gt; highestResultSeverityProperty() {
+<span class="nc" id="L71">		return highestResultSeverity;</span>
+	}
+
+	DiagnosticResult.Severity getHighestResultSeverity() {
+<span class="nc" id="L75">		return highestResultSeverity.get();</span>
+	}
+
+	void setHighestResultSeverity(DiagnosticResult.Severity severity) {
+<span class="nc" id="L79">		highestResultSeverity.set(severity);</span>
+<span class="nc" id="L80">	}</span>
+
+	boolean isInReRunState() {
+<span class="nc" id="L83">		return isInReRunState.get();</span>
+	}
+
+<span class="nc" id="L86">	enum CheckState {</span>
+<span class="nc" id="L87">		RUNNABLE,</span>
+<span class="nc" id="L88">		SCHEDULED,</span>
+<span class="nc" id="L89">		RUNNING,</span>
+<span class="nc" id="L90">		SUCCEEDED,</span>
+<span class="nc" id="L91">		SKIPPED,</span>
+<span class="nc" id="L92">		ERROR,</span>
+<span class="nc" id="L93">		CANCELLED;</span>
+	}
+
+	ObservableList&lt;Result&gt; getResults() {
+<span class="nc" id="L97">		return results;</span>
+	}
+
+	Observable[] observables() {
+<span class="nc" id="L101">		return new Observable[]{chosenForExecution, state, results, error};</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

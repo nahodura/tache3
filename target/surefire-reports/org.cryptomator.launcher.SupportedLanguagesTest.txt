@@ -1,0 +1,47 @@
+-------------------------------------------------------------------------------
+Test set: org.cryptomator.launcher.SupportedLanguagesTest
+-------------------------------------------------------------------------------
+Tests run: 43, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.065 s -- in org.cryptomator.launcher.SupportedLanguagesTest
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[1] -- Time elapsed: 0.006 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[2] -- Time elapsed: 0.002 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[3] -- Time elapsed: 0.002 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[4] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[5] -- Time elapsed: 0.002 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[6] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[7] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[8] -- Time elapsed: 0.002 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[9] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[10] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[11] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[12] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[13] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[14] -- Time elapsed: 0.002 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[15] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[16] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[17] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[18] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[19] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[20] -- Time elapsed: 0 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[21] -- Time elapsed: 0 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[22] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[23] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[24] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[25] -- Time elapsed: 0 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[26] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[27] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[28] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[29] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[30] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[31] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[32] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[33] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[34] -- Time elapsed: 0.002 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[35] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[36] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[37] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[38] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[39] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[40] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[41] -- Time elapsed: 0.001 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[42] -- Time elapsed: 0.002 s
+org.cryptomator.launcher.SupportedLanguagesTest.testResourceBundleExists(String)[43] -- Time elapsed: 0.001 s

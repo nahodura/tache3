@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AwtTrayMenuController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.traymenu</a> &gt; <span class="el_source">AwtTrayMenuController.java</span></div><h1>AwtTrayMenuController.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.traymenu;
+
+import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.SystemUtils;
+import org.cryptomator.integrations.common.CheckAvailability;
+import org.cryptomator.integrations.common.Priority;
+import org.cryptomator.integrations.tray.ActionItem;
+import org.cryptomator.integrations.tray.SeparatorItem;
+import org.cryptomator.integrations.tray.SubMenuItem;
+import org.cryptomator.integrations.tray.TrayIconLoader;
+import org.cryptomator.integrations.tray.TrayMenuController;
+import org.cryptomator.integrations.tray.TrayMenuException;
+import org.cryptomator.integrations.tray.TrayMenuItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.awt.AWTException;
+import java.awt.Image;
+import java.awt.Menu;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.Toolkit;
+import java.awt.TrayIcon;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.List;
+import java.util.function.Consumer;
+
+/**
+ * Fallback tray icon implementation using AWT. This will only be used if no better implementation is found.
+ * @see &lt;a href=&quot;https://github.com/cryptomator/integrations-linux/blob/33f9a4685b781b55fcce399b8618818bfc08cbdf/src/main/java/org/cryptomator/linux/tray/AppindicatorTrayMenuController.java&quot;&gt;preferred AppIndicator-based implementation used on Linux&lt;/a&gt;
+ */
+@CheckAvailability
+@Priority(Priority.FALLBACK)
+<span class="nc" id="L36">public class AwtTrayMenuController implements TrayMenuController {</span>
+
+<span class="nc" id="L38">	private static final Logger LOG = LoggerFactory.getLogger(AwtTrayMenuController.class);</span>
+
+<span class="nc" id="L40">	private final PopupMenu menu = new PopupMenu();</span>
+	private TrayIcon trayIcon;
+	private Image image;
+
+	@CheckAvailability
+	public static boolean isAvailable() {
+<span class="nc" id="L46">		return SystemTray.isSupported();</span>
+	}
+
+	@Override
+	public void showTrayIcon(Consumer&lt;TrayIconLoader&gt; iconLoader, Runnable defaultAction, String tooltip) throws TrayMenuException {
+<span class="nc" id="L51">		TrayIconLoader.PngData callback = this::showTrayIconWithPngData;</span>
+<span class="nc" id="L52">		iconLoader.accept(callback);</span>
+<span class="nc" id="L53">		trayIcon = new TrayIcon(image, tooltip, menu);</span>
+
+<span class="nc" id="L55">		trayIcon.setImageAutoSize(true);</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">		if (SystemUtils.IS_OS_WINDOWS) {</span>
+<span class="nc" id="L57">			trayIcon.addActionListener(evt -&gt; defaultAction.run());</span>
+		}
+
+		try {
+<span class="nc" id="L61">			SystemTray.getSystemTray().add(trayIcon);</span>
+<span class="nc" id="L62">			LOG.debug(&quot;initialized tray icon&quot;);</span>
+<span class="nc" id="L63">		} catch (AWTException e) {</span>
+<span class="nc" id="L64">			throw new TrayMenuException(&quot;Failed to add icon to system tray.&quot;, e);</span>
+<span class="nc" id="L65">		}</span>
+<span class="nc" id="L66">	}</span>
+
+	private void showTrayIconWithPngData(byte[] imageData) {
+<span class="nc" id="L69">		image = Toolkit.getDefaultToolkit().createImage(imageData);</span>
+<span class="nc" id="L70">	}</span>
+
+	@Override
+	public void updateTrayIcon(Consumer&lt;TrayIconLoader&gt; iconLoader) {
+<span class="nc" id="L74">		TrayIconLoader.PngData callback = this::updateTrayIconWithPngData;</span>
+<span class="nc" id="L75">		iconLoader.accept(callback);</span>
+<span class="nc" id="L76">	}</span>
+
+	private void updateTrayIconWithPngData(byte[] imageData) {
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		if (trayIcon == null) {</span>
+<span class="nc" id="L80">			throw new IllegalStateException(&quot;Failed to update the icon as it has not yet been added&quot;);</span>
+		}
+<span class="nc" id="L82">		var image = Toolkit.getDefaultToolkit().createImage(imageData);</span>
+<span class="nc" id="L83">		trayIcon.setImage(image);</span>
+<span class="nc" id="L84">	}</span>
+
+	@Override
+	public void updateTrayMenu(List&lt;TrayMenuItem&gt; items) {
+<span class="nc" id="L88">		menu.removeAll();</span>
+<span class="nc" id="L89">		addChildren(menu, items);</span>
+<span class="nc" id="L90">	}</span>
+
+	@Override
+	public void onBeforeOpenMenu(Runnable listener) {
+<span class="nc" id="L94">		Preconditions.checkNotNull(this.trayIcon);</span>
+<span class="nc" id="L95">		this.trayIcon.addMouseListener(new MouseAdapter() {</span>
+			@Override
+			public void mousePressed(MouseEvent e) {
+<span class="nc" id="L98">				listener.run();</span>
+<span class="nc" id="L99">			}</span>
+		});
+<span class="nc" id="L101">	}</span>
+
+	private void addChildren(Menu menu, List&lt;TrayMenuItem&gt; items) {
+<span class="nc bnc" id="L104" title="All 2 branches missed.">		for (var item : items) {</span>
+<span class="nc bnc" id="L105" title="All 3 branches missed.">			switch (item) {</span>
+<span class="nc" id="L106">				case ActionItem a -&gt; {</span>
+<span class="nc" id="L107">					var menuItem = new MenuItem(a.title());</span>
+<span class="nc" id="L108">					menuItem.addActionListener(evt -&gt; a.action().run());</span>
+<span class="nc" id="L109">					menuItem.setEnabled(a.enabled());</span>
+<span class="nc" id="L110">					menu.add(menuItem);</span>
+<span class="nc" id="L111">				}</span>
+<span class="nc" id="L112">				case SeparatorItem s -&gt; menu.addSeparator(); // TODO: rename to _ with JEP 443</span>
+<span class="nc" id="L113">				case SubMenuItem s -&gt; {</span>
+<span class="nc" id="L114">					var submenu = new Menu(s.title());</span>
+<span class="nc" id="L115">					addChildren(submenu, s.items());</span>
+<span class="nc" id="L116">					menu.add(submenu);</span>
+				}
+			}
+<span class="nc" id="L119">		}</span>
+<span class="nc" id="L120">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

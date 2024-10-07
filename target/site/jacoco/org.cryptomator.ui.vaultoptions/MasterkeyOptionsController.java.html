@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MasterkeyOptionsController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Cryptomator Desktop App</a> &gt; <a href="index.source.html" class="el_package">org.cryptomator.ui.vaultoptions</a> &gt; <span class="el_source">MasterkeyOptionsController.java</span></div><h1>MasterkeyOptionsController.java</h1><pre class="source lang-java linenums">package org.cryptomator.ui.vaultoptions;
+
+import org.cryptomator.common.keychain.KeychainManager;
+import org.cryptomator.common.vaults.Vault;
+import org.cryptomator.ui.changepassword.ChangePasswordComponent;
+import org.cryptomator.ui.common.FxController;
+import org.cryptomator.ui.forgetpassword.ForgetPasswordComponent;
+import org.cryptomator.ui.recoverykey.RecoveryKeyComponent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.fxml.FXML;
+import javafx.stage.Stage;
+
+@VaultOptionsScoped
+public class MasterkeyOptionsController implements FxController {
+
+<span class="nc" id="L21">	private static final Logger LOG = LoggerFactory.getLogger(MasterkeyOptionsController.class);</span>
+
+	private final Vault vault;
+	private final Stage window;
+	private final ChangePasswordComponent.Builder changePasswordWindow;
+	private final RecoveryKeyComponent.Factory recoveryKeyWindow;
+	private final ForgetPasswordComponent.Builder forgetPasswordWindow;
+	private final KeychainManager keychain;
+	private final ObservableValue&lt;Boolean&gt; passwordSaved;
+
+
+	@Inject
+<span class="nc" id="L33">	MasterkeyOptionsController(@VaultOptionsWindow Vault vault, @VaultOptionsWindow Stage window, ChangePasswordComponent.Builder changePasswordWindow, RecoveryKeyComponent.Factory recoveryKeyWindow, ForgetPasswordComponent.Builder forgetPasswordWindow, KeychainManager keychain) {</span>
+<span class="nc" id="L34">		this.vault = vault;</span>
+<span class="nc" id="L35">		this.window = window;</span>
+<span class="nc" id="L36">		this.changePasswordWindow = changePasswordWindow;</span>
+<span class="nc" id="L37">		this.recoveryKeyWindow = recoveryKeyWindow;</span>
+<span class="nc" id="L38">		this.forgetPasswordWindow = forgetPasswordWindow;</span>
+<span class="nc" id="L39">		this.keychain = keychain;</span>
+<span class="nc bnc" id="L40" title="All 4 branches missed.">		if (keychain.isSupported() &amp;&amp; !keychain.isLocked()) {</span>
+<span class="nc" id="L41">			this.passwordSaved = keychain.getPassphraseStoredProperty(vault.getId()).orElse(false);</span>
+		} else {
+<span class="nc" id="L43">			this.passwordSaved = new SimpleBooleanProperty(false);</span>
+		}
+<span class="nc" id="L45">	}</span>
+
+	@FXML
+	public void changePassword() {
+<span class="nc" id="L49">		changePasswordWindow.vault(vault).owner(window).build().showChangePasswordWindow();</span>
+<span class="nc" id="L50">	}</span>
+
+	@FXML
+	public void showRecoveryKey() {
+<span class="nc" id="L54">		recoveryKeyWindow.create(vault, window).showRecoveryKeyCreationWindow();</span>
+<span class="nc" id="L55">	}</span>
+
+	@FXML
+	public void showRecoverVaultDialog() {
+<span class="nc" id="L59">		recoveryKeyWindow.create(vault, window).showRecoveryKeyRecoverWindow();</span>
+<span class="nc" id="L60">	}</span>
+
+	@FXML
+	public void showForgetPasswordDialog() {
+<span class="nc bnc" id="L64" title="All 2 branches missed.">		assert keychain.isSupported();</span>
+<span class="nc" id="L65">		forgetPasswordWindow.vault(vault).owner(window).build().showForgetPassword();</span>
+<span class="nc" id="L66">	}</span>
+
+	public ObservableValue&lt;Boolean&gt; passwordSavedProperty() {
+<span class="nc" id="L69">		return passwordSaved;</span>
+	}
+
+	public boolean isPasswordSaved() {
+<span class="nc" id="L73">		return passwordSaved.getValue();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

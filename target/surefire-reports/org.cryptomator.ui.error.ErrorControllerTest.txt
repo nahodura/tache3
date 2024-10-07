@@ -1,0 +1,23 @@
+-------------------------------------------------------------------------------
+Test set: org.cryptomator.ui.error.ErrorControllerTest
+-------------------------------------------------------------------------------
+Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.247 s -- in org.cryptomator.ui.error.ErrorControllerTest
+org.cryptomator.ui.error.ErrorControllerTest.testCompareByRootCauseCode(String, char, String)[1] -- Time elapsed: 0.216 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareByRootCauseCode(String, char, String)[2] -- Time elapsed: 0.001 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareByRootCauseCode(String, char, String)[3] -- Time elapsed: 0.001 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareByRootCauseCode(String, char, String)[4] -- Time elapsed: 0.001 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareByRootCauseCode(String, char, String)[5] -- Time elapsed: 0.001 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareByRootCauseCode(String, char, String)[6] -- Time elapsed: 0.002 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareByRootCauseCode(String, char, String)[7] -- Time elapsed: 0.001 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareByFullErrorCode(String, char, String)[1] -- Time elapsed: 0.002 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareByFullErrorCode(String, char, String)[2] -- Time elapsed: 0.001 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareByFullErrorCode(String, char, String)[3] -- Time elapsed: 0.001 s
+org.cryptomator.ui.error.ErrorControllerTest.testContainsMethodCode(String, boolean)[1] -- Time elapsed: 0.002 s
+org.cryptomator.ui.error.ErrorControllerTest.testContainsMethodCode(String, boolean)[2] -- Time elapsed: 0.001 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareUpvoteCount(int, char, int)[1] -- Time elapsed: 0.001 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareUpvoteCount(int, char, int)[2] -- Time elapsed: 0.001 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareUpvoteCount(int, char, int)[3] -- Time elapsed: 0 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareIsAnswered(boolean, char, boolean)[1] -- Time elapsed: 0.001 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareIsAnswered(boolean, char, boolean)[2] -- Time elapsed: 0.001 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareIsAnswered(boolean, char, boolean)[3] -- Time elapsed: 0.001 s
+org.cryptomator.ui.error.ErrorControllerTest.testCompareIsAnswered(boolean, char, boolean)[4] -- Time elapsed: 0.001 s
