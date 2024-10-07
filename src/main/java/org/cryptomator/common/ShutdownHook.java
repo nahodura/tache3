@@ -26,7 +26,6 @@ public class ShutdownHook extends Thread {
 	private final Queue<OrderedTask> tasks = new PriorityBlockingQueue<>();
 
 	@Inject
-	public
 	ShutdownHook() {
 		super(null, null, "ShutdownTasks", 0);
 		Runtime.getRuntime().addShutdownHook(this);
