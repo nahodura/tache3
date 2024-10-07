@@ -40,6 +40,7 @@ public abstract class CommonsModule {
 
 	@Provides
 	@Singleton
+    public
 	static Environment provideEnvironment() {
 		return Environment.getInstance();
 	}
@@ -48,6 +49,7 @@ public abstract class CommonsModule {
 	@Provides
 	@Singleton
 	@Named("licensePublicKey")
+    public
 	static String provideLicensePublicKey() {
 		// in PEM format without the dash-escaped begin/end lines
 		return """
@@ -60,6 +62,7 @@ public abstract class CommonsModule {
 
 	@Provides
 	@Singleton
+    public
 	static SecureRandom provideCSPRNG() {
 		try {
 			return SecureRandom.getInstanceStrong();
@@ -70,6 +73,7 @@ public abstract class CommonsModule {
 
 	@Provides
 	@Singleton
+    public
 	static MasterkeyFileAccess provideMasterkeyFileAccess(SecureRandom csprng) {
 		return new MasterkeyFileAccess(Constants.PEPPER, csprng);
 	}
@@ -77,12 +81,14 @@ public abstract class CommonsModule {
 	@Provides
 	@Singleton
 	@Named("SemVer")
+    public
 	static Comparator<String> providesSemVerComparator() {
 		return new SemVerComparator();
 	}
 
 	@Provides
 	@Singleton
+    public
 	static Optional<RevealPathService> provideRevealPathService() {
 		return RevealPathService.get().findFirst();
 	}
@@ -90,12 +96,14 @@ public abstract class CommonsModule {
 
 	@Provides
 	@Singleton
+    public
 	static Settings provideSettings(SettingsProvider settingsProvider) {
 		return settingsProvider.get();
 	}
 
 	@Provides
 	@Singleton
+    public
 	static ScheduledExecutorService provideScheduledExecutorService(ShutdownHook shutdownHook) {
 		final AtomicInteger threadNumber = new AtomicInteger(1);
 		ScheduledExecutorService executorService = new CatchingExecutors.CatchingScheduledThreadPoolExecutor(NUM_SCHEDULER_THREADS, r -> {
@@ -113,6 +121,7 @@ public abstract class CommonsModule {
 
 	@Provides
 	@Singleton
+    public
 	static ExecutorService provideExecutorService(ShutdownHook shutdownHook) {
 		final AtomicInteger threadNumber = new AtomicInteger(1);
 		ExecutorService executorService = new CatchingExecutors.CatchingThreadPoolExecutor(NUM_CORE_BG_THREADS, Integer.MAX_VALUE, BG_THREAD_KEEPALIVE_SECONDS, TimeUnit.SECONDS, new SynchronousQueue<>(), r -> {
