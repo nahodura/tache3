@@ -1,8 +1,11 @@
+/Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/common/CatchingExecutorsTest.java
+/Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/common/CommonsModuleTest.java
 /Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/common/EnvironmentTest.java
 /Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/common/ErrorCodeTest.java
 /Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/common/LicenseCheckerTest.java
 /Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/common/PassphraseTest.java
 /Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/common/SemVerComparatorTest.java
+/Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/common/ShutdownHookTest.java
 /Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/common/SubstitutingPropertiesTest.java
 /Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/common/keychain/KeychainManagerTest.java
 /Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/common/keychain/MapKeychainAccess.java
@@ -17,7 +20,6 @@
 /Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/launcher/FileOpenRequestHandlerTest.java
 /Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/launcher/SupportedLanguagesTest.java
 /Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/logging/LaunchBasedTriggeringPolicyTest.java
-/Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/tests/CatchingExecutorsTest.java
 /Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/ui/addvaultwizard/ReadMeGeneratorTest.java
 /Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/ui/changepassword/PasswordStrengthUtilTest.java
 /Users/louisforrer/Documents/GitHub/tache2/src/test/java/org/cryptomator/ui/controls/SecurePasswordFieldTest.java

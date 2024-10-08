@@ -464,14 +464,14 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public FxApplicationComponentBuilder fxApplication(Application arg0) {
-      this.fxApplication = Preconditions.checkNotNull(arg0);
+    public FxApplicationComponentBuilder fxApplication(Application application) {
+      this.fxApplication = Preconditions.checkNotNull(application);
       return this;
     }
 
     @Override
-    public FxApplicationComponentBuilder primaryStage(Stage arg0) {
-      this.primaryStage = Preconditions.checkNotNull(arg0);
+    public FxApplicationComponentBuilder primaryStage(Stage primaryStage) {
+      this.primaryStage = Preconditions.checkNotNull(primaryStage);
       return this;
     }
 
@@ -501,6 +501,30 @@ public final class DaggerCryptomatorComponent {
     }
   }
 
+  private static final class AddVaultWizardComponentBuilder
+      implements AddVaultWizardComponent.Builder {
+    private final CryptomatorComponentImpl cryptomatorComponentImpl;
+
+    private final FxApplicationComponentImpl fxApplicationComponentImpl;
+
+    private final MainWindowComponentImpl mainWindowComponentImpl;
+
+    private AddVaultWizardComponentBuilder(
+        CryptomatorComponentImpl cryptomatorComponentImpl,
+        FxApplicationComponentImpl fxApplicationComponentImpl,
+        MainWindowComponentImpl mainWindowComponentImpl) {
+      this.cryptomatorComponentImpl = cryptomatorComponentImpl;
+      this.fxApplicationComponentImpl = fxApplicationComponentImpl;
+      this.mainWindowComponentImpl = mainWindowComponentImpl;
+    }
+
+    @Override
+    public AddVaultWizardComponent build() {
+      return new AddVaultWizardComponentImpl(
+          cryptomatorComponentImpl, fxApplicationComponentImpl, mainWindowComponentImpl);
+    }
+  }
+
   private static final class RemoveVaultComponentBuilder implements RemoveVaultComponent.Builder {
     private final CryptomatorComponentImpl cryptomatorComponentImpl;
 
@@ -520,8 +544,8 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public RemoveVaultComponentBuilder vault(Vault arg0) {
-      this.vault = Preconditions.checkNotNull(arg0);
+    public RemoveVaultComponentBuilder vault(Vault vault) {
+      this.vault = Preconditions.checkNotNull(vault);
       return this;
     }
 
@@ -529,38 +553,6 @@ public final class DaggerCryptomatorComponent {
     public RemoveVaultComponent build() {
       Preconditions.checkBuilderRequirement(vault, Vault.class);
       return new RemoveVaultComponentImpl(
-          cryptomatorComponentImpl, fxApplicationComponentImpl, mainWindowComponentImpl, vault);
-    }
-  }
-
-  private static final class MigrationComponentBuilder implements MigrationComponent.Builder {
-    private final CryptomatorComponentImpl cryptomatorComponentImpl;
-
-    private final FxApplicationComponentImpl fxApplicationComponentImpl;
-
-    private final MainWindowComponentImpl mainWindowComponentImpl;
-
-    private Vault vault;
-
-    private MigrationComponentBuilder(
-        CryptomatorComponentImpl cryptomatorComponentImpl,
-        FxApplicationComponentImpl fxApplicationComponentImpl,
-        MainWindowComponentImpl mainWindowComponentImpl) {
-      this.cryptomatorComponentImpl = cryptomatorComponentImpl;
-      this.fxApplicationComponentImpl = fxApplicationComponentImpl;
-      this.mainWindowComponentImpl = mainWindowComponentImpl;
-    }
-
-    @Override
-    public MigrationComponentBuilder vault(Vault arg0) {
-      this.vault = Preconditions.checkNotNull(arg0);
-      return this;
-    }
-
-    @Override
-    public MigrationComponent build() {
-      Preconditions.checkBuilderRequirement(vault, Vault.class);
-      return new MigrationComponentImpl(
           cryptomatorComponentImpl, fxApplicationComponentImpl, mainWindowComponentImpl, vault);
     }
   }
@@ -585,8 +577,8 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public VaultStatisticsComponentBuilder vault(Vault arg0) {
-      this.vault = Preconditions.checkNotNull(arg0);
+    public VaultStatisticsComponentBuilder vault(Vault vault) {
+      this.vault = Preconditions.checkNotNull(vault);
       return this;
     }
 
@@ -622,15 +614,16 @@ public final class DaggerCryptomatorComponent {
     }
   }
 
-  private static final class AddVaultWizardComponentBuilder
-      implements AddVaultWizardComponent.Builder {
+  private static final class MigrationComponentBuilder implements MigrationComponent.Builder {
     private final CryptomatorComponentImpl cryptomatorComponentImpl;
 
     private final FxApplicationComponentImpl fxApplicationComponentImpl;
 
     private final MainWindowComponentImpl mainWindowComponentImpl;
 
-    private AddVaultWizardComponentBuilder(
+    private Vault vault;
+
+    private MigrationComponentBuilder(
         CryptomatorComponentImpl cryptomatorComponentImpl,
         FxApplicationComponentImpl fxApplicationComponentImpl,
         MainWindowComponentImpl mainWindowComponentImpl) {
@@ -640,9 +633,16 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public AddVaultWizardComponent build() {
-      return new AddVaultWizardComponentImpl(
-          cryptomatorComponentImpl, fxApplicationComponentImpl, mainWindowComponentImpl);
+    public MigrationComponentBuilder vault(Vault vault) {
+      this.vault = Preconditions.checkNotNull(vault);
+      return this;
+    }
+
+    @Override
+    public MigrationComponent build() {
+      Preconditions.checkBuilderRequirement(vault, Vault.class);
+      return new MigrationComponentImpl(
+          cryptomatorComponentImpl, fxApplicationComponentImpl, mainWindowComponentImpl, vault);
     }
   }
 
@@ -695,10 +695,10 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public UnlockComponent create(Vault arg0, Stage arg1) {
-      Preconditions.checkNotNull(arg0);
+    public UnlockComponent create(Vault vault, Stage owner) {
+      Preconditions.checkNotNull(vault);
       return new UnlockComponentImpl(
-          cryptomatorComponentImpl, fxApplicationComponentImpl, arg0, arg1);
+          cryptomatorComponentImpl, fxApplicationComponentImpl, vault, owner);
     }
   }
 
@@ -724,14 +724,14 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public ocuk_KeyLoadingComponentBuilder vault(Vault arg0) {
-      this.vault = Preconditions.checkNotNull(arg0);
+    public ocuk_KeyLoadingComponentBuilder vault(Vault vault) {
+      this.vault = Preconditions.checkNotNull(vault);
       return this;
     }
 
     @Override
-    public ocuk_KeyLoadingComponentBuilder window(Stage arg0) {
-      this.window = Preconditions.checkNotNull(arg0);
+    public ocuk_KeyLoadingComponentBuilder window(Stage window) {
+      this.window = Preconditions.checkNotNull(window);
       return this;
     }
 
@@ -768,8 +768,8 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public ocukm_PassphraseEntryComponentBuilder savedPassword(Passphrase arg0) {
-      this.savedPassword = arg0;
+    public ocukm_PassphraseEntryComponentBuilder savedPassword(Passphrase savedPassword) {
+      this.savedPassword = savedPassword;
       return this;
     }
 
@@ -825,9 +825,9 @@ public final class DaggerCryptomatorComponent {
 
     private final ocuk_KeyLoadingComponentImpl _ocuk_KeyLoadingComponentImpl;
 
-    private Stage owner;
-
     private Vault vault;
+
+    private Stage owner;
 
     private ocuf_ForgetPasswordComponentBuilder(
         CryptomatorComponentImpl cryptomatorComponentImpl,
@@ -841,28 +841,28 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public ocuf_ForgetPasswordComponentBuilder owner(Stage arg0) {
-      this.owner = Preconditions.checkNotNull(arg0);
+    public ocuf_ForgetPasswordComponentBuilder vault(Vault vault) {
+      this.vault = Preconditions.checkNotNull(vault);
       return this;
     }
 
     @Override
-    public ocuf_ForgetPasswordComponentBuilder vault(Vault arg0) {
-      this.vault = Preconditions.checkNotNull(arg0);
+    public ocuf_ForgetPasswordComponentBuilder owner(Stage owner) {
+      this.owner = Preconditions.checkNotNull(owner);
       return this;
     }
 
     @Override
     public ForgetPasswordComponent build() {
-      Preconditions.checkBuilderRequirement(owner, Stage.class);
       Preconditions.checkBuilderRequirement(vault, Vault.class);
+      Preconditions.checkBuilderRequirement(owner, Stage.class);
       return new ocuf_ForgetPasswordComponentImpl(
           cryptomatorComponentImpl,
           fxApplicationComponentImpl,
           unlockComponentImpl,
           _ocuk_KeyLoadingComponentImpl,
-          owner,
-          vault);
+          vault,
+          owner);
     }
   }
 
@@ -918,10 +918,10 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public LockComponent create(Vault arg0, Stage arg1) {
-      Preconditions.checkNotNull(arg0);
+    public LockComponent create(Vault vault, Stage owner) {
+      Preconditions.checkNotNull(vault);
       return new LockComponentImpl(
-          cryptomatorComponentImpl, fxApplicationComponentImpl, arg0, arg1);
+          cryptomatorComponentImpl, fxApplicationComponentImpl, vault, owner);
     }
   }
 
@@ -938,11 +938,11 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public ErrorComponent create(Throwable arg0, Stage arg1, Scene arg2) {
-      Preconditions.checkNotNull(arg0);
-      Preconditions.checkNotNull(arg1);
+    public ErrorComponent create(Throwable cause, Stage window, Scene previousScene) {
+      Preconditions.checkNotNull(cause);
+      Preconditions.checkNotNull(window);
       return new ErrorComponentImpl(
-          cryptomatorComponentImpl, fxApplicationComponentImpl, arg0, arg1, arg2);
+          cryptomatorComponentImpl, fxApplicationComponentImpl, cause, window, previousScene);
     }
   }
 
@@ -959,39 +959,10 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public VaultOptionsComponent create(Vault arg0) {
-      Preconditions.checkNotNull(arg0);
+    public VaultOptionsComponent create(Vault vault) {
+      Preconditions.checkNotNull(vault);
       return new VaultOptionsComponentImpl(
-          cryptomatorComponentImpl, fxApplicationComponentImpl, arg0);
-    }
-  }
-
-  private static final class ConvertVaultComponentFactory implements ConvertVaultComponent.Factory {
-    private final CryptomatorComponentImpl cryptomatorComponentImpl;
-
-    private final FxApplicationComponentImpl fxApplicationComponentImpl;
-
-    private final VaultOptionsComponentImpl vaultOptionsComponentImpl;
-
-    private ConvertVaultComponentFactory(
-        CryptomatorComponentImpl cryptomatorComponentImpl,
-        FxApplicationComponentImpl fxApplicationComponentImpl,
-        VaultOptionsComponentImpl vaultOptionsComponentImpl) {
-      this.cryptomatorComponentImpl = cryptomatorComponentImpl;
-      this.fxApplicationComponentImpl = fxApplicationComponentImpl;
-      this.vaultOptionsComponentImpl = vaultOptionsComponentImpl;
-    }
-
-    @Override
-    public ConvertVaultComponent create(Vault arg0, Stage arg1) {
-      Preconditions.checkNotNull(arg0);
-      Preconditions.checkNotNull(arg1);
-      return new ConvertVaultComponentImpl(
-          cryptomatorComponentImpl,
-          fxApplicationComponentImpl,
-          vaultOptionsComponentImpl,
-          arg0,
-          arg1);
+          cryptomatorComponentImpl, fxApplicationComponentImpl, vault);
     }
   }
 
@@ -1003,9 +974,9 @@ public final class DaggerCryptomatorComponent {
 
     private final VaultOptionsComponentImpl vaultOptionsComponentImpl;
 
-    private Stage owner;
-
     private Vault vault;
+
+    private Stage owner;
 
     private ChangePasswordComponentBuilder(
         CryptomatorComponentImpl cryptomatorComponentImpl,
@@ -1017,27 +988,27 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public ChangePasswordComponentBuilder owner(Stage arg0) {
-      this.owner = Preconditions.checkNotNull(arg0);
+    public ChangePasswordComponentBuilder vault(Vault vault) {
+      this.vault = Preconditions.checkNotNull(vault);
       return this;
     }
 
     @Override
-    public ChangePasswordComponentBuilder vault(Vault arg0) {
-      this.vault = Preconditions.checkNotNull(arg0);
+    public ChangePasswordComponentBuilder owner(Stage owner) {
+      this.owner = Preconditions.checkNotNull(owner);
       return this;
     }
 
     @Override
     public ChangePasswordComponent build() {
-      Preconditions.checkBuilderRequirement(owner, Stage.class);
       Preconditions.checkBuilderRequirement(vault, Vault.class);
+      Preconditions.checkBuilderRequirement(owner, Stage.class);
       return new ChangePasswordComponentImpl(
           cryptomatorComponentImpl,
           fxApplicationComponentImpl,
           vaultOptionsComponentImpl,
-          owner,
-          vault);
+          vault,
+          owner);
     }
   }
 
@@ -1058,15 +1029,15 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public RecoveryKeyComponent create(Vault arg0, Stage arg1) {
-      Preconditions.checkNotNull(arg0);
-      Preconditions.checkNotNull(arg1);
+    public RecoveryKeyComponent create(Vault vault, Stage owner) {
+      Preconditions.checkNotNull(vault);
+      Preconditions.checkNotNull(owner);
       return new RecoveryKeyComponentImpl(
           cryptomatorComponentImpl,
           fxApplicationComponentImpl,
           vaultOptionsComponentImpl,
-          arg0,
-          arg1);
+          vault,
+          owner);
     }
   }
 
@@ -1078,9 +1049,9 @@ public final class DaggerCryptomatorComponent {
 
     private final VaultOptionsComponentImpl vaultOptionsComponentImpl;
 
-    private Stage owner;
-
     private Vault vault;
+
+    private Stage owner;
 
     private ocuf2_ForgetPasswordComponentBuilder(
         CryptomatorComponentImpl cryptomatorComponentImpl,
@@ -1092,27 +1063,56 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public ocuf2_ForgetPasswordComponentBuilder owner(Stage arg0) {
-      this.owner = Preconditions.checkNotNull(arg0);
+    public ocuf2_ForgetPasswordComponentBuilder vault(Vault vault) {
+      this.vault = Preconditions.checkNotNull(vault);
       return this;
     }
 
     @Override
-    public ocuf2_ForgetPasswordComponentBuilder vault(Vault arg0) {
-      this.vault = Preconditions.checkNotNull(arg0);
+    public ocuf2_ForgetPasswordComponentBuilder owner(Stage owner) {
+      this.owner = Preconditions.checkNotNull(owner);
       return this;
     }
 
     @Override
     public ForgetPasswordComponent build() {
-      Preconditions.checkBuilderRequirement(owner, Stage.class);
       Preconditions.checkBuilderRequirement(vault, Vault.class);
+      Preconditions.checkBuilderRequirement(owner, Stage.class);
       return new ocuf2_ForgetPasswordComponentImpl(
           cryptomatorComponentImpl,
           fxApplicationComponentImpl,
           vaultOptionsComponentImpl,
-          owner,
-          vault);
+          vault,
+          owner);
+    }
+  }
+
+  private static final class ConvertVaultComponentFactory implements ConvertVaultComponent.Factory {
+    private final CryptomatorComponentImpl cryptomatorComponentImpl;
+
+    private final FxApplicationComponentImpl fxApplicationComponentImpl;
+
+    private final VaultOptionsComponentImpl vaultOptionsComponentImpl;
+
+    private ConvertVaultComponentFactory(
+        CryptomatorComponentImpl cryptomatorComponentImpl,
+        FxApplicationComponentImpl fxApplicationComponentImpl,
+        VaultOptionsComponentImpl vaultOptionsComponentImpl) {
+      this.cryptomatorComponentImpl = cryptomatorComponentImpl;
+      this.fxApplicationComponentImpl = fxApplicationComponentImpl;
+      this.vaultOptionsComponentImpl = vaultOptionsComponentImpl;
+    }
+
+    @Override
+    public ConvertVaultComponent create(Vault vault, Stage owner) {
+      Preconditions.checkNotNull(vault);
+      Preconditions.checkNotNull(owner);
+      return new ConvertVaultComponentImpl(
+          cryptomatorComponentImpl,
+          fxApplicationComponentImpl,
+          vaultOptionsComponentImpl,
+          vault,
+          owner);
     }
   }
 
@@ -1129,10 +1129,10 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public ShareVaultComponent create(Vault arg0) {
-      Preconditions.checkNotNull(arg0);
+    public ShareVaultComponent create(Vault vault) {
+      Preconditions.checkNotNull(vault);
       return new ShareVaultComponentImpl(
-          cryptomatorComponentImpl, fxApplicationComponentImpl, arg0);
+          cryptomatorComponentImpl, fxApplicationComponentImpl, vault);
     }
   }
 
@@ -1159,9 +1159,9 @@ public final class DaggerCryptomatorComponent {
 
     private final FxApplicationComponentImpl fxApplicationComponentImpl;
 
-    private Stage owner;
-
     private Vault vault;
+
+    private Stage owner;
 
     private HealthCheckComponentBuilder(
         CryptomatorComponentImpl cryptomatorComponentImpl,
@@ -1171,23 +1171,23 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public HealthCheckComponentBuilder owner(Stage arg0) {
-      this.owner = Preconditions.checkNotNull(arg0);
+    public HealthCheckComponentBuilder vault(Vault vault) {
+      this.vault = Preconditions.checkNotNull(vault);
       return this;
     }
 
     @Override
-    public HealthCheckComponentBuilder vault(Vault arg0) {
-      this.vault = Preconditions.checkNotNull(arg0);
+    public HealthCheckComponentBuilder owner(Stage owner) {
+      this.owner = Preconditions.checkNotNull(owner);
       return this;
     }
 
     @Override
     public HealthCheckComponent build() {
-      Preconditions.checkBuilderRequirement(owner, Stage.class);
       Preconditions.checkBuilderRequirement(vault, Vault.class);
+      Preconditions.checkBuilderRequirement(owner, Stage.class);
       return new HealthCheckComponentImpl(
-          cryptomatorComponentImpl, fxApplicationComponentImpl, owner, vault);
+          cryptomatorComponentImpl, fxApplicationComponentImpl, vault, owner);
     }
   }
 
@@ -1213,14 +1213,14 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public ocuk2_KeyLoadingComponentBuilder vault(Vault arg0) {
-      this.vault = Preconditions.checkNotNull(arg0);
+    public ocuk2_KeyLoadingComponentBuilder vault(Vault vault) {
+      this.vault = Preconditions.checkNotNull(vault);
       return this;
     }
 
     @Override
-    public ocuk2_KeyLoadingComponentBuilder window(Stage arg0) {
-      this.window = Preconditions.checkNotNull(arg0);
+    public ocuk2_KeyLoadingComponentBuilder window(Stage window) {
+      this.window = Preconditions.checkNotNull(window);
       return this;
     }
 
@@ -1261,8 +1261,8 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public ocukm2_PassphraseEntryComponentBuilder savedPassword(Passphrase arg0) {
-      this.savedPassword = arg0;
+    public ocukm2_PassphraseEntryComponentBuilder savedPassword(Passphrase savedPassword) {
+      this.savedPassword = savedPassword;
       return this;
     }
 
@@ -1318,9 +1318,9 @@ public final class DaggerCryptomatorComponent {
 
     private final ocuk2_KeyLoadingComponentImpl _ocuk2_KeyLoadingComponentImpl;
 
-    private Stage owner;
-
     private Vault vault;
+
+    private Stage owner;
 
     private ocuf3_ForgetPasswordComponentBuilder(
         CryptomatorComponentImpl cryptomatorComponentImpl,
@@ -1334,28 +1334,28 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public ocuf3_ForgetPasswordComponentBuilder owner(Stage arg0) {
-      this.owner = Preconditions.checkNotNull(arg0);
+    public ocuf3_ForgetPasswordComponentBuilder vault(Vault vault) {
+      this.vault = Preconditions.checkNotNull(vault);
       return this;
     }
 
     @Override
-    public ocuf3_ForgetPasswordComponentBuilder vault(Vault arg0) {
-      this.vault = Preconditions.checkNotNull(arg0);
+    public ocuf3_ForgetPasswordComponentBuilder owner(Stage owner) {
+      this.owner = Preconditions.checkNotNull(owner);
       return this;
     }
 
     @Override
     public ForgetPasswordComponent build() {
-      Preconditions.checkBuilderRequirement(owner, Stage.class);
       Preconditions.checkBuilderRequirement(vault, Vault.class);
+      Preconditions.checkBuilderRequirement(owner, Stage.class);
       return new ocuf3_ForgetPasswordComponentImpl(
           cryptomatorComponentImpl,
           fxApplicationComponentImpl,
           healthCheckComponentImpl,
           _ocuk2_KeyLoadingComponentImpl,
-          owner,
-          vault);
+          vault,
+          owner);
     }
   }
 
@@ -1368,12 +1368,587 @@ public final class DaggerCryptomatorComponent {
 
     @Override
     public VaultComponent create(
-        VaultSettings arg0, VaultConfigCache arg1, VaultState.Value arg2, Exception arg3) {
-      Preconditions.checkNotNull(arg0);
-      Preconditions.checkNotNull(arg1);
-      Preconditions.checkNotNull(arg2);
+        VaultSettings vaultSettings,
+        VaultConfigCache configCache,
+        VaultState.Value vaultState,
+        Exception initialErrorCause) {
+      Preconditions.checkNotNull(vaultSettings);
+      Preconditions.checkNotNull(configCache);
+      Preconditions.checkNotNull(vaultState);
       return new VaultComponentImpl(
-          cryptomatorComponentImpl, new VaultModule(), arg0, arg1, arg2, arg3);
+          cryptomatorComponentImpl,
+          new VaultModule(),
+          vaultSettings,
+          configCache,
+          vaultState,
+          initialErrorCause);
+    }
+  }
+
+  private static final class AddVaultWizardComponentImpl implements AddVaultWizardComponent {
+    private final CryptomatorComponentImpl cryptomatorComponentImpl;
+
+    private final FxApplicationComponentImpl fxApplicationComponentImpl;
+
+    private final MainWindowComponentImpl mainWindowComponentImpl;
+
+    private final AddVaultWizardComponentImpl addVaultWizardComponentImpl = this;
+
+    private Provider<Stage> provideStageProvider;
+
+    private Provider<FxController> provideNewPasswordControllerProvider;
+
+    private Provider<StringProperty> provideVaultNameProvider;
+
+    private Provider<StringProperty> provideRecoveryKeyProvider;
+
+    private Provider<FxController> provideRecoveryKeyDisplayControllerProvider;
+
+    private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
+
+    private Provider<Scene> provideCreateNewVaultSuccessSceneProvider;
+
+    private Provider<ObjectProperty<Path>> provideVaultPathProvider;
+
+    private Provider<ObjectProperty<Vault>> provideVaultProvider;
+
+    private Provider<ChooseExistingVaultController> chooseExistingVaultControllerProvider;
+
+    private Provider<Scene> provideCreateNewVaultLocationSceneProvider;
+
+    private Provider<CreateNewVaultNameController> createNewVaultNameControllerProvider;
+
+    private Provider<Scene> provideCreateNewVaultNameSceneProvider;
+
+    private Provider<Scene> provideCreateNewVaultExpertSettingsSceneProvider;
+
+    private Provider<CreateNewVaultLocationController> createNewVaultLocationControllerProvider;
+
+    private Provider<Scene> provideCreateNewVaultRecoveryKeySceneProvider;
+
+    private Provider<IntegerProperty> provideShorteningThresholdProvider;
+
+    private Provider<ReadmeGenerator> readmeGeneratorProvider;
+
+    private Provider<CreateNewVaultPasswordController> createNewVaultPasswordControllerProvider;
+
+    private Provider<CreateNewVaultRecoveryKeyController>
+        createNewVaultRecoveryKeyControllerProvider;
+
+    private Provider<AddVaultSuccessController> addVaultSuccessControllerProvider;
+
+    private Provider<Scene> provideCreateNewVaultPasswordSceneProvider;
+
+    private Provider<CreateNewVaultExpertSettingsController>
+        createNewVaultExpertSettingsControllerProvider;
+
+    private Provider<Scene> provideChooseExistingVaultSceneProvider;
+
+    private AddVaultWizardComponentImpl(
+        CryptomatorComponentImpl cryptomatorComponentImpl,
+        FxApplicationComponentImpl fxApplicationComponentImpl,
+        MainWindowComponentImpl mainWindowComponentImpl) {
+      this.cryptomatorComponentImpl = cryptomatorComponentImpl;
+      this.fxApplicationComponentImpl = fxApplicationComponentImpl;
+      this.mainWindowComponentImpl = mainWindowComponentImpl;
+
+      initialize();
+    }
+
+    private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
+        mapOfClassOfAndProviderOfFxController() {
+      return ImmutableMap
+          .<Class<? extends FxController>, javax.inject.Provider<FxController>>
+              builderWithExpectedSize(22)
+          .put(
+              MainWindowController.class,
+              ((Provider) mainWindowComponentImpl.mainWindowControllerProvider))
+          .put(
+              MainWindowTitleController.class,
+              ((Provider) mainWindowComponentImpl.mainWindowTitleControllerProvider))
+          .put(
+              ResizeController.class, ((Provider) mainWindowComponentImpl.resizeControllerProvider))
+          .put(
+              VaultListController.class,
+              ((Provider) mainWindowComponentImpl.vaultListControllerProvider))
+          .put(
+              VaultListContextMenuController.class,
+              ((Provider) mainWindowComponentImpl.vaultListContextMenuControllerProvider))
+          .put(
+              VaultDetailController.class,
+              ((Provider) mainWindowComponentImpl.vaultDetailControllerProvider))
+          .put(
+              WelcomeController.class,
+              ((Provider) mainWindowComponentImpl.welcomeControllerProvider))
+          .put(
+              VaultDetailLockedController.class,
+              ((Provider) mainWindowComponentImpl.vaultDetailLockedControllerProvider))
+          .put(
+              VaultDetailUnlockedController.class,
+              ((Provider) mainWindowComponentImpl.vaultDetailUnlockedControllerProvider))
+          .put(
+              VaultDetailMissingVaultController.class,
+              ((Provider) mainWindowComponentImpl.vaultDetailMissingVaultControllerProvider))
+          .put(
+              VaultDetailNeedsMigrationController.class,
+              ((Provider) mainWindowComponentImpl.vaultDetailNeedsMigrationControllerProvider))
+          .put(
+              VaultDetailUnknownErrorController.class,
+              ((Provider) mainWindowComponentImpl.vaultDetailUnknownErrorControllerProvider))
+          .put(
+              VaultListCellController.class,
+              ((Provider) mainWindowComponentImpl.vaultListCellControllerProvider))
+          .put(NewPasswordController.class, provideNewPasswordControllerProvider)
+          .put(RecoveryKeyDisplayController.class, provideRecoveryKeyDisplayControllerProvider)
+          .put(
+              ChooseExistingVaultController.class,
+              ((Provider) chooseExistingVaultControllerProvider))
+          .put(
+              CreateNewVaultNameController.class, ((Provider) createNewVaultNameControllerProvider))
+          .put(
+              CreateNewVaultLocationController.class,
+              ((Provider) createNewVaultLocationControllerProvider))
+          .put(
+              CreateNewVaultPasswordController.class,
+              ((Provider) createNewVaultPasswordControllerProvider))
+          .put(
+              CreateNewVaultRecoveryKeyController.class,
+              ((Provider) createNewVaultRecoveryKeyControllerProvider))
+          .put(AddVaultSuccessController.class, ((Provider) addVaultSuccessControllerProvider))
+          .put(
+              CreateNewVaultExpertSettingsController.class,
+              ((Provider) createNewVaultExpertSettingsControllerProvider))
+          .build();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initialize() {
+      this.provideStageProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Stage>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  0));
+      this.provideNewPasswordControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl,
+              fxApplicationComponentImpl,
+              mainWindowComponentImpl,
+              addVaultWizardComponentImpl,
+              3);
+      this.provideVaultNameProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<StringProperty>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  5));
+      this.provideRecoveryKeyProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<StringProperty>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  6));
+      this.provideRecoveryKeyDisplayControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl,
+              fxApplicationComponentImpl,
+              mainWindowComponentImpl,
+              addVaultWizardComponentImpl,
+              4);
+      this.provideFxmlLoaderFactoryProvider = new DelegateFactory<>();
+      this.provideCreateNewVaultSuccessSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  8));
+      this.provideVaultPathProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<ObjectProperty<Path>>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  9));
+      this.provideVaultProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<ObjectProperty<Vault>>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  10));
+      this.chooseExistingVaultControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<ChooseExistingVaultController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  7));
+      this.provideCreateNewVaultLocationSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  12));
+      this.createNewVaultNameControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<CreateNewVaultNameController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  11));
+      this.provideCreateNewVaultNameSceneProvider = new DelegateFactory<>();
+      this.provideCreateNewVaultExpertSettingsSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  14));
+      this.createNewVaultLocationControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<CreateNewVaultLocationController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  13));
+      this.provideCreateNewVaultRecoveryKeySceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  16));
+      this.provideShorteningThresholdProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<IntegerProperty>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  17));
+      this.readmeGeneratorProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<ReadmeGenerator>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  18));
+      this.createNewVaultPasswordControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<CreateNewVaultPasswordController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  15));
+      this.createNewVaultRecoveryKeyControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl,
+              fxApplicationComponentImpl,
+              mainWindowComponentImpl,
+              addVaultWizardComponentImpl,
+              19);
+      this.addVaultSuccessControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<AddVaultSuccessController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  20));
+      this.provideCreateNewVaultPasswordSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  22));
+      this.createNewVaultExpertSettingsControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<CreateNewVaultExpertSettingsController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  21));
+      DelegateFactory.setDelegate(
+          provideFxmlLoaderFactoryProvider,
+          DoubleCheck.provider(
+              new SwitchingProvider<FxmlLoaderFactory>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  2)));
+      DelegateFactory.setDelegate(
+          provideCreateNewVaultNameSceneProvider,
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  1)));
+      this.provideChooseExistingVaultSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  addVaultWizardComponentImpl,
+                  23));
+    }
+
+    @Override
+    public Stage window() {
+      return provideStageProvider.get();
+    }
+
+    @Override
+    public Lazy<Scene> sceneNew() {
+      return DoubleCheck.lazy(provideCreateNewVaultNameSceneProvider);
+    }
+
+    @Override
+    public Lazy<Scene> sceneExisting() {
+      return DoubleCheck.lazy(provideChooseExistingVaultSceneProvider);
+    }
+
+    private static final class SwitchingProvider<T> implements Provider<T> {
+      private final CryptomatorComponentImpl cryptomatorComponentImpl;
+
+      private final FxApplicationComponentImpl fxApplicationComponentImpl;
+
+      private final MainWindowComponentImpl mainWindowComponentImpl;
+
+      private final AddVaultWizardComponentImpl addVaultWizardComponentImpl;
+
+      private final int id;
+
+      SwitchingProvider(
+          CryptomatorComponentImpl cryptomatorComponentImpl,
+          FxApplicationComponentImpl fxApplicationComponentImpl,
+          MainWindowComponentImpl mainWindowComponentImpl,
+          AddVaultWizardComponentImpl addVaultWizardComponentImpl,
+          int id) {
+        this.cryptomatorComponentImpl = cryptomatorComponentImpl;
+        this.fxApplicationComponentImpl = fxApplicationComponentImpl;
+        this.mainWindowComponentImpl = mainWindowComponentImpl;
+        this.addVaultWizardComponentImpl = addVaultWizardComponentImpl;
+        this.id = id;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public T get() {
+        switch (id) {
+          case 0: // @org.cryptomator.ui.addvaultwizard.AddVaultWizardWindow javafx.stage.Stage
+            return (T)
+                AddVaultModule_ProvideStageFactory.provideStage(
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    fxApplicationComponentImpl.primaryStage);
+
+          case 1: // @org.cryptomator.ui.common.FxmlScene(ADDVAULT_NEW_NAME) javafx.scene.Scene
+            return (T)
+                AddVaultModule_ProvideCreateNewVaultNameSceneFactory.provideCreateNewVaultNameScene(
+                    addVaultWizardComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 2: // @org.cryptomator.ui.addvaultwizard.AddVaultWizardWindow
+                  // org.cryptomator.ui.common.FxmlLoaderFactory
+            return (T)
+                AddVaultModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
+                    addVaultWizardComponentImpl.mapOfClassOfAndProviderOfFxController(),
+                    fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 3: // java.util.Map<java.lang.Class<? extends
+                  // org.cryptomator.ui.common.FxController>,javax.inject.Provider<org.cryptomator.ui.common.FxController>> org.cryptomator.ui.addvaultwizard.AddVaultModule#provideNewPasswordController
+            return (T)
+                AddVaultModule_ProvideNewPasswordControllerFactory.provideNewPasswordController(
+                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
+                    fxApplicationComponentImpl.passwordStrengthUtilProvider.get());
+
+          case 4: // java.util.Map<java.lang.Class<? extends
+                  // org.cryptomator.ui.common.FxController>,javax.inject.Provider<org.cryptomator.ui.common.FxController>> org.cryptomator.ui.addvaultwizard.AddVaultModule#provideRecoveryKeyDisplayController
+            return (T)
+                AddVaultModule_ProvideRecoveryKeyDisplayControllerFactory
+                    .provideRecoveryKeyDisplayController(
+                        addVaultWizardComponentImpl.provideStageProvider.get(),
+                        addVaultWizardComponentImpl.provideVaultNameProvider.get(),
+                        addVaultWizardComponentImpl.provideRecoveryKeyProvider.get(),
+                        cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 5: // @javax.inject.Named("vaultName") javafx.beans.property.StringProperty
+            return (T) AddVaultModule_ProvideVaultNameFactory.provideVaultName();
+
+          case 6: // @javax.inject.Named("recoveryKey") javafx.beans.property.StringProperty
+            return (T) AddVaultModule_ProvideRecoveryKeyFactory.provideRecoveryKey();
+
+          case 7: // org.cryptomator.ui.addvaultwizard.ChooseExistingVaultController
+            return (T)
+                ChooseExistingVaultController_Factory.newInstance(
+                    addVaultWizardComponentImpl.provideStageProvider.get(),
+                    DoubleCheck.lazy(
+                        addVaultWizardComponentImpl.provideCreateNewVaultSuccessSceneProvider),
+                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
+                    addVaultWizardComponentImpl.provideVaultPathProvider.get(),
+                    addVaultWizardComponentImpl.provideVaultProvider.get(),
+                    cryptomatorComponentImpl.vaultListManagerProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
+                    fxApplicationComponentImpl.fxApplicationStyleProvider.get());
+
+          case 8: // @org.cryptomator.ui.common.FxmlScene(ADDVAULT_SUCCESS) javafx.scene.Scene
+            return (T)
+                AddVaultModule_ProvideCreateNewVaultSuccessSceneFactory
+                    .provideCreateNewVaultSuccessScene(
+                        addVaultWizardComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 9: // javafx.beans.property.ObjectProperty<java.nio.file.Path>
+            return (T) AddVaultModule_ProvideVaultPathFactory.provideVaultPath();
+
+          case 10: // @org.cryptomator.ui.addvaultwizard.AddVaultWizardWindow
+                   // javafx.beans.property.ObjectProperty<org.cryptomator.common.vaults.Vault>
+            return (T) AddVaultModule_ProvideVaultFactory.provideVault();
+
+          case 11: // org.cryptomator.ui.addvaultwizard.CreateNewVaultNameController
+            return (T)
+                CreateNewVaultNameController_Factory.newInstance(
+                    addVaultWizardComponentImpl.provideStageProvider.get(),
+                    DoubleCheck.lazy(
+                        addVaultWizardComponentImpl.provideCreateNewVaultLocationSceneProvider),
+                    addVaultWizardComponentImpl.provideVaultPathProvider.get(),
+                    addVaultWizardComponentImpl.provideVaultNameProvider.get());
+
+          case 12: // @org.cryptomator.ui.common.FxmlScene(ADDVAULT_NEW_LOCATION) javafx.scene.Scene
+            return (T)
+                AddVaultModule_ProvideCreateNewVaultLocationSceneFactory
+                    .provideCreateNewVaultLocationScene(
+                        addVaultWizardComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 13: // org.cryptomator.ui.addvaultwizard.CreateNewVaultLocationController
+            return (T)
+                CreateNewVaultLocationController_Factory.newInstance(
+                    addVaultWizardComponentImpl.provideStageProvider.get(),
+                    DoubleCheck.lazy(
+                        addVaultWizardComponentImpl.provideCreateNewVaultNameSceneProvider),
+                    DoubleCheck.lazy(
+                        addVaultWizardComponentImpl
+                            .provideCreateNewVaultExpertSettingsSceneProvider),
+                    addVaultWizardComponentImpl.provideVaultPathProvider.get(),
+                    addVaultWizardComponentImpl.provideVaultNameProvider.get(),
+                    cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 14: // @org.cryptomator.ui.common.FxmlScene(ADDVAULT_NEW_EXPERT_SETTINGS)
+                   // javafx.scene.Scene
+            return (T)
+                AddVaultModule_ProvideCreateNewVaultExpertSettingsSceneFactory
+                    .provideCreateNewVaultExpertSettingsScene(
+                        addVaultWizardComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 15: // org.cryptomator.ui.addvaultwizard.CreateNewVaultPasswordController
+            return (T)
+                CreateNewVaultPasswordController_Factory.newInstance(
+                    addVaultWizardComponentImpl.provideStageProvider.get(),
+                    DoubleCheck.lazy(
+                        addVaultWizardComponentImpl
+                            .provideCreateNewVaultExpertSettingsSceneProvider),
+                    DoubleCheck.lazy(
+                        addVaultWizardComponentImpl.provideCreateNewVaultRecoveryKeySceneProvider),
+                    DoubleCheck.lazy(
+                        addVaultWizardComponentImpl.provideCreateNewVaultSuccessSceneProvider),
+                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
+                    cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
+                    cryptomatorComponentImpl.recoveryKeyFactoryProvider.get(),
+                    addVaultWizardComponentImpl.provideVaultNameProvider.get(),
+                    addVaultWizardComponentImpl.provideVaultPathProvider.get(),
+                    addVaultWizardComponentImpl.provideVaultProvider.get(),
+                    addVaultWizardComponentImpl.provideRecoveryKeyProvider.get(),
+                    cryptomatorComponentImpl.vaultListManagerProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
+                    addVaultWizardComponentImpl.provideShorteningThresholdProvider.get(),
+                    addVaultWizardComponentImpl.readmeGeneratorProvider.get(),
+                    cryptomatorComponentImpl.provideCSPRNGProvider.get(),
+                    cryptomatorComponentImpl.provideMasterkeyFileAccessProvider.get());
+
+          case 16: // @org.cryptomator.ui.common.FxmlScene(ADDVAULT_NEW_RECOVERYKEY)
+                   // javafx.scene.Scene
+            return (T)
+                AddVaultModule_ProvideCreateNewVaultRecoveryKeySceneFactory
+                    .provideCreateNewVaultRecoveryKeyScene(
+                        addVaultWizardComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 17: // @javax.inject.Named("shorteningThreshold")
+                   // javafx.beans.property.IntegerProperty
+            return (T)
+                AddVaultModule_ProvideShorteningThresholdFactory.provideShorteningThreshold();
+
+          case 18: // org.cryptomator.ui.addvaultwizard.ReadmeGenerator
+            return (T)
+                new ReadmeGenerator(cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 19: // org.cryptomator.ui.addvaultwizard.CreateNewVaultRecoveryKeyController
+            return (T)
+                CreateNewVaultRecoveryKeyController_Factory.newInstance(
+                    addVaultWizardComponentImpl.provideStageProvider.get(),
+                    DoubleCheck.lazy(
+                        addVaultWizardComponentImpl.provideCreateNewVaultSuccessSceneProvider));
+
+          case 20: // org.cryptomator.ui.addvaultwizard.AddVaultSuccessController
+            return (T)
+                AddVaultSuccessController_Factory.newInstance(
+                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
+                    addVaultWizardComponentImpl.provideStageProvider.get(),
+                    addVaultWizardComponentImpl.provideVaultProvider.get());
+
+          case 21: // org.cryptomator.ui.addvaultwizard.CreateNewVaultExpertSettingsController
+            return (T)
+                CreateNewVaultExpertSettingsController_Factory.newInstance(
+                    addVaultWizardComponentImpl.provideStageProvider.get(),
+                    DoubleCheck.lazy(fxApplicationComponentImpl.fxApplicationProvider),
+                    DoubleCheck.lazy(
+                        addVaultWizardComponentImpl.provideCreateNewVaultLocationSceneProvider),
+                    DoubleCheck.lazy(
+                        addVaultWizardComponentImpl.provideCreateNewVaultPasswordSceneProvider),
+                    addVaultWizardComponentImpl.provideVaultNameProvider.get(),
+                    addVaultWizardComponentImpl.provideVaultPathProvider.get(),
+                    addVaultWizardComponentImpl.provideShorteningThresholdProvider.get());
+
+          case 22: // @org.cryptomator.ui.common.FxmlScene(ADDVAULT_NEW_PASSWORD) javafx.scene.Scene
+            return (T)
+                AddVaultModule_ProvideCreateNewVaultPasswordSceneFactory
+                    .provideCreateNewVaultPasswordScene(
+                        addVaultWizardComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 23: // @org.cryptomator.ui.common.FxmlScene(ADDVAULT_EXISTING) javafx.scene.Scene
+            return (T)
+                AddVaultModule_ProvideChooseExistingVaultSceneFactory
+                    .provideChooseExistingVaultScene(
+                        addVaultWizardComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          default:
+            throw new AssertionError(id);
+        }
+      }
     }
   }
 
@@ -1422,11 +1997,23 @@ public final class DaggerCryptomatorComponent {
           .put(
               ResizeController.class, ((Provider) mainWindowComponentImpl.resizeControllerProvider))
           .put(
+              VaultListController.class,
+              ((Provider) mainWindowComponentImpl.vaultListControllerProvider))
+          .put(
+              VaultListContextMenuController.class,
+              ((Provider) mainWindowComponentImpl.vaultListContextMenuControllerProvider))
+          .put(
               VaultDetailController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailControllerProvider))
           .put(
+              WelcomeController.class,
+              ((Provider) mainWindowComponentImpl.welcomeControllerProvider))
+          .put(
               VaultDetailLockedController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailLockedControllerProvider))
+          .put(
+              VaultDetailUnlockedController.class,
+              ((Provider) mainWindowComponentImpl.vaultDetailUnlockedControllerProvider))
           .put(
               VaultDetailMissingVaultController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailMissingVaultControllerProvider))
@@ -1437,20 +2024,8 @@ public final class DaggerCryptomatorComponent {
               VaultDetailUnknownErrorController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailUnknownErrorControllerProvider))
           .put(
-              VaultDetailUnlockedController.class,
-              ((Provider) mainWindowComponentImpl.vaultDetailUnlockedControllerProvider))
-          .put(
               VaultListCellController.class,
               ((Provider) mainWindowComponentImpl.vaultListCellControllerProvider))
-          .put(
-              VaultListContextMenuController.class,
-              ((Provider) mainWindowComponentImpl.vaultListContextMenuControllerProvider))
-          .put(
-              VaultListController.class,
-              ((Provider) mainWindowComponentImpl.vaultListControllerProvider))
-          .put(
-              WelcomeController.class,
-              ((Provider) mainWindowComponentImpl.welcomeControllerProvider))
           .put(RemoveVaultController.class, ((Provider) removeVaultControllerProvider))
           .build();
     }
@@ -1464,7 +2039,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
                   removeVaultComponentImpl,
-                  3));
+                  0));
       this.removeVaultControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<RemoveVaultController>(
@@ -1472,7 +2047,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
                   removeVaultComponentImpl,
-                  2));
+                  3));
       this.provideFxmlLoaderFactoryProvider =
           DoubleCheck.provider(
               new SwitchingProvider<FxmlLoaderFactory>(
@@ -1480,7 +2055,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
                   removeVaultComponentImpl,
-                  1));
+                  2));
       this.provideRemoveVaultSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -1488,17 +2063,17 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
                   removeVaultComponentImpl,
-                  0));
-    }
-
-    @Override
-    public Lazy<Scene> scene() {
-      return DoubleCheck.lazy(provideRemoveVaultSceneProvider);
+                  1));
     }
 
     @Override
     public Stage window() {
       return provideStageProvider.get();
+    }
+
+    @Override
+    public Lazy<Scene> scene() {
+      return DoubleCheck.lazy(provideRemoveVaultSceneProvider);
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -1529,27 +2104,7 @@ public final class DaggerCryptomatorComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(REMOVE_VAULT) javafx.scene.Scene
-            return (T)
-                RemoveVaultModule_ProvideRemoveVaultSceneFactory.provideRemoveVaultScene(
-                    removeVaultComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 1: // @org.cryptomator.ui.removevault.RemoveVaultWindow
-                  // org.cryptomator.ui.common.FxmlLoaderFactory
-            return (T)
-                RemoveVaultModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
-                    removeVaultComponentImpl.mapOfClassOfAndProviderOfFxController(),
-                    fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
-
-          case 2: // org.cryptomator.ui.removevault.RemoveVaultController
-            return (T)
-                new RemoveVaultController(
-                    removeVaultComponentImpl.provideStageProvider.get(),
-                    removeVaultComponentImpl.vault,
-                    cryptomatorComponentImpl.provideVaultListProvider.get());
-
-          case 3: // @org.cryptomator.ui.removevault.RemoveVaultWindow javafx.stage.Stage
+          case 0: // @org.cryptomator.ui.removevault.RemoveVaultWindow javafx.stage.Stage
             return (T)
                 RemoveVaultModule_ProvideStageFactory.provideStage(
                     fxApplicationComponentImpl.stageFactoryProvider.get(),
@@ -1557,361 +2112,25 @@ public final class DaggerCryptomatorComponent {
                     removeVaultComponentImpl.vault,
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          default:
-            throw new AssertionError(id);
-        }
-      }
-    }
-  }
-
-  private static final class MigrationComponentImpl implements MigrationComponent {
-    private final Vault vault;
-
-    private final CryptomatorComponentImpl cryptomatorComponentImpl;
-
-    private final FxApplicationComponentImpl fxApplicationComponentImpl;
-
-    private final MainWindowComponentImpl mainWindowComponentImpl;
-
-    private final MigrationComponentImpl migrationComponentImpl = this;
-
-    private Provider<Stage> provideStageProvider;
-
-    private Provider<ObjectProperty<FileSystemCapabilityChecker.Capability>>
-        provideCapabilityErrorCauseProvider;
-
-    private Provider<Scene> provideMigrationStartSceneProvider;
-
-    private Provider<MigrationCapabilityErrorController> migrationCapabilityErrorControllerProvider;
-
-    private Provider<MigrationImpossibleController> migrationImpossibleControllerProvider;
-
-    private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
-
-    private Provider<Scene> provideMigrationSuccessSceneProvider;
-
-    private Provider<Scene> provideMigrationCapabilityErrorSceneProvider;
-
-    private Provider<Scene> provideMigrationImpossibleSceneProvider;
-
-    private Provider<MigrationRunController> migrationRunControllerProvider;
-
-    private Provider<Scene> provideMigrationRunSceneProvider;
-
-    private Provider<MigrationStartController> migrationStartControllerProvider;
-
-    private Provider<MigrationSuccessController> migrationSuccessControllerProvider;
-
-    private MigrationComponentImpl(
-        CryptomatorComponentImpl cryptomatorComponentImpl,
-        FxApplicationComponentImpl fxApplicationComponentImpl,
-        MainWindowComponentImpl mainWindowComponentImpl,
-        Vault vaultParam) {
-      this.cryptomatorComponentImpl = cryptomatorComponentImpl;
-      this.fxApplicationComponentImpl = fxApplicationComponentImpl;
-      this.mainWindowComponentImpl = mainWindowComponentImpl;
-      this.vault = vaultParam;
-      initialize(vaultParam);
-    }
-
-    private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
-        mapOfClassOfAndProviderOfFxController() {
-      return ImmutableMap
-          .<Class<? extends FxController>, javax.inject.Provider<FxController>>
-              builderWithExpectedSize(18)
-          .put(
-              MainWindowController.class,
-              ((Provider) mainWindowComponentImpl.mainWindowControllerProvider))
-          .put(
-              MainWindowTitleController.class,
-              ((Provider) mainWindowComponentImpl.mainWindowTitleControllerProvider))
-          .put(
-              ResizeController.class, ((Provider) mainWindowComponentImpl.resizeControllerProvider))
-          .put(
-              VaultDetailController.class,
-              ((Provider) mainWindowComponentImpl.vaultDetailControllerProvider))
-          .put(
-              VaultDetailLockedController.class,
-              ((Provider) mainWindowComponentImpl.vaultDetailLockedControllerProvider))
-          .put(
-              VaultDetailMissingVaultController.class,
-              ((Provider) mainWindowComponentImpl.vaultDetailMissingVaultControllerProvider))
-          .put(
-              VaultDetailNeedsMigrationController.class,
-              ((Provider) mainWindowComponentImpl.vaultDetailNeedsMigrationControllerProvider))
-          .put(
-              VaultDetailUnknownErrorController.class,
-              ((Provider) mainWindowComponentImpl.vaultDetailUnknownErrorControllerProvider))
-          .put(
-              VaultDetailUnlockedController.class,
-              ((Provider) mainWindowComponentImpl.vaultDetailUnlockedControllerProvider))
-          .put(
-              VaultListCellController.class,
-              ((Provider) mainWindowComponentImpl.vaultListCellControllerProvider))
-          .put(
-              VaultListContextMenuController.class,
-              ((Provider) mainWindowComponentImpl.vaultListContextMenuControllerProvider))
-          .put(
-              VaultListController.class,
-              ((Provider) mainWindowComponentImpl.vaultListControllerProvider))
-          .put(
-              WelcomeController.class,
-              ((Provider) mainWindowComponentImpl.welcomeControllerProvider))
-          .put(
-              MigrationCapabilityErrorController.class,
-              ((Provider) migrationCapabilityErrorControllerProvider))
-          .put(
-              MigrationImpossibleController.class,
-              ((Provider) migrationImpossibleControllerProvider))
-          .put(MigrationRunController.class, ((Provider) migrationRunControllerProvider))
-          .put(MigrationStartController.class, ((Provider) migrationStartControllerProvider))
-          .put(MigrationSuccessController.class, ((Provider) migrationSuccessControllerProvider))
-          .build();
-    }
-
-    @SuppressWarnings("unchecked")
-    private void initialize(final Vault vaultParam) {
-      this.provideStageProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Stage>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  migrationComponentImpl,
-                  3));
-      this.provideCapabilityErrorCauseProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<ObjectProperty<FileSystemCapabilityChecker.Capability>>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  migrationComponentImpl,
-                  4));
-      this.provideMigrationStartSceneProvider = new DelegateFactory<>();
-      this.migrationCapabilityErrorControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<MigrationCapabilityErrorController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  migrationComponentImpl,
-                  2));
-      this.migrationImpossibleControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl,
-              fxApplicationComponentImpl,
-              mainWindowComponentImpl,
-              migrationComponentImpl,
-              5);
-      this.provideFxmlLoaderFactoryProvider = new DelegateFactory<>();
-      this.provideMigrationSuccessSceneProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  migrationComponentImpl,
-                  7));
-      this.provideMigrationCapabilityErrorSceneProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  migrationComponentImpl,
-                  8));
-      this.provideMigrationImpossibleSceneProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  migrationComponentImpl,
-                  9));
-      this.migrationRunControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<MigrationRunController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  migrationComponentImpl,
-                  6));
-      this.provideMigrationRunSceneProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  migrationComponentImpl,
-                  11));
-      this.migrationStartControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<MigrationStartController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  migrationComponentImpl,
-                  10));
-      this.migrationSuccessControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<MigrationSuccessController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  migrationComponentImpl,
-                  12));
-      DelegateFactory.setDelegate(
-          provideFxmlLoaderFactoryProvider,
-          DoubleCheck.provider(
-              new SwitchingProvider<FxmlLoaderFactory>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  migrationComponentImpl,
-                  1)));
-      DelegateFactory.setDelegate(
-          provideMigrationStartSceneProvider,
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  migrationComponentImpl,
-                  0)));
-    }
-
-    @Override
-    public Lazy<Scene> scene() {
-      return DoubleCheck.lazy(provideMigrationStartSceneProvider);
-    }
-
-    @Override
-    public Stage window() {
-      return provideStageProvider.get();
-    }
-
-    private static final class SwitchingProvider<T> implements Provider<T> {
-      private final CryptomatorComponentImpl cryptomatorComponentImpl;
-
-      private final FxApplicationComponentImpl fxApplicationComponentImpl;
-
-      private final MainWindowComponentImpl mainWindowComponentImpl;
-
-      private final MigrationComponentImpl migrationComponentImpl;
-
-      private final int id;
-
-      SwitchingProvider(
-          CryptomatorComponentImpl cryptomatorComponentImpl,
-          FxApplicationComponentImpl fxApplicationComponentImpl,
-          MainWindowComponentImpl mainWindowComponentImpl,
-          MigrationComponentImpl migrationComponentImpl,
-          int id) {
-        this.cryptomatorComponentImpl = cryptomatorComponentImpl;
-        this.fxApplicationComponentImpl = fxApplicationComponentImpl;
-        this.mainWindowComponentImpl = mainWindowComponentImpl;
-        this.migrationComponentImpl = migrationComponentImpl;
-        this.id = id;
-      }
-
-      @SuppressWarnings("unchecked")
-      @Override
-      public T get() {
-        switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(MIGRATION_START) javafx.scene.Scene
+          case 1: // @org.cryptomator.ui.common.FxmlScene(REMOVE_VAULT) javafx.scene.Scene
             return (T)
-                MigrationModule_ProvideMigrationStartSceneFactory.provideMigrationStartScene(
-                    migrationComponentImpl.provideFxmlLoaderFactoryProvider.get());
+                RemoveVaultModule_ProvideRemoveVaultSceneFactory.provideRemoveVaultScene(
+                    removeVaultComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 1: // @org.cryptomator.ui.migration.MigrationWindow
+          case 2: // @org.cryptomator.ui.removevault.RemoveVaultWindow
                   // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
-                MigrationModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
-                    migrationComponentImpl.mapOfClassOfAndProviderOfFxController(),
+                RemoveVaultModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
+                    removeVaultComponentImpl.mapOfClassOfAndProviderOfFxController(),
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 2: // org.cryptomator.ui.migration.MigrationCapabilityErrorController
+          case 3: // org.cryptomator.ui.removevault.RemoveVaultController
             return (T)
-                MigrationCapabilityErrorController_Factory.newInstance(
-                    migrationComponentImpl.provideStageProvider.get(),
-                    migrationComponentImpl.provideCapabilityErrorCauseProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
-                    DoubleCheck.lazy(migrationComponentImpl.provideMigrationStartSceneProvider));
-
-          case 3: // @org.cryptomator.ui.migration.MigrationWindow javafx.stage.Stage
-            return (T)
-                MigrationModule_ProvideStageFactory.provideStage(
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    fxApplicationComponentImpl.primaryStage,
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
-
-          case 4: // @javax.inject.Named("capabilityErrorCause")
-                  // javafx.beans.property.ObjectProperty<org.cryptomator.cryptofs.common.FileSystemCapabilityChecker.Capability>
-            return (T)
-                MigrationModule_ProvideCapabilityErrorCauseFactory.provideCapabilityErrorCause();
-
-          case 5: // org.cryptomator.ui.migration.MigrationImpossibleController
-            return (T)
-                MigrationImpossibleController_Factory.newInstance(
-                    fxApplicationComponentImpl.fxApplicationProvider.get(),
-                    migrationComponentImpl.provideStageProvider.get(),
-                    migrationComponentImpl.vault);
-
-          case 6: // org.cryptomator.ui.migration.MigrationRunController
-            return (T)
-                new MigrationRunController(
-                    migrationComponentImpl.provideStageProvider.get(),
-                    migrationComponentImpl.vault,
-                    cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
-                    cryptomatorComponentImpl.provideScheduledExecutorServiceProvider.get(),
-                    cryptomatorComponentImpl.keychainManagerProvider.get(),
-                    migrationComponentImpl.provideCapabilityErrorCauseProvider.get(),
-                    DoubleCheck.lazy(migrationComponentImpl.provideMigrationStartSceneProvider),
-                    DoubleCheck.lazy(migrationComponentImpl.provideMigrationSuccessSceneProvider),
-                    DoubleCheck.lazy(
-                        migrationComponentImpl.provideMigrationCapabilityErrorSceneProvider),
-                    DoubleCheck.lazy(
-                        migrationComponentImpl.provideMigrationImpossibleSceneProvider),
-                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get());
-
-          case 7: // @org.cryptomator.ui.common.FxmlScene(MIGRATION_SUCCESS) javafx.scene.Scene
-            return (T)
-                MigrationModule_ProvideMigrationSuccessSceneFactory.provideMigrationSuccessScene(
-                    migrationComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 8: // @org.cryptomator.ui.common.FxmlScene(MIGRATION_CAPABILITY_ERROR)
-                  // javafx.scene.Scene
-            return (T)
-                MigrationModule_ProvideMigrationCapabilityErrorSceneFactory
-                    .provideMigrationCapabilityErrorScene(
-                        migrationComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 9: // @org.cryptomator.ui.common.FxmlScene(MIGRATION_IMPOSSIBLE) javafx.scene.Scene
-            return (T)
-                MigrationModule_ProvideMigrationImpossibleSceneFactory
-                    .provideMigrationImpossibleScene(
-                        migrationComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 10: // org.cryptomator.ui.migration.MigrationStartController
-            return (T)
-                new MigrationStartController(
-                    migrationComponentImpl.provideStageProvider.get(),
-                    migrationComponentImpl.vault,
-                    DoubleCheck.lazy(migrationComponentImpl.provideMigrationRunSceneProvider));
-
-          case 11: // @org.cryptomator.ui.common.FxmlScene(MIGRATION_RUN) javafx.scene.Scene
-            return (T)
-                MigrationModule_ProvideMigrationRunSceneFactory.provideMigrationRunScene(
-                    migrationComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 12: // org.cryptomator.ui.migration.MigrationSuccessController
-            return (T)
-                MigrationSuccessController_Factory.newInstance(
-                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
-                    migrationComponentImpl.provideStageProvider.get(),
-                    migrationComponentImpl.vault,
-                    fxApplicationComponentImpl.primaryStage);
+                new RemoveVaultController(
+                    removeVaultComponentImpl.provideStageProvider.get(),
+                    removeVaultComponentImpl.vault,
+                    cryptomatorComponentImpl.provideVaultListProvider.get());
 
           default:
             throw new AssertionError(id);
@@ -1965,11 +2184,23 @@ public final class DaggerCryptomatorComponent {
           .put(
               ResizeController.class, ((Provider) mainWindowComponentImpl.resizeControllerProvider))
           .put(
+              VaultListController.class,
+              ((Provider) mainWindowComponentImpl.vaultListControllerProvider))
+          .put(
+              VaultListContextMenuController.class,
+              ((Provider) mainWindowComponentImpl.vaultListContextMenuControllerProvider))
+          .put(
               VaultDetailController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailControllerProvider))
           .put(
+              WelcomeController.class,
+              ((Provider) mainWindowComponentImpl.welcomeControllerProvider))
+          .put(
               VaultDetailLockedController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailLockedControllerProvider))
+          .put(
+              VaultDetailUnlockedController.class,
+              ((Provider) mainWindowComponentImpl.vaultDetailUnlockedControllerProvider))
           .put(
               VaultDetailMissingVaultController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailMissingVaultControllerProvider))
@@ -1980,20 +2211,8 @@ public final class DaggerCryptomatorComponent {
               VaultDetailUnknownErrorController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailUnknownErrorControllerProvider))
           .put(
-              VaultDetailUnlockedController.class,
-              ((Provider) mainWindowComponentImpl.vaultDetailUnlockedControllerProvider))
-          .put(
               VaultListCellController.class,
               ((Provider) mainWindowComponentImpl.vaultListCellControllerProvider))
-          .put(
-              VaultListContextMenuController.class,
-              ((Provider) mainWindowComponentImpl.vaultListContextMenuControllerProvider))
-          .put(
-              VaultListController.class,
-              ((Provider) mainWindowComponentImpl.vaultListControllerProvider))
-          .put(
-              WelcomeController.class,
-              ((Provider) mainWindowComponentImpl.welcomeControllerProvider))
           .put(VaultStatisticsController.class, ((Provider) vaultStatisticsControllerProvider))
           .build();
     }
@@ -2007,7 +2226,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
                   vaultStatisticsComponentImpl,
-                  3));
+                  0));
       this.vaultStatisticsControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<VaultStatisticsController>(
@@ -2015,7 +2234,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
                   vaultStatisticsComponentImpl,
-                  2));
+                  3));
       this.provideFxmlLoaderFactoryProvider =
           DoubleCheck.provider(
               new SwitchingProvider<FxmlLoaderFactory>(
@@ -2023,7 +2242,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
                   vaultStatisticsComponentImpl,
-                  1));
+                  2));
       this.provideVaultStatisticsSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -2031,17 +2250,17 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
                   vaultStatisticsComponentImpl,
-                  0));
-    }
-
-    @Override
-    public Lazy<Scene> scene() {
-      return DoubleCheck.lazy(provideVaultStatisticsSceneProvider);
+                  1));
     }
 
     @Override
     public Stage window() {
       return provideStageProvider.get();
+    }
+
+    @Override
+    public Lazy<Scene> scene() {
+      return DoubleCheck.lazy(provideVaultStatisticsSceneProvider);
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -2072,13 +2291,20 @@ public final class DaggerCryptomatorComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(VAULT_STATISTICS) javafx.scene.Scene
+          case 0: // @org.cryptomator.ui.stats.VaultStatisticsWindow javafx.stage.Stage
+            return (T)
+                VaultStatisticsModule_ProvideStageFactory.provideStage(
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
+                    vaultStatisticsComponentImpl.vault);
+
+          case 1: // @org.cryptomator.ui.common.FxmlScene(VAULT_STATISTICS) javafx.scene.Scene
             return (T)
                 VaultStatisticsModule_ProvideVaultStatisticsSceneFactory
                     .provideVaultStatisticsScene(
                         vaultStatisticsComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 1: // @org.cryptomator.ui.stats.VaultStatisticsWindow
+          case 2: // @org.cryptomator.ui.stats.VaultStatisticsWindow
                   // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
                 VaultStatisticsModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
@@ -2086,18 +2312,11 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 2: // org.cryptomator.ui.stats.VaultStatisticsController
+          case 3: // org.cryptomator.ui.stats.VaultStatisticsController
             return (T)
                 new VaultStatisticsController(
                     vaultStatisticsComponentImpl,
                     vaultStatisticsComponentImpl.provideStageProvider.get(),
-                    vaultStatisticsComponentImpl.vault);
-
-          case 3: // @org.cryptomator.ui.stats.VaultStatisticsWindow javafx.stage.Stage
-            return (T)
-                VaultStatisticsModule_ProvideStageFactory.provideStage(
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
                     vaultStatisticsComponentImpl.vault);
 
           default:
@@ -2149,11 +2368,23 @@ public final class DaggerCryptomatorComponent {
           .put(
               ResizeController.class, ((Provider) mainWindowComponentImpl.resizeControllerProvider))
           .put(
+              VaultListController.class,
+              ((Provider) mainWindowComponentImpl.vaultListControllerProvider))
+          .put(
+              VaultListContextMenuController.class,
+              ((Provider) mainWindowComponentImpl.vaultListContextMenuControllerProvider))
+          .put(
               VaultDetailController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailControllerProvider))
           .put(
+              WelcomeController.class,
+              ((Provider) mainWindowComponentImpl.welcomeControllerProvider))
+          .put(
               VaultDetailLockedController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailLockedControllerProvider))
+          .put(
+              VaultDetailUnlockedController.class,
+              ((Provider) mainWindowComponentImpl.vaultDetailUnlockedControllerProvider))
           .put(
               VaultDetailMissingVaultController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailMissingVaultControllerProvider))
@@ -2164,20 +2395,8 @@ public final class DaggerCryptomatorComponent {
               VaultDetailUnknownErrorController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailUnknownErrorControllerProvider))
           .put(
-              VaultDetailUnlockedController.class,
-              ((Provider) mainWindowComponentImpl.vaultDetailUnlockedControllerProvider))
-          .put(
               VaultListCellController.class,
               ((Provider) mainWindowComponentImpl.vaultListCellControllerProvider))
-          .put(
-              VaultListContextMenuController.class,
-              ((Provider) mainWindowComponentImpl.vaultListContextMenuControllerProvider))
-          .put(
-              VaultListController.class,
-              ((Provider) mainWindowComponentImpl.vaultListControllerProvider))
-          .put(
-              WelcomeController.class,
-              ((Provider) mainWindowComponentImpl.welcomeControllerProvider))
           .put(WrongFileAlertController.class, ((Provider) wrongFileAlertControllerProvider))
           .build();
     }
@@ -2191,7 +2410,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
                   wrongFileAlertComponentImpl,
-                  3));
+                  0));
       this.wrongFileAlertControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<WrongFileAlertController>(
@@ -2199,7 +2418,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
                   wrongFileAlertComponentImpl,
-                  2));
+                  3));
       this.provideFxmlLoaderFactoryProvider =
           DoubleCheck.provider(
               new SwitchingProvider<FxmlLoaderFactory>(
@@ -2207,7 +2426,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
                   wrongFileAlertComponentImpl,
-                  1));
+                  2));
       this.provideWrongFileAlertSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -2215,17 +2434,17 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
                   wrongFileAlertComponentImpl,
-                  0));
-    }
-
-    @Override
-    public Lazy<Scene> scene() {
-      return DoubleCheck.lazy(provideWrongFileAlertSceneProvider);
+                  1));
     }
 
     @Override
     public Stage window() {
       return provideStageProvider.get();
+    }
+
+    @Override
+    public Lazy<Scene> scene() {
+      return DoubleCheck.lazy(provideWrongFileAlertSceneProvider);
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -2256,12 +2475,19 @@ public final class DaggerCryptomatorComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(WRONGFILEALERT) javafx.scene.Scene
+          case 0: // @org.cryptomator.ui.wrongfilealert.WrongFileAlertWindow javafx.stage.Stage
+            return (T)
+                WrongFileAlertModule_ProvideStageFactory.provideStage(
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    fxApplicationComponentImpl.primaryStage,
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 1: // @org.cryptomator.ui.common.FxmlScene(WRONGFILEALERT) javafx.scene.Scene
             return (T)
                 WrongFileAlertModule_ProvideWrongFileAlertSceneFactory.provideWrongFileAlertScene(
                     wrongFileAlertComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 1: // @org.cryptomator.ui.wrongfilealert.WrongFileAlertWindow
+          case 2: // @org.cryptomator.ui.wrongfilealert.WrongFileAlertWindow
                   // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
                 WrongFileAlertModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
@@ -2269,18 +2495,11 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 2: // org.cryptomator.ui.wrongfilealert.WrongFileAlertController
+          case 3: // org.cryptomator.ui.wrongfilealert.WrongFileAlertController
             return (T)
                 new WrongFileAlertController(
                     wrongFileAlertComponentImpl.provideStageProvider.get(),
                     fxApplicationComponentImpl.fxApplicationProvider.get());
-
-          case 3: // @org.cryptomator.ui.wrongfilealert.WrongFileAlertWindow javafx.stage.Stage
-            return (T)
-                WrongFileAlertModule_ProvideStageFactory.provideStage(
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    fxApplicationComponentImpl.primaryStage,
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
 
           default:
             throw new AssertionError(id);
@@ -2289,81 +2508,61 @@ public final class DaggerCryptomatorComponent {
     }
   }
 
-  private static final class AddVaultWizardComponentImpl implements AddVaultWizardComponent {
+  private static final class MigrationComponentImpl implements MigrationComponent {
+    private final Vault vault;
+
     private final CryptomatorComponentImpl cryptomatorComponentImpl;
 
     private final FxApplicationComponentImpl fxApplicationComponentImpl;
 
     private final MainWindowComponentImpl mainWindowComponentImpl;
 
-    private final AddVaultWizardComponentImpl addVaultWizardComponentImpl = this;
-
-    private Provider<FxController> provideNewPasswordControllerProvider;
+    private final MigrationComponentImpl migrationComponentImpl = this;
 
     private Provider<Stage> provideStageProvider;
 
-    private Provider<StringProperty> provideVaultNameProvider;
-
-    private Provider<StringProperty> provideRecoveryKeyProvider;
-
-    private Provider<FxController> provideRecoveryKeyDisplayControllerProvider;
-
-    private Provider<ObjectProperty<Vault>> provideVaultProvider;
-
-    private Provider<AddVaultSuccessController> addVaultSuccessControllerProvider;
-
     private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
 
-    private Provider<Scene> provideCreateNewVaultSuccessSceneProvider;
+    private Provider<Scene> provideMigrationRunSceneProvider;
 
-    private Provider<ObjectProperty<Path>> provideVaultPathProvider;
+    private Provider<MigrationStartController> migrationStartControllerProvider;
 
-    private Provider<ChooseExistingVaultController> chooseExistingVaultControllerProvider;
+    private Provider<ObjectProperty<FileSystemCapabilityChecker.Capability>>
+        provideCapabilityErrorCauseProvider;
 
-    private Provider<Scene> provideCreateNewVaultLocationSceneProvider;
+    private Provider<Scene> provideMigrationStartSceneProvider;
 
-    private Provider<Scene> provideCreateNewVaultPasswordSceneProvider;
+    private Provider<Scene> provideMigrationSuccessSceneProvider;
 
-    private Provider<IntegerProperty> provideShorteningThresholdProvider;
+    private Provider<Scene> provideMigrationCapabilityErrorSceneProvider;
 
-    private Provider<CreateNewVaultExpertSettingsController>
-        createNewVaultExpertSettingsControllerProvider;
+    private Provider<Scene> provideMigrationImpossibleSceneProvider;
 
-    private Provider<Scene> provideCreateNewVaultNameSceneProvider;
+    private Provider<MigrationRunController> migrationRunControllerProvider;
 
-    private Provider<Scene> provideCreateNewVaultExpertSettingsSceneProvider;
+    private Provider<MigrationSuccessController> migrationSuccessControllerProvider;
 
-    private Provider<CreateNewVaultLocationController> createNewVaultLocationControllerProvider;
+    private Provider<MigrationCapabilityErrorController> migrationCapabilityErrorControllerProvider;
 
-    private Provider<CreateNewVaultNameController> createNewVaultNameControllerProvider;
+    private Provider<MigrationImpossibleController> migrationImpossibleControllerProvider;
 
-    private Provider<Scene> provideCreateNewVaultRecoveryKeySceneProvider;
-
-    private Provider<ReadmeGenerator> readmeGeneratorProvider;
-
-    private Provider<CreateNewVaultPasswordController> createNewVaultPasswordControllerProvider;
-
-    private Provider<CreateNewVaultRecoveryKeyController>
-        createNewVaultRecoveryKeyControllerProvider;
-
-    private Provider<Scene> provideChooseExistingVaultSceneProvider;
-
-    private AddVaultWizardComponentImpl(
+    private MigrationComponentImpl(
         CryptomatorComponentImpl cryptomatorComponentImpl,
         FxApplicationComponentImpl fxApplicationComponentImpl,
-        MainWindowComponentImpl mainWindowComponentImpl) {
+        MainWindowComponentImpl mainWindowComponentImpl,
+        Vault vaultParam) {
       this.cryptomatorComponentImpl = cryptomatorComponentImpl;
       this.fxApplicationComponentImpl = fxApplicationComponentImpl;
       this.mainWindowComponentImpl = mainWindowComponentImpl;
-
-      initialize();
+      this.vault = vaultParam;
+      initialize(vaultParam);
     }
 
     private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
         mapOfClassOfAndProviderOfFxController() {
       return ImmutableMap
           .<Class<? extends FxController>, javax.inject.Provider<FxController>>
-              builderWithExpectedSize(22)
+              builderWithExpectedSize(18)
           .put(
               MainWindowController.class,
               ((Provider) mainWindowComponentImpl.mainWindowControllerProvider))
@@ -2373,11 +2572,23 @@ public final class DaggerCryptomatorComponent {
           .put(
               ResizeController.class, ((Provider) mainWindowComponentImpl.resizeControllerProvider))
           .put(
+              VaultListController.class,
+              ((Provider) mainWindowComponentImpl.vaultListControllerProvider))
+          .put(
+              VaultListContextMenuController.class,
+              ((Provider) mainWindowComponentImpl.vaultListContextMenuControllerProvider))
+          .put(
               VaultDetailController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailControllerProvider))
           .put(
+              WelcomeController.class,
+              ((Provider) mainWindowComponentImpl.welcomeControllerProvider))
+          .put(
               VaultDetailLockedController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailLockedControllerProvider))
+          .put(
+              VaultDetailUnlockedController.class,
+              ((Provider) mainWindowComponentImpl.vaultDetailUnlockedControllerProvider))
           .put(
               VaultDetailMissingVaultController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailMissingVaultControllerProvider))
@@ -2388,219 +2599,111 @@ public final class DaggerCryptomatorComponent {
               VaultDetailUnknownErrorController.class,
               ((Provider) mainWindowComponentImpl.vaultDetailUnknownErrorControllerProvider))
           .put(
-              VaultDetailUnlockedController.class,
-              ((Provider) mainWindowComponentImpl.vaultDetailUnlockedControllerProvider))
-          .put(
               VaultListCellController.class,
               ((Provider) mainWindowComponentImpl.vaultListCellControllerProvider))
+          .put(MigrationStartController.class, ((Provider) migrationStartControllerProvider))
+          .put(MigrationRunController.class, ((Provider) migrationRunControllerProvider))
+          .put(MigrationSuccessController.class, ((Provider) migrationSuccessControllerProvider))
           .put(
-              VaultListContextMenuController.class,
-              ((Provider) mainWindowComponentImpl.vaultListContextMenuControllerProvider))
+              MigrationCapabilityErrorController.class,
+              ((Provider) migrationCapabilityErrorControllerProvider))
           .put(
-              VaultListController.class,
-              ((Provider) mainWindowComponentImpl.vaultListControllerProvider))
-          .put(
-              WelcomeController.class,
-              ((Provider) mainWindowComponentImpl.welcomeControllerProvider))
-          .put(NewPasswordController.class, provideNewPasswordControllerProvider)
-          .put(RecoveryKeyDisplayController.class, provideRecoveryKeyDisplayControllerProvider)
-          .put(AddVaultSuccessController.class, ((Provider) addVaultSuccessControllerProvider))
-          .put(
-              ChooseExistingVaultController.class,
-              ((Provider) chooseExistingVaultControllerProvider))
-          .put(
-              CreateNewVaultExpertSettingsController.class,
-              ((Provider) createNewVaultExpertSettingsControllerProvider))
-          .put(
-              CreateNewVaultLocationController.class,
-              ((Provider) createNewVaultLocationControllerProvider))
-          .put(
-              CreateNewVaultNameController.class, ((Provider) createNewVaultNameControllerProvider))
-          .put(
-              CreateNewVaultPasswordController.class,
-              ((Provider) createNewVaultPasswordControllerProvider))
-          .put(
-              CreateNewVaultRecoveryKeyController.class,
-              ((Provider) createNewVaultRecoveryKeyControllerProvider))
+              MigrationImpossibleController.class,
+              ((Provider) migrationImpossibleControllerProvider))
           .build();
     }
 
     @SuppressWarnings("unchecked")
-    private void initialize() {
-      this.provideNewPasswordControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl,
-              fxApplicationComponentImpl,
-              mainWindowComponentImpl,
-              addVaultWizardComponentImpl,
-              2);
+    private void initialize(final Vault vaultParam) {
       this.provideStageProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Stage>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  4));
-      this.provideVaultNameProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<StringProperty>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  5));
-      this.provideRecoveryKeyProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<StringProperty>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  6));
-      this.provideRecoveryKeyDisplayControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl,
-              fxApplicationComponentImpl,
-              mainWindowComponentImpl,
-              addVaultWizardComponentImpl,
-              3);
-      this.provideVaultProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<ObjectProperty<Vault>>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  8));
-      this.addVaultSuccessControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<AddVaultSuccessController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  7));
+                  migrationComponentImpl,
+                  0));
       this.provideFxmlLoaderFactoryProvider = new DelegateFactory<>();
-      this.provideCreateNewVaultSuccessSceneProvider =
+      this.provideMigrationRunSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  10));
-      this.provideVaultPathProvider =
+                  migrationComponentImpl,
+                  4));
+      this.migrationStartControllerProvider =
           DoubleCheck.provider(
-              new SwitchingProvider<ObjectProperty<Path>>(
+              new SwitchingProvider<MigrationStartController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  11));
-      this.chooseExistingVaultControllerProvider =
+                  migrationComponentImpl,
+                  3));
+      this.provideCapabilityErrorCauseProvider =
           DoubleCheck.provider(
-              new SwitchingProvider<ChooseExistingVaultController>(
+              new SwitchingProvider<ObjectProperty<FileSystemCapabilityChecker.Capability>>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
+                  migrationComponentImpl,
+                  6));
+      this.provideMigrationStartSceneProvider = new DelegateFactory<>();
+      this.provideMigrationSuccessSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  migrationComponentImpl,
+                  7));
+      this.provideMigrationCapabilityErrorSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  migrationComponentImpl,
+                  8));
+      this.provideMigrationImpossibleSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  migrationComponentImpl,
                   9));
-      this.provideCreateNewVaultLocationSceneProvider =
+      this.migrationRunControllerProvider =
           DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
+              new SwitchingProvider<MigrationRunController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  13));
-      this.provideCreateNewVaultPasswordSceneProvider =
+                  migrationComponentImpl,
+                  5));
+      this.migrationSuccessControllerProvider =
           DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
+              new SwitchingProvider<MigrationSuccessController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  14));
-      this.provideShorteningThresholdProvider =
+                  migrationComponentImpl,
+                  10));
+      this.migrationCapabilityErrorControllerProvider =
           DoubleCheck.provider(
-              new SwitchingProvider<IntegerProperty>(
+              new SwitchingProvider<MigrationCapabilityErrorController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  15));
-      this.createNewVaultExpertSettingsControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<CreateNewVaultExpertSettingsController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  12));
-      this.provideCreateNewVaultNameSceneProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  17));
-      this.provideCreateNewVaultExpertSettingsSceneProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  18));
-      this.createNewVaultLocationControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<CreateNewVaultLocationController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  16));
-      this.createNewVaultNameControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<CreateNewVaultNameController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  19));
-      this.provideCreateNewVaultRecoveryKeySceneProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  21));
-      this.readmeGeneratorProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<ReadmeGenerator>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  22));
-      this.createNewVaultPasswordControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<CreateNewVaultPasswordController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  20));
-      this.createNewVaultRecoveryKeyControllerProvider =
+                  migrationComponentImpl,
+                  11));
+      this.migrationImpossibleControllerProvider =
           new SwitchingProvider<>(
               cryptomatorComponentImpl,
               fxApplicationComponentImpl,
               mainWindowComponentImpl,
-              addVaultWizardComponentImpl,
-              23);
+              migrationComponentImpl,
+              12);
       DelegateFactory.setDelegate(
           provideFxmlLoaderFactoryProvider,
           DoubleCheck.provider(
@@ -2608,31 +2711,27 @@ public final class DaggerCryptomatorComponent {
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  1)));
-      this.provideChooseExistingVaultSceneProvider =
+                  migrationComponentImpl,
+                  2)));
+      DelegateFactory.setDelegate(
+          provideMigrationStartSceneProvider,
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  addVaultWizardComponentImpl,
-                  0));
-    }
-
-    @Override
-    public Lazy<Scene> sceneExisting() {
-      return DoubleCheck.lazy(provideChooseExistingVaultSceneProvider);
-    }
-
-    @Override
-    public Lazy<Scene> sceneNew() {
-      return DoubleCheck.lazy(provideCreateNewVaultNameSceneProvider);
+                  migrationComponentImpl,
+                  1)));
     }
 
     @Override
     public Stage window() {
       return provideStageProvider.get();
+    }
+
+    @Override
+    public Lazy<Scene> scene() {
+      return DoubleCheck.lazy(provideMigrationStartSceneProvider);
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -2642,7 +2741,7 @@ public final class DaggerCryptomatorComponent {
 
       private final MainWindowComponentImpl mainWindowComponentImpl;
 
-      private final AddVaultWizardComponentImpl addVaultWizardComponentImpl;
+      private final MigrationComponentImpl migrationComponentImpl;
 
       private final int id;
 
@@ -2650,12 +2749,12 @@ public final class DaggerCryptomatorComponent {
           CryptomatorComponentImpl cryptomatorComponentImpl,
           FxApplicationComponentImpl fxApplicationComponentImpl,
           MainWindowComponentImpl mainWindowComponentImpl,
-          AddVaultWizardComponentImpl addVaultWizardComponentImpl,
+          MigrationComponentImpl migrationComponentImpl,
           int id) {
         this.cryptomatorComponentImpl = cryptomatorComponentImpl;
         this.fxApplicationComponentImpl = fxApplicationComponentImpl;
         this.mainWindowComponentImpl = mainWindowComponentImpl;
-        this.addVaultWizardComponentImpl = addVaultWizardComponentImpl;
+        this.migrationComponentImpl = migrationComponentImpl;
         this.id = id;
       }
 
@@ -2663,189 +2762,100 @@ public final class DaggerCryptomatorComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(ADDVAULT_EXISTING) javafx.scene.Scene
+          case 0: // @org.cryptomator.ui.migration.MigrationWindow javafx.stage.Stage
             return (T)
-                AddVaultModule_ProvideChooseExistingVaultSceneFactory
-                    .provideChooseExistingVaultScene(
-                        addVaultWizardComponentImpl.provideFxmlLoaderFactoryProvider.get());
+                MigrationModule_ProvideStageFactory.provideStage(
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    fxApplicationComponentImpl.primaryStage,
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 1: // @org.cryptomator.ui.addvaultwizard.AddVaultWizardWindow
+          case 1: // @org.cryptomator.ui.common.FxmlScene(MIGRATION_START) javafx.scene.Scene
+            return (T)
+                MigrationModule_ProvideMigrationStartSceneFactory.provideMigrationStartScene(
+                    migrationComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 2: // @org.cryptomator.ui.migration.MigrationWindow
                   // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
-                AddVaultModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
-                    addVaultWizardComponentImpl.mapOfClassOfAndProviderOfFxController(),
+                MigrationModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
+                    migrationComponentImpl.mapOfClassOfAndProviderOfFxController(),
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 2: // java.util.Map<java.lang.Class<? extends
-                  // org.cryptomator.ui.common.FxController>,javax.inject.Provider<org.cryptomator.ui.common.FxController>> org.cryptomator.ui.addvaultwizard.AddVaultModule#provideNewPasswordController
+          case 3: // org.cryptomator.ui.migration.MigrationStartController
             return (T)
-                AddVaultModule_ProvideNewPasswordControllerFactory.provideNewPasswordController(
-                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
-                    fxApplicationComponentImpl.passwordStrengthUtilProvider.get());
+                new MigrationStartController(
+                    migrationComponentImpl.provideStageProvider.get(),
+                    migrationComponentImpl.vault,
+                    DoubleCheck.lazy(migrationComponentImpl.provideMigrationRunSceneProvider));
 
-          case 3: // java.util.Map<java.lang.Class<? extends
-                  // org.cryptomator.ui.common.FxController>,javax.inject.Provider<org.cryptomator.ui.common.FxController>> org.cryptomator.ui.addvaultwizard.AddVaultModule#provideRecoveryKeyDisplayController
+          case 4: // @org.cryptomator.ui.common.FxmlScene(MIGRATION_RUN) javafx.scene.Scene
             return (T)
-                AddVaultModule_ProvideRecoveryKeyDisplayControllerFactory
-                    .provideRecoveryKeyDisplayController(
-                        addVaultWizardComponentImpl.provideStageProvider.get(),
-                        addVaultWizardComponentImpl.provideVaultNameProvider.get(),
-                        addVaultWizardComponentImpl.provideRecoveryKeyProvider.get(),
-                        cryptomatorComponentImpl.provideLocalizationProvider.get());
+                MigrationModule_ProvideMigrationRunSceneFactory.provideMigrationRunScene(
+                    migrationComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 4: // @org.cryptomator.ui.addvaultwizard.AddVaultWizardWindow javafx.stage.Stage
+          case 5: // org.cryptomator.ui.migration.MigrationRunController
             return (T)
-                AddVaultModule_ProvideStageFactory.provideStage(
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                new MigrationRunController(
+                    migrationComponentImpl.provideStageProvider.get(),
+                    migrationComponentImpl.vault,
+                    cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
+                    cryptomatorComponentImpl.provideScheduledExecutorServiceProvider.get(),
+                    cryptomatorComponentImpl.keychainManagerProvider.get(),
+                    migrationComponentImpl.provideCapabilityErrorCauseProvider.get(),
+                    DoubleCheck.lazy(migrationComponentImpl.provideMigrationStartSceneProvider),
+                    DoubleCheck.lazy(migrationComponentImpl.provideMigrationSuccessSceneProvider),
+                    DoubleCheck.lazy(
+                        migrationComponentImpl.provideMigrationCapabilityErrorSceneProvider),
+                    DoubleCheck.lazy(
+                        migrationComponentImpl.provideMigrationImpossibleSceneProvider),
+                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get());
+
+          case 6: // @javax.inject.Named("capabilityErrorCause")
+                  // javafx.beans.property.ObjectProperty<org.cryptomator.cryptofs.common.FileSystemCapabilityChecker.Capability>
+            return (T)
+                MigrationModule_ProvideCapabilityErrorCauseFactory.provideCapabilityErrorCause();
+
+          case 7: // @org.cryptomator.ui.common.FxmlScene(MIGRATION_SUCCESS) javafx.scene.Scene
+            return (T)
+                MigrationModule_ProvideMigrationSuccessSceneFactory.provideMigrationSuccessScene(
+                    migrationComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 8: // @org.cryptomator.ui.common.FxmlScene(MIGRATION_CAPABILITY_ERROR)
+                  // javafx.scene.Scene
+            return (T)
+                MigrationModule_ProvideMigrationCapabilityErrorSceneFactory
+                    .provideMigrationCapabilityErrorScene(
+                        migrationComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 9: // @org.cryptomator.ui.common.FxmlScene(MIGRATION_IMPOSSIBLE) javafx.scene.Scene
+            return (T)
+                MigrationModule_ProvideMigrationImpossibleSceneFactory
+                    .provideMigrationImpossibleScene(
+                        migrationComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 10: // org.cryptomator.ui.migration.MigrationSuccessController
+            return (T)
+                MigrationSuccessController_Factory.newInstance(
+                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
+                    migrationComponentImpl.provideStageProvider.get(),
+                    migrationComponentImpl.vault,
                     fxApplicationComponentImpl.primaryStage);
 
-          case 5: // @javax.inject.Named("vaultName") javafx.beans.property.StringProperty
-            return (T) AddVaultModule_ProvideVaultNameFactory.provideVaultName();
-
-          case 6: // @javax.inject.Named("recoveryKey") javafx.beans.property.StringProperty
-            return (T) AddVaultModule_ProvideRecoveryKeyFactory.provideRecoveryKey();
-
-          case 7: // org.cryptomator.ui.addvaultwizard.AddVaultSuccessController
+          case 11: // org.cryptomator.ui.migration.MigrationCapabilityErrorController
             return (T)
-                AddVaultSuccessController_Factory.newInstance(
-                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
-                    addVaultWizardComponentImpl.provideStageProvider.get(),
-                    addVaultWizardComponentImpl.provideVaultProvider.get());
-
-          case 8: // @org.cryptomator.ui.addvaultwizard.AddVaultWizardWindow
-                  // javafx.beans.property.ObjectProperty<org.cryptomator.common.vaults.Vault>
-            return (T) AddVaultModule_ProvideVaultFactory.provideVault();
-
-          case 9: // org.cryptomator.ui.addvaultwizard.ChooseExistingVaultController
-            return (T)
-                ChooseExistingVaultController_Factory.newInstance(
-                    addVaultWizardComponentImpl.provideStageProvider.get(),
-                    DoubleCheck.lazy(
-                        addVaultWizardComponentImpl.provideCreateNewVaultSuccessSceneProvider),
-                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
-                    addVaultWizardComponentImpl.provideVaultPathProvider.get(),
-                    addVaultWizardComponentImpl.provideVaultProvider.get(),
-                    cryptomatorComponentImpl.vaultListManagerProvider.get(),
+                MigrationCapabilityErrorController_Factory.newInstance(
+                    migrationComponentImpl.provideStageProvider.get(),
+                    migrationComponentImpl.provideCapabilityErrorCauseProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get(),
-                    fxApplicationComponentImpl.fxApplicationStyleProvider.get());
+                    DoubleCheck.lazy(migrationComponentImpl.provideMigrationStartSceneProvider));
 
-          case 10: // @org.cryptomator.ui.common.FxmlScene(ADDVAULT_SUCCESS) javafx.scene.Scene
+          case 12: // org.cryptomator.ui.migration.MigrationImpossibleController
             return (T)
-                AddVaultModule_ProvideCreateNewVaultSuccessSceneFactory
-                    .provideCreateNewVaultSuccessScene(
-                        addVaultWizardComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 11: // javafx.beans.property.ObjectProperty<java.nio.file.Path>
-            return (T) AddVaultModule_ProvideVaultPathFactory.provideVaultPath();
-
-          case 12: // org.cryptomator.ui.addvaultwizard.CreateNewVaultExpertSettingsController
-            return (T)
-                CreateNewVaultExpertSettingsController_Factory.newInstance(
-                    addVaultWizardComponentImpl.provideStageProvider.get(),
-                    DoubleCheck.lazy(fxApplicationComponentImpl.fxApplicationProvider),
-                    DoubleCheck.lazy(
-                        addVaultWizardComponentImpl.provideCreateNewVaultLocationSceneProvider),
-                    DoubleCheck.lazy(
-                        addVaultWizardComponentImpl.provideCreateNewVaultPasswordSceneProvider),
-                    addVaultWizardComponentImpl.provideVaultNameProvider.get(),
-                    addVaultWizardComponentImpl.provideVaultPathProvider.get(),
-                    addVaultWizardComponentImpl.provideShorteningThresholdProvider.get());
-
-          case 13: // @org.cryptomator.ui.common.FxmlScene(ADDVAULT_NEW_LOCATION) javafx.scene.Scene
-            return (T)
-                AddVaultModule_ProvideCreateNewVaultLocationSceneFactory
-                    .provideCreateNewVaultLocationScene(
-                        addVaultWizardComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 14: // @org.cryptomator.ui.common.FxmlScene(ADDVAULT_NEW_PASSWORD) javafx.scene.Scene
-            return (T)
-                AddVaultModule_ProvideCreateNewVaultPasswordSceneFactory
-                    .provideCreateNewVaultPasswordScene(
-                        addVaultWizardComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 15: // @javax.inject.Named("shorteningThreshold")
-                   // javafx.beans.property.IntegerProperty
-            return (T)
-                AddVaultModule_ProvideShorteningThresholdFactory.provideShorteningThreshold();
-
-          case 16: // org.cryptomator.ui.addvaultwizard.CreateNewVaultLocationController
-            return (T)
-                CreateNewVaultLocationController_Factory.newInstance(
-                    addVaultWizardComponentImpl.provideStageProvider.get(),
-                    DoubleCheck.lazy(
-                        addVaultWizardComponentImpl.provideCreateNewVaultNameSceneProvider),
-                    DoubleCheck.lazy(
-                        addVaultWizardComponentImpl
-                            .provideCreateNewVaultExpertSettingsSceneProvider),
-                    addVaultWizardComponentImpl.provideVaultPathProvider.get(),
-                    addVaultWizardComponentImpl.provideVaultNameProvider.get(),
-                    cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
-
-          case 17: // @org.cryptomator.ui.common.FxmlScene(ADDVAULT_NEW_NAME) javafx.scene.Scene
-            return (T)
-                AddVaultModule_ProvideCreateNewVaultNameSceneFactory.provideCreateNewVaultNameScene(
-                    addVaultWizardComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 18: // @org.cryptomator.ui.common.FxmlScene(ADDVAULT_NEW_EXPERT_SETTINGS)
-                   // javafx.scene.Scene
-            return (T)
-                AddVaultModule_ProvideCreateNewVaultExpertSettingsSceneFactory
-                    .provideCreateNewVaultExpertSettingsScene(
-                        addVaultWizardComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 19: // org.cryptomator.ui.addvaultwizard.CreateNewVaultNameController
-            return (T)
-                CreateNewVaultNameController_Factory.newInstance(
-                    addVaultWizardComponentImpl.provideStageProvider.get(),
-                    DoubleCheck.lazy(
-                        addVaultWizardComponentImpl.provideCreateNewVaultLocationSceneProvider),
-                    addVaultWizardComponentImpl.provideVaultPathProvider.get(),
-                    addVaultWizardComponentImpl.provideVaultNameProvider.get());
-
-          case 20: // org.cryptomator.ui.addvaultwizard.CreateNewVaultPasswordController
-            return (T)
-                CreateNewVaultPasswordController_Factory.newInstance(
-                    addVaultWizardComponentImpl.provideStageProvider.get(),
-                    DoubleCheck.lazy(
-                        addVaultWizardComponentImpl
-                            .provideCreateNewVaultExpertSettingsSceneProvider),
-                    DoubleCheck.lazy(
-                        addVaultWizardComponentImpl.provideCreateNewVaultRecoveryKeySceneProvider),
-                    DoubleCheck.lazy(
-                        addVaultWizardComponentImpl.provideCreateNewVaultSuccessSceneProvider),
-                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
-                    cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
-                    cryptomatorComponentImpl.recoveryKeyFactoryProvider.get(),
-                    addVaultWizardComponentImpl.provideVaultNameProvider.get(),
-                    addVaultWizardComponentImpl.provideVaultPathProvider.get(),
-                    addVaultWizardComponentImpl.provideVaultProvider.get(),
-                    addVaultWizardComponentImpl.provideRecoveryKeyProvider.get(),
-                    cryptomatorComponentImpl.vaultListManagerProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
-                    addVaultWizardComponentImpl.provideShorteningThresholdProvider.get(),
-                    addVaultWizardComponentImpl.readmeGeneratorProvider.get(),
-                    cryptomatorComponentImpl.provideCSPRNGProvider.get(),
-                    cryptomatorComponentImpl.provideMasterkeyFileAccessProvider.get());
-
-          case 21: // @org.cryptomator.ui.common.FxmlScene(ADDVAULT_NEW_RECOVERYKEY)
-                   // javafx.scene.Scene
-            return (T)
-                AddVaultModule_ProvideCreateNewVaultRecoveryKeySceneFactory
-                    .provideCreateNewVaultRecoveryKeyScene(
-                        addVaultWizardComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 22: // org.cryptomator.ui.addvaultwizard.ReadmeGenerator
-            return (T)
-                new ReadmeGenerator(cryptomatorComponentImpl.provideLocalizationProvider.get());
-
-          case 23: // org.cryptomator.ui.addvaultwizard.CreateNewVaultRecoveryKeyController
-            return (T)
-                CreateNewVaultRecoveryKeyController_Factory.newInstance(
-                    addVaultWizardComponentImpl.provideStageProvider.get(),
-                    DoubleCheck.lazy(
-                        addVaultWizardComponentImpl.provideCreateNewVaultSuccessSceneProvider));
+                MigrationImpossibleController_Factory.newInstance(
+                    fxApplicationComponentImpl.fxApplicationProvider.get(),
+                    migrationComponentImpl.provideStageProvider.get(),
+                    migrationComponentImpl.vault);
 
           default:
             throw new AssertionError(id);
@@ -2871,9 +2881,21 @@ public final class DaggerCryptomatorComponent {
 
     private Provider<ResizeController> resizeControllerProvider;
 
+    private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
+
+    private Provider<VaultListCellFactory> vaultListCellFactoryProvider;
+
+    private Provider<VaultListController> vaultListControllerProvider;
+
+    private Provider<VaultListContextMenuController> vaultListContextMenuControllerProvider;
+
     private Provider<VaultDetailController> vaultDetailControllerProvider;
 
+    private Provider<WelcomeController> welcomeControllerProvider;
+
     private Provider<VaultDetailLockedController> vaultDetailLockedControllerProvider;
+
+    private Provider<VaultDetailUnlockedController> vaultDetailUnlockedControllerProvider;
 
     private Provider<VaultDetailMissingVaultController> vaultDetailMissingVaultControllerProvider;
 
@@ -2884,19 +2906,7 @@ public final class DaggerCryptomatorComponent {
 
     private Provider<VaultDetailUnknownErrorController> vaultDetailUnknownErrorControllerProvider;
 
-    private Provider<VaultDetailUnlockedController> vaultDetailUnlockedControllerProvider;
-
     private Provider<VaultListCellController> vaultListCellControllerProvider;
-
-    private Provider<VaultListContextMenuController> vaultListContextMenuControllerProvider;
-
-    private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
-
-    private Provider<VaultListCellFactory> vaultListCellFactoryProvider;
-
-    private Provider<VaultListController> vaultListControllerProvider;
-
-    private Provider<WelcomeController> welcomeControllerProvider;
 
     private Provider<MainWindowSceneFactory> mainWindowSceneFactoryProvider;
 
@@ -2919,8 +2929,16 @@ public final class DaggerCryptomatorComponent {
           .put(MainWindowController.class, ((Provider) mainWindowControllerProvider))
           .put(MainWindowTitleController.class, ((Provider) mainWindowTitleControllerProvider))
           .put(ResizeController.class, ((Provider) resizeControllerProvider))
+          .put(VaultListController.class, ((Provider) vaultListControllerProvider))
+          .put(
+              VaultListContextMenuController.class,
+              ((Provider) vaultListContextMenuControllerProvider))
           .put(VaultDetailController.class, ((Provider) vaultDetailControllerProvider))
+          .put(WelcomeController.class, ((Provider) welcomeControllerProvider))
           .put(VaultDetailLockedController.class, ((Provider) vaultDetailLockedControllerProvider))
+          .put(
+              VaultDetailUnlockedController.class,
+              ((Provider) vaultDetailUnlockedControllerProvider))
           .put(
               VaultDetailMissingVaultController.class,
               ((Provider) vaultDetailMissingVaultControllerProvider))
@@ -2930,15 +2948,7 @@ public final class DaggerCryptomatorComponent {
           .put(
               VaultDetailUnknownErrorController.class,
               ((Provider) vaultDetailUnknownErrorControllerProvider))
-          .put(
-              VaultDetailUnlockedController.class,
-              ((Provider) vaultDetailUnlockedControllerProvider))
           .put(VaultListCellController.class, ((Provider) vaultListCellControllerProvider))
-          .put(
-              VaultListContextMenuController.class,
-              ((Provider) vaultListContextMenuControllerProvider))
-          .put(VaultListController.class, ((Provider) vaultListControllerProvider))
-          .put(WelcomeController.class, ((Provider) welcomeControllerProvider))
           .build();
     }
 
@@ -2950,7 +2960,7 @@ public final class DaggerCryptomatorComponent {
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  3));
+                  0));
       this.provideSelectedVaultProvider =
           DoubleCheck.provider(
               new SwitchingProvider<ObjectProperty<Vault>>(
@@ -2964,7 +2974,7 @@ public final class DaggerCryptomatorComponent {
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  2));
+                  3));
       this.mainWindowTitleControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<MainWindowTitleController>(
@@ -2975,65 +2985,6 @@ public final class DaggerCryptomatorComponent {
       this.resizeControllerProvider =
           new SwitchingProvider<>(
               cryptomatorComponentImpl, fxApplicationComponentImpl, mainWindowComponentImpl, 6);
-      this.vaultDetailControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<VaultDetailController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  7));
-      this.vaultDetailLockedControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<VaultDetailLockedController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  8));
-      this.vaultDetailMissingVaultControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<VaultDetailMissingVaultController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  9));
-      this.vaultDetailNeedsMigrationControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<VaultDetailNeedsMigrationController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  10));
-      this.provideErrorStageProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Stage>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  12));
-      this.vaultDetailUnknownErrorControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<VaultDetailUnknownErrorController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  11));
-      this.vaultDetailUnlockedControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<VaultDetailUnlockedController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  13));
-      this.vaultListCellControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl, fxApplicationComponentImpl, mainWindowComponentImpl, 14);
-      this.vaultListContextMenuControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<VaultListContextMenuController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  mainWindowComponentImpl,
-                  15));
       this.provideFxmlLoaderFactoryProvider = new DelegateFactory<>();
       this.vaultListCellFactoryProvider =
           DoubleCheck.provider(
@@ -3041,21 +2992,80 @@ public final class DaggerCryptomatorComponent {
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  17));
+                  8));
       this.vaultListControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<VaultListController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  16));
+                  7));
+      this.vaultListContextMenuControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<VaultListContextMenuController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  9));
+      this.vaultDetailControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<VaultDetailController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  10));
       this.welcomeControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<WelcomeController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  18));
+                  11));
+      this.vaultDetailLockedControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<VaultDetailLockedController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  12));
+      this.vaultDetailUnlockedControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<VaultDetailUnlockedController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  13));
+      this.vaultDetailMissingVaultControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<VaultDetailMissingVaultController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  14));
+      this.vaultDetailNeedsMigrationControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<VaultDetailNeedsMigrationController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  15));
+      this.provideErrorStageProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Stage>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  17));
+      this.vaultDetailUnknownErrorControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<VaultDetailUnknownErrorController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  mainWindowComponentImpl,
+                  16));
+      this.vaultListCellControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl, fxApplicationComponentImpl, mainWindowComponentImpl, 18);
       this.mainWindowSceneFactoryProvider =
           DoubleCheck.provider(
               new SwitchingProvider<MainWindowSceneFactory>(
@@ -3070,24 +3080,24 @@ public final class DaggerCryptomatorComponent {
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  1)));
+                  2)));
       this.provideMainSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   mainWindowComponentImpl,
-                  0));
-    }
-
-    @Override
-    public Lazy<Scene> scene() {
-      return DoubleCheck.lazy(provideMainSceneProvider);
+                  1));
     }
 
     @Override
     public Stage window() {
       return provideMainWindowProvider.get();
+    }
+
+    @Override
+    public Lazy<Scene> scene() {
+      return DoubleCheck.lazy(provideMainSceneProvider);
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -3114,12 +3124,18 @@ public final class DaggerCryptomatorComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(MAIN_WINDOW) javafx.scene.Scene
+          case 0: // @org.cryptomator.ui.mainwindow.MainWindow javafx.stage.Stage
+            return (T)
+                MainWindowModule_ProvideMainWindowFactory.provideMainWindow(
+                    fxApplicationComponentImpl.primaryStage,
+                    fxApplicationComponentImpl.stageInitializerProvider.get());
+
+          case 1: // @org.cryptomator.ui.common.FxmlScene(MAIN_WINDOW) javafx.scene.Scene
             return (T)
                 MainWindowModule_ProvideMainSceneFactory.provideMainScene(
                     mainWindowComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 1: // @org.cryptomator.ui.mainwindow.MainWindow
+          case 2: // @org.cryptomator.ui.mainwindow.MainWindow
                   // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
                 MainWindowModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
@@ -3127,17 +3143,11 @@ public final class DaggerCryptomatorComponent {
                     mainWindowComponentImpl.mainWindowSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 2: // org.cryptomator.ui.mainwindow.MainWindowController
+          case 3: // org.cryptomator.ui.mainwindow.MainWindowController
             return (T)
                 new MainWindowController(
                     mainWindowComponentImpl.provideMainWindowProvider.get(),
                     mainWindowComponentImpl.provideSelectedVaultProvider.get());
-
-          case 3: // @org.cryptomator.ui.mainwindow.MainWindow javafx.stage.Stage
-            return (T)
-                MainWindowModule_ProvideMainWindowFactory.provideMainWindow(
-                    fxApplicationComponentImpl.primaryStage,
-                    fxApplicationComponentImpl.stageInitializerProvider.get());
 
           case 4: // javafx.beans.property.ObjectProperty<org.cryptomator.common.vaults.Vault>
             return (T) MainWindowModule_ProvideSelectedVaultFactory.provideSelectedVault();
@@ -3159,97 +3169,7 @@ public final class DaggerCryptomatorComponent {
                     mainWindowComponentImpl.provideMainWindowProvider.get(),
                     cryptomatorComponentImpl.provideSettingsProvider.get());
 
-          case 7: // org.cryptomator.ui.mainwindow.VaultDetailController
-            return (T)
-                VaultDetailController_Factory.newInstance(
-                    mainWindowComponentImpl.provideSelectedVaultProvider.get(),
-                    fxApplicationComponentImpl.fxApplicationProvider.get());
-
-          case 8: // org.cryptomator.ui.mainwindow.VaultDetailLockedController
-            return (T)
-                VaultDetailLockedController_Factory.newInstance(
-                    mainWindowComponentImpl.provideSelectedVaultProvider.get(),
-                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
-                    new VaultOptionsComponentFactory(
-                        cryptomatorComponentImpl, fxApplicationComponentImpl),
-                    cryptomatorComponentImpl.keychainManagerProvider.get(),
-                    mainWindowComponentImpl.provideMainWindowProvider.get());
-
-          case 9: // org.cryptomator.ui.mainwindow.VaultDetailMissingVaultController
-            return (T)
-                new VaultDetailMissingVaultController(
-                    mainWindowComponentImpl.provideSelectedVaultProvider.get(),
-                    new RemoveVaultComponentBuilder(
-                        cryptomatorComponentImpl,
-                        fxApplicationComponentImpl,
-                        mainWindowComponentImpl),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
-                    mainWindowComponentImpl.provideMainWindowProvider.get());
-
-          case 10: // org.cryptomator.ui.mainwindow.VaultDetailNeedsMigrationController
-            return (T)
-                new VaultDetailNeedsMigrationController(
-                    mainWindowComponentImpl.provideSelectedVaultProvider.get(),
-                    new MigrationComponentBuilder(
-                        cryptomatorComponentImpl,
-                        fxApplicationComponentImpl,
-                        mainWindowComponentImpl));
-
-          case 11: // org.cryptomator.ui.mainwindow.VaultDetailUnknownErrorController
-            return (T)
-                new VaultDetailUnknownErrorController(
-                    mainWindowComponentImpl.provideSelectedVaultProvider.get(),
-                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
-                    mainWindowComponentImpl.provideErrorStageProvider.get(),
-                    new RemoveVaultComponentBuilder(
-                        cryptomatorComponentImpl,
-                        fxApplicationComponentImpl,
-                        mainWindowComponentImpl));
-
-          case 12: // @javax.inject.Named("errorWindow") javafx.stage.Stage
-            return (T)
-                MainWindowModule_ProvideErrorStageFactory.provideErrorStage(
-                    mainWindowComponentImpl.provideMainWindowProvider.get(),
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
-
-          case 13: // org.cryptomator.ui.mainwindow.VaultDetailUnlockedController
-            return (T)
-                new VaultDetailUnlockedController(
-                    mainWindowComponentImpl.provideSelectedVaultProvider.get(),
-                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
-                    fxApplicationComponentImpl.vaultServiceProvider.get(),
-                    new VaultStatisticsComponentBuilder(
-                        cryptomatorComponentImpl,
-                        fxApplicationComponentImpl,
-                        mainWindowComponentImpl),
-                    new WrongFileAlertComponentBuilder(
-                        cryptomatorComponentImpl,
-                        fxApplicationComponentImpl,
-                        mainWindowComponentImpl),
-                    mainWindowComponentImpl.provideMainWindowProvider.get(),
-                    cryptomatorComponentImpl.provideRevealPathServiceProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
-
-          case 14: // org.cryptomator.ui.mainwindow.VaultListCellController
-            return (T) VaultListCellController_Factory.newInstance();
-
-          case 15: // org.cryptomator.ui.mainwindow.VaultListContextMenuController
-            return (T)
-                VaultListContextMenuController_Factory.newInstance(
-                    mainWindowComponentImpl.provideSelectedVaultProvider.get(),
-                    mainWindowComponentImpl.provideMainWindowProvider.get(),
-                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
-                    fxApplicationComponentImpl.vaultServiceProvider.get(),
-                    cryptomatorComponentImpl.keychainManagerProvider.get(),
-                    new RemoveVaultComponentBuilder(
-                        cryptomatorComponentImpl,
-                        fxApplicationComponentImpl,
-                        mainWindowComponentImpl),
-                    new VaultOptionsComponentFactory(
-                        cryptomatorComponentImpl, fxApplicationComponentImpl));
-
-          case 16: // org.cryptomator.ui.mainwindow.VaultListController
+          case 7: // org.cryptomator.ui.mainwindow.VaultListController
             return (T)
                 VaultListController_Factory.newInstance(
                     mainWindowComponentImpl.provideMainWindowProvider.get(),
@@ -3269,16 +3189,106 @@ public final class DaggerCryptomatorComponent {
                     cryptomatorComponentImpl.provideLocalizationProvider.get(),
                     fxApplicationComponentImpl.fxApplicationWindowsProvider.get());
 
-          case 17: // org.cryptomator.ui.mainwindow.VaultListCellFactory
+          case 8: // org.cryptomator.ui.mainwindow.VaultListCellFactory
             return (T)
                 VaultListCellFactory_Factory.newInstance(
                     mainWindowComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 18: // org.cryptomator.ui.mainwindow.WelcomeController
+          case 9: // org.cryptomator.ui.mainwindow.VaultListContextMenuController
+            return (T)
+                VaultListContextMenuController_Factory.newInstance(
+                    mainWindowComponentImpl.provideSelectedVaultProvider.get(),
+                    mainWindowComponentImpl.provideMainWindowProvider.get(),
+                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
+                    fxApplicationComponentImpl.vaultServiceProvider.get(),
+                    cryptomatorComponentImpl.keychainManagerProvider.get(),
+                    new RemoveVaultComponentBuilder(
+                        cryptomatorComponentImpl,
+                        fxApplicationComponentImpl,
+                        mainWindowComponentImpl),
+                    new VaultOptionsComponentFactory(
+                        cryptomatorComponentImpl, fxApplicationComponentImpl));
+
+          case 10: // org.cryptomator.ui.mainwindow.VaultDetailController
+            return (T)
+                VaultDetailController_Factory.newInstance(
+                    mainWindowComponentImpl.provideSelectedVaultProvider.get(),
+                    fxApplicationComponentImpl.fxApplicationProvider.get());
+
+          case 11: // org.cryptomator.ui.mainwindow.WelcomeController
             return (T)
                 new WelcomeController(
                     fxApplicationComponentImpl.fxApplicationProvider.get(),
                     cryptomatorComponentImpl.provideVaultListProvider.get());
+
+          case 12: // org.cryptomator.ui.mainwindow.VaultDetailLockedController
+            return (T)
+                VaultDetailLockedController_Factory.newInstance(
+                    mainWindowComponentImpl.provideSelectedVaultProvider.get(),
+                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
+                    new VaultOptionsComponentFactory(
+                        cryptomatorComponentImpl, fxApplicationComponentImpl),
+                    cryptomatorComponentImpl.keychainManagerProvider.get(),
+                    mainWindowComponentImpl.provideMainWindowProvider.get());
+
+          case 13: // org.cryptomator.ui.mainwindow.VaultDetailUnlockedController
+            return (T)
+                new VaultDetailUnlockedController(
+                    mainWindowComponentImpl.provideSelectedVaultProvider.get(),
+                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
+                    fxApplicationComponentImpl.vaultServiceProvider.get(),
+                    new VaultStatisticsComponentBuilder(
+                        cryptomatorComponentImpl,
+                        fxApplicationComponentImpl,
+                        mainWindowComponentImpl),
+                    new WrongFileAlertComponentBuilder(
+                        cryptomatorComponentImpl,
+                        fxApplicationComponentImpl,
+                        mainWindowComponentImpl),
+                    mainWindowComponentImpl.provideMainWindowProvider.get(),
+                    cryptomatorComponentImpl.provideRevealPathServiceProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 14: // org.cryptomator.ui.mainwindow.VaultDetailMissingVaultController
+            return (T)
+                new VaultDetailMissingVaultController(
+                    mainWindowComponentImpl.provideSelectedVaultProvider.get(),
+                    new RemoveVaultComponentBuilder(
+                        cryptomatorComponentImpl,
+                        fxApplicationComponentImpl,
+                        mainWindowComponentImpl),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
+                    mainWindowComponentImpl.provideMainWindowProvider.get());
+
+          case 15: // org.cryptomator.ui.mainwindow.VaultDetailNeedsMigrationController
+            return (T)
+                new VaultDetailNeedsMigrationController(
+                    mainWindowComponentImpl.provideSelectedVaultProvider.get(),
+                    new MigrationComponentBuilder(
+                        cryptomatorComponentImpl,
+                        fxApplicationComponentImpl,
+                        mainWindowComponentImpl));
+
+          case 16: // org.cryptomator.ui.mainwindow.VaultDetailUnknownErrorController
+            return (T)
+                new VaultDetailUnknownErrorController(
+                    mainWindowComponentImpl.provideSelectedVaultProvider.get(),
+                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
+                    mainWindowComponentImpl.provideErrorStageProvider.get(),
+                    new RemoveVaultComponentBuilder(
+                        cryptomatorComponentImpl,
+                        fxApplicationComponentImpl,
+                        mainWindowComponentImpl));
+
+          case 17: // @javax.inject.Named("errorWindow") javafx.stage.Stage
+            return (T)
+                MainWindowModule_ProvideErrorStageFactory.provideErrorStage(
+                    mainWindowComponentImpl.provideMainWindowProvider.get(),
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 18: // org.cryptomator.ui.mainwindow.VaultListCellController
+            return (T) VaultListCellController_Factory.newInstance();
 
           case 19: // org.cryptomator.ui.mainwindow.MainWindowSceneFactory
             return (T)
@@ -3301,23 +3311,23 @@ public final class DaggerCryptomatorComponent {
 
     private final PreferencesComponentImpl preferencesComponentImpl = this;
 
-    private Provider<AboutController> aboutControllerProvider;
-
     private Provider<Stage> provideStageProvider;
-
-    private Provider<GeneralPreferencesController> generalPreferencesControllerProvider;
 
     private Provider<ObjectProperty<SelectedPreferencesTab>> provideSelectedTabPropertyProvider;
 
-    private Provider<InterfacePreferencesController> interfacePreferencesControllerProvider;
-
     private Provider<PreferencesController> preferencesControllerProvider;
 
-    private Provider<SupporterCertificateController> supporterCertificateControllerProvider;
+    private Provider<GeneralPreferencesController> generalPreferencesControllerProvider;
+
+    private Provider<InterfacePreferencesController> interfacePreferencesControllerProvider;
 
     private Provider<UpdatesPreferencesController> updatesPreferencesControllerProvider;
 
     private Provider<VolumePreferencesController> volumePreferencesControllerProvider;
+
+    private Provider<SupporterCertificateController> supporterCertificateControllerProvider;
+
+    private Provider<AboutController> aboutControllerProvider;
 
     private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
 
@@ -3337,83 +3347,83 @@ public final class DaggerCryptomatorComponent {
       return ImmutableMap
           .<Class<? extends FxController>, javax.inject.Provider<FxController>>
               builderWithExpectedSize(7)
-          .put(AboutController.class, ((Provider) aboutControllerProvider))
+          .put(PreferencesController.class, ((Provider) preferencesControllerProvider))
           .put(
               GeneralPreferencesController.class, ((Provider) generalPreferencesControllerProvider))
           .put(
               InterfacePreferencesController.class,
               ((Provider) interfacePreferencesControllerProvider))
-          .put(PreferencesController.class, ((Provider) preferencesControllerProvider))
-          .put(
-              SupporterCertificateController.class,
-              ((Provider) supporterCertificateControllerProvider))
           .put(
               UpdatesPreferencesController.class, ((Provider) updatesPreferencesControllerProvider))
           .put(VolumePreferencesController.class, ((Provider) volumePreferencesControllerProvider))
+          .put(
+              SupporterCertificateController.class,
+              ((Provider) supporterCertificateControllerProvider))
+          .put(AboutController.class, ((Provider) aboutControllerProvider))
           .build();
     }
 
     @SuppressWarnings("unchecked")
     private void initialize() {
-      this.aboutControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<AboutController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  preferencesComponentImpl,
-                  2));
       this.provideStageProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Stage>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   preferencesComponentImpl,
-                  4));
-      this.generalPreferencesControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<GeneralPreferencesController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  preferencesComponentImpl,
-                  3));
+                  0));
       this.provideSelectedTabPropertyProvider =
           DoubleCheck.provider(
               new SwitchingProvider<ObjectProperty<SelectedPreferencesTab>>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   preferencesComponentImpl,
-                  6));
-      this.interfacePreferencesControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<InterfacePreferencesController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  preferencesComponentImpl,
-                  5));
+                  4));
       this.preferencesControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<PreferencesController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   preferencesComponentImpl,
-                  7));
-      this.supporterCertificateControllerProvider =
+                  3));
+      this.generalPreferencesControllerProvider =
           DoubleCheck.provider(
-              new SwitchingProvider<SupporterCertificateController>(
+              new SwitchingProvider<GeneralPreferencesController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   preferencesComponentImpl,
-                  8));
+                  5));
+      this.interfacePreferencesControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<InterfacePreferencesController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  preferencesComponentImpl,
+                  6));
       this.updatesPreferencesControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<UpdatesPreferencesController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   preferencesComponentImpl,
-                  9));
+                  7));
       this.volumePreferencesControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<VolumePreferencesController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  preferencesComponentImpl,
+                  8));
+      this.supporterCertificateControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<SupporterCertificateController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  preferencesComponentImpl,
+                  9));
+      this.aboutControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<AboutController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   preferencesComponentImpl,
@@ -3424,14 +3434,19 @@ public final class DaggerCryptomatorComponent {
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   preferencesComponentImpl,
-                  1));
+                  2));
       this.providePreferencesSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   preferencesComponentImpl,
-                  0));
+                  1));
+    }
+
+    @Override
+    public Stage window() {
+      return provideStageProvider.get();
     }
 
     @Override
@@ -3442,11 +3457,6 @@ public final class DaggerCryptomatorComponent {
     @Override
     public ObjectProperty<SelectedPreferencesTab> selectedTabProperty() {
       return provideSelectedTabPropertyProvider.get();
-    }
-
-    @Override
-    public Stage window() {
-      return provideStageProvider.get();
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -3473,12 +3483,18 @@ public final class DaggerCryptomatorComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(PREFERENCES) javafx.scene.Scene
+          case 0: // @org.cryptomator.ui.preferences.PreferencesWindow javafx.stage.Stage
+            return (T)
+                PreferencesModule_ProvideStageFactory.provideStage(
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 1: // @org.cryptomator.ui.common.FxmlScene(PREFERENCES) javafx.scene.Scene
             return (T)
                 PreferencesModule_ProvidePreferencesSceneFactory.providePreferencesScene(
                     preferencesComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 1: // @org.cryptomator.ui.preferences.PreferencesWindow
+          case 2: // @org.cryptomator.ui.preferences.PreferencesWindow
                   // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
                 PreferencesModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
@@ -3486,13 +3502,19 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 2: // org.cryptomator.ui.preferences.AboutController
+          case 3: // org.cryptomator.ui.preferences.PreferencesController
             return (T)
-                AboutController_Factory.newInstance(
-                    fxApplicationComponentImpl.updateCheckerProvider.get(),
-                    cryptomatorComponentImpl.provideEnvironmentProvider.get());
+                new PreferencesController(
+                    cryptomatorComponentImpl.provideEnvironmentProvider.get(),
+                    preferencesComponentImpl.provideStageProvider.get(),
+                    preferencesComponentImpl.provideSelectedTabPropertyProvider.get(),
+                    fxApplicationComponentImpl.updateCheckerProvider.get());
 
-          case 3: // org.cryptomator.ui.preferences.GeneralPreferencesController
+          case 4: // javafx.beans.property.ObjectProperty<org.cryptomator.ui.preferences.SelectedPreferencesTab>
+            return (T)
+                PreferencesModule_ProvideSelectedTabPropertyFactory.provideSelectedTabProperty();
+
+          case 5: // org.cryptomator.ui.preferences.GeneralPreferencesController
             return (T)
                 GeneralPreferencesController_Factory.newInstance(
                     preferencesComponentImpl.provideStageProvider.get(),
@@ -3503,13 +3525,7 @@ public final class DaggerCryptomatorComponent {
                     cryptomatorComponentImpl.provideEnvironmentProvider.get(),
                     fxApplicationComponentImpl.fxApplicationWindowsProvider.get());
 
-          case 4: // @org.cryptomator.ui.preferences.PreferencesWindow javafx.stage.Stage
-            return (T)
-                PreferencesModule_ProvideStageFactory.provideStage(
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
-
-          case 5: // org.cryptomator.ui.preferences.InterfacePreferencesController
+          case 6: // org.cryptomator.ui.preferences.InterfacePreferencesController
             return (T)
                 InterfacePreferencesController_Factory.newInstance(
                     cryptomatorComponentImpl.provideSettingsProvider.get(),
@@ -3519,26 +3535,7 @@ public final class DaggerCryptomatorComponent {
                     cryptomatorComponentImpl.licenseHolderProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 6: // javafx.beans.property.ObjectProperty<org.cryptomator.ui.preferences.SelectedPreferencesTab>
-            return (T)
-                PreferencesModule_ProvideSelectedTabPropertyFactory.provideSelectedTabProperty();
-
-          case 7: // org.cryptomator.ui.preferences.PreferencesController
-            return (T)
-                new PreferencesController(
-                    cryptomatorComponentImpl.provideEnvironmentProvider.get(),
-                    preferencesComponentImpl.provideStageProvider.get(),
-                    preferencesComponentImpl.provideSelectedTabPropertyProvider.get(),
-                    fxApplicationComponentImpl.updateCheckerProvider.get());
-
-          case 8: // org.cryptomator.ui.preferences.SupporterCertificateController
-            return (T)
-                SupporterCertificateController_Factory.newInstance(
-                    fxApplicationComponentImpl.fxApplicationProvider.get(),
-                    cryptomatorComponentImpl.licenseHolderProvider.get(),
-                    cryptomatorComponentImpl.provideSettingsProvider.get());
-
-          case 9: // org.cryptomator.ui.preferences.UpdatesPreferencesController
+          case 7: // org.cryptomator.ui.preferences.UpdatesPreferencesController
             return (T)
                 UpdatesPreferencesController_Factory.newInstance(
                     fxApplicationComponentImpl.fxApplicationProvider.get(),
@@ -3547,13 +3544,26 @@ public final class DaggerCryptomatorComponent {
                     cryptomatorComponentImpl.provideSettingsProvider.get(),
                     fxApplicationComponentImpl.updateCheckerProvider.get());
 
-          case 10: // org.cryptomator.ui.preferences.VolumePreferencesController
+          case 8: // org.cryptomator.ui.preferences.VolumePreferencesController
             return (T)
                 VolumePreferencesController_Factory.newInstance(
                     cryptomatorComponentImpl.provideSettingsProvider.get(),
                     DoubleCheck.lazy(fxApplicationComponentImpl.fxApplicationProvider),
                     cryptomatorComponentImpl.provideSupportedMountServicesProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 9: // org.cryptomator.ui.preferences.SupporterCertificateController
+            return (T)
+                SupporterCertificateController_Factory.newInstance(
+                    fxApplicationComponentImpl.fxApplicationProvider.get(),
+                    cryptomatorComponentImpl.licenseHolderProvider.get(),
+                    cryptomatorComponentImpl.provideSettingsProvider.get());
+
+          case 10: // org.cryptomator.ui.preferences.AboutController
+            return (T)
+                AboutController_Factory.newInstance(
+                    fxApplicationComponentImpl.updateCheckerProvider.get(),
+                    cryptomatorComponentImpl.provideEnvironmentProvider.get());
 
           default:
             throw new AssertionError(id);
@@ -3571,6 +3581,8 @@ public final class DaggerCryptomatorComponent {
 
     private Provider<Stage> provideStageProvider;
 
+    private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
+
     private Provider<Scene> provideQuitForcedSceneProvider;
 
     private Provider<AtomicReference<QuitResponse>> provideQuitResponseProvider;
@@ -3578,8 +3590,6 @@ public final class DaggerCryptomatorComponent {
     private Provider<QuitController> quitControllerProvider;
 
     private Provider<QuitForcedController> quitForcedControllerProvider;
-
-    private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
 
     private Provider<Scene> provideQuitSceneProvider;
 
@@ -3606,32 +3616,42 @@ public final class DaggerCryptomatorComponent {
       this.provideStageProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Stage>(
-                  cryptomatorComponentImpl, fxApplicationComponentImpl, quitComponentImpl, 3));
-      this.provideQuitForcedSceneProvider = new DelegateFactory<>();
+                  cryptomatorComponentImpl, fxApplicationComponentImpl, quitComponentImpl, 0));
+      this.provideFxmlLoaderFactoryProvider = new DelegateFactory<>();
+      this.provideQuitForcedSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl, fxApplicationComponentImpl, quitComponentImpl, 4));
       this.provideQuitResponseProvider =
           DoubleCheck.provider(
               new SwitchingProvider<AtomicReference<QuitResponse>>(
-                  cryptomatorComponentImpl, fxApplicationComponentImpl, quitComponentImpl, 4));
+                  cryptomatorComponentImpl, fxApplicationComponentImpl, quitComponentImpl, 5));
       this.quitControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<QuitController>(
-                  cryptomatorComponentImpl, fxApplicationComponentImpl, quitComponentImpl, 2));
+                  cryptomatorComponentImpl, fxApplicationComponentImpl, quitComponentImpl, 3));
       this.quitForcedControllerProvider =
           new SwitchingProvider<>(
-              cryptomatorComponentImpl, fxApplicationComponentImpl, quitComponentImpl, 5);
-      this.provideFxmlLoaderFactoryProvider =
+              cryptomatorComponentImpl, fxApplicationComponentImpl, quitComponentImpl, 6);
+      DelegateFactory.setDelegate(
+          provideFxmlLoaderFactoryProvider,
           DoubleCheck.provider(
               new SwitchingProvider<FxmlLoaderFactory>(
-                  cryptomatorComponentImpl, fxApplicationComponentImpl, quitComponentImpl, 1));
-      DelegateFactory.setDelegate(
-          provideQuitForcedSceneProvider,
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl, fxApplicationComponentImpl, quitComponentImpl, 0)));
+                  cryptomatorComponentImpl, fxApplicationComponentImpl, quitComponentImpl, 2)));
       this.provideQuitSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl, fxApplicationComponentImpl, quitComponentImpl, 6));
+                  cryptomatorComponentImpl, fxApplicationComponentImpl, quitComponentImpl, 1));
+    }
+
+    @Override
+    public Stage window() {
+      return provideStageProvider.get();
+    }
+
+    @Override
+    public Lazy<Scene> quitScene() {
+      return DoubleCheck.lazy(provideQuitSceneProvider);
     }
 
     @Override
@@ -3642,16 +3662,6 @@ public final class DaggerCryptomatorComponent {
     @Override
     public AtomicReference<QuitResponse> quitResponse() {
       return provideQuitResponseProvider.get();
-    }
-
-    @Override
-    public Lazy<Scene> quitScene() {
-      return DoubleCheck.lazy(provideQuitSceneProvider);
-    }
-
-    @Override
-    public Stage window() {
-      return provideStageProvider.get();
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -3678,19 +3688,25 @@ public final class DaggerCryptomatorComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(QUIT_FORCED) javafx.scene.Scene
+          case 0: // @org.cryptomator.ui.quit.QuitWindow javafx.stage.Stage
             return (T)
-                QuitModule_ProvideQuitForcedSceneFactory.provideQuitForcedScene(
+                QuitModule_ProvideStageFactory.provideStage(
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 1: // @org.cryptomator.ui.common.FxmlScene(QUIT) javafx.scene.Scene
+            return (T)
+                QuitModule_ProvideQuitSceneFactory.provideQuitScene(
                     quitComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 1: // @org.cryptomator.ui.quit.QuitWindow org.cryptomator.ui.common.FxmlLoaderFactory
+          case 2: // @org.cryptomator.ui.quit.QuitWindow org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
                 QuitModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
                     quitComponentImpl.mapOfClassOfAndProviderOfFxController(),
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 2: // org.cryptomator.ui.quit.QuitController
+          case 3: // org.cryptomator.ui.quit.QuitController
             return (T)
                 QuitController_Factory.newInstance(
                     quitComponentImpl.provideStageProvider.get(),
@@ -3700,17 +3716,16 @@ public final class DaggerCryptomatorComponent {
                     DoubleCheck.lazy(quitComponentImpl.provideQuitForcedSceneProvider),
                     quitComponentImpl.provideQuitResponseProvider.get());
 
-          case 3: // @org.cryptomator.ui.quit.QuitWindow javafx.stage.Stage
+          case 4: // @org.cryptomator.ui.common.FxmlScene(QUIT_FORCED) javafx.scene.Scene
             return (T)
-                QuitModule_ProvideStageFactory.provideStage(
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+                QuitModule_ProvideQuitForcedSceneFactory.provideQuitForcedScene(
+                    quitComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 4: // @org.cryptomator.ui.quit.QuitWindow
+          case 5: // @org.cryptomator.ui.quit.QuitWindow
                   // java.util.concurrent.atomic.AtomicReference<java.awt.desktop.QuitResponse>
             return (T) QuitModule_ProvideQuitResponseFactory.provideQuitResponse();
 
-          case 5: // org.cryptomator.ui.quit.QuitForcedController
+          case 6: // org.cryptomator.ui.quit.QuitForcedController
             return (T)
                 QuitForcedController_Factory.newInstance(
                     quitComponentImpl.provideStageProvider.get(),
@@ -3718,11 +3733,6 @@ public final class DaggerCryptomatorComponent {
                     cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
                     fxApplicationComponentImpl.vaultServiceProvider.get(),
                     quitComponentImpl.provideQuitResponseProvider.get());
-
-          case 6: // @org.cryptomator.ui.common.FxmlScene(QUIT) javafx.scene.Scene
-            return (T)
-                QuitModule_ProvideQuitSceneFactory.provideQuitScene(
-                    quitComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
           default:
             throw new AssertionError(id);
@@ -4031,15 +4041,15 @@ public final class DaggerCryptomatorComponent {
         FxApplicationComponentImpl fxApplicationComponentImpl,
         UnlockComponentImpl unlockComponentImpl,
         ocuk_KeyLoadingComponentImpl _ocuk_KeyLoadingComponentImpl,
-        Stage ownerParam,
-        Vault vaultParam) {
+        Vault vaultParam,
+        Stage ownerParam) {
       this.cryptomatorComponentImpl = cryptomatorComponentImpl;
       this.fxApplicationComponentImpl = fxApplicationComponentImpl;
       this.unlockComponentImpl = unlockComponentImpl;
       this._ocuk_KeyLoadingComponentImpl = _ocuk_KeyLoadingComponentImpl;
       this.owner = ownerParam;
       this.vault = vaultParam;
-      initialize(ownerParam, vaultParam);
+      initialize(vaultParam, ownerParam);
     }
 
     private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
@@ -4048,14 +4058,17 @@ public final class DaggerCryptomatorComponent {
           .<Class<? extends FxController>, javax.inject.Provider<FxController>>
               builderWithExpectedSize(15)
           .put(
+              UnlockSuccessController.class,
+              ((Provider) unlockComponentImpl.unlockSuccessControllerProvider))
+          .put(
               UnlockInvalidMountPointController.class,
               ((Provider) unlockComponentImpl.unlockInvalidMountPointControllerProvider))
           .put(
               UnlockRequiresRestartController.class,
               ((Provider) unlockComponentImpl.unlockRequiresRestartControllerProvider))
           .put(
-              UnlockSuccessController.class,
-              ((Provider) unlockComponentImpl.unlockSuccessControllerProvider))
+              NoKeychainController.class,
+              ((Provider) _ocuk_KeyLoadingComponentImpl.noKeychainControllerProvider))
           .put(
               AuthFlowController.class,
               ((Provider) _ocuk_KeyLoadingComponentImpl.authFlowControllerProvider))
@@ -4063,38 +4076,35 @@ public final class DaggerCryptomatorComponent {
               InvalidLicenseController.class,
               ((Provider) _ocuk_KeyLoadingComponentImpl.invalidLicenseControllerProvider))
           .put(
-              LegacyRegisterDeviceController.class,
-              ((Provider) _ocuk_KeyLoadingComponentImpl.legacyRegisterDeviceControllerProvider))
-          .put(
-              LegacyRegisterSuccessController.class,
-              ((Provider) _ocuk_KeyLoadingComponentImpl.legacyRegisterSuccessControllerProvider))
-          .put(
-              NoKeychainController.class,
-              ((Provider) _ocuk_KeyLoadingComponentImpl.noKeychainControllerProvider))
-          .put(
               ReceiveKeyController.class,
               ((Provider) _ocuk_KeyLoadingComponentImpl.receiveKeyControllerProvider))
           .put(
               RegisterDeviceController.class,
               ((Provider) _ocuk_KeyLoadingComponentImpl.registerDeviceControllerProvider))
           .put(
-              RegisterFailedController.class,
-              ((Provider) _ocuk_KeyLoadingComponentImpl.registerFailedControllerProvider))
+              LegacyRegisterDeviceController.class,
+              ((Provider) _ocuk_KeyLoadingComponentImpl.legacyRegisterDeviceControllerProvider))
+          .put(
+              LegacyRegisterSuccessController.class,
+              ((Provider) _ocuk_KeyLoadingComponentImpl.legacyRegisterSuccessControllerProvider))
           .put(
               RegisterSuccessController.class,
               ((Provider) _ocuk_KeyLoadingComponentImpl.registerSuccessControllerProvider))
           .put(
-              RequireAccountInitController.class,
-              ((Provider) _ocuk_KeyLoadingComponentImpl.requireAccountInitControllerProvider))
+              RegisterFailedController.class,
+              ((Provider) _ocuk_KeyLoadingComponentImpl.registerFailedControllerProvider))
           .put(
               UnauthorizedDeviceController.class,
               ((Provider) _ocuk_KeyLoadingComponentImpl.unauthorizedDeviceControllerProvider))
+          .put(
+              RequireAccountInitController.class,
+              ((Provider) _ocuk_KeyLoadingComponentImpl.requireAccountInitControllerProvider))
           .put(ForgetPasswordController.class, ((Provider) forgetPasswordControllerProvider))
           .build();
     }
 
     @SuppressWarnings("unchecked")
-    private void initialize(final Stage ownerParam, final Vault vaultParam) {
+    private void initialize(final Vault vaultParam, final Stage ownerParam) {
       this.provideConfirmedPropertyProvider =
           DoubleCheck.provider(
               new SwitchingProvider<BooleanProperty>(
@@ -4112,7 +4122,7 @@ public final class DaggerCryptomatorComponent {
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
                   _ocuf_ForgetPasswordComponentImpl,
-                  4));
+                  1));
       this.forgetPasswordControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<ForgetPasswordController>(
@@ -4121,7 +4131,7 @@ public final class DaggerCryptomatorComponent {
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
                   _ocuf_ForgetPasswordComponentImpl,
-                  3));
+                  4));
       this.provideFxmlLoaderFactoryProvider =
           DoubleCheck.provider(
               new SwitchingProvider<FxmlLoaderFactory>(
@@ -4130,7 +4140,7 @@ public final class DaggerCryptomatorComponent {
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
                   _ocuf_ForgetPasswordComponentImpl,
-                  2));
+                  3));
       this.provideForgetPasswordSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -4139,7 +4149,7 @@ public final class DaggerCryptomatorComponent {
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
                   _ocuf_ForgetPasswordComponentImpl,
-                  1));
+                  2));
     }
 
     @Override
@@ -4148,13 +4158,13 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public Lazy<Scene> scene() {
-      return DoubleCheck.lazy(provideForgetPasswordSceneProvider);
+    public Stage window() {
+      return provideStageProvider.get();
     }
 
     @Override
-    public Stage window() {
-      return provideStageProvider.get();
+    public Lazy<Scene> scene() {
+      return DoubleCheck.lazy(provideForgetPasswordSceneProvider);
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -4194,12 +4204,19 @@ public final class DaggerCryptomatorComponent {
             return (T)
                 ForgetPasswordModule_ProvideConfirmedPropertyFactory.provideConfirmedProperty();
 
-          case 1: // @org.cryptomator.ui.common.FxmlScene(FORGET_PASSWORD) javafx.scene.Scene
+          case 1: // @org.cryptomator.ui.forgetpassword.ForgetPasswordWindow javafx.stage.Stage
+            return (T)
+                ForgetPasswordModule_ProvideStageFactory.provideStage(
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
+                    _ocuf_ForgetPasswordComponentImpl.owner);
+
+          case 2: // @org.cryptomator.ui.common.FxmlScene(FORGET_PASSWORD) javafx.scene.Scene
             return (T)
                 ForgetPasswordModule_ProvideForgetPasswordSceneFactory.provideForgetPasswordScene(
                     _ocuf_ForgetPasswordComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 2: // @org.cryptomator.ui.forgetpassword.ForgetPasswordWindow
+          case 3: // @org.cryptomator.ui.forgetpassword.ForgetPasswordWindow
                   // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
                 ForgetPasswordModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
@@ -4207,20 +4224,13 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 3: // org.cryptomator.ui.forgetpassword.ForgetPasswordController
+          case 4: // org.cryptomator.ui.forgetpassword.ForgetPasswordController
             return (T)
                 new ForgetPasswordController(
                     _ocuf_ForgetPasswordComponentImpl.provideStageProvider.get(),
                     _ocuf_ForgetPasswordComponentImpl.vault,
                     cryptomatorComponentImpl.keychainManagerProvider.get(),
                     _ocuf_ForgetPasswordComponentImpl.provideConfirmedPropertyProvider.get());
-
-          case 4: // @org.cryptomator.ui.forgetpassword.ForgetPasswordWindow javafx.stage.Stage
-            return (T)
-                ForgetPasswordModule_ProvideStageFactory.provideStage(
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
-                    _ocuf_ForgetPasswordComponentImpl.owner);
 
           default:
             throw new AssertionError(id);
@@ -4248,6 +4258,8 @@ public final class DaggerCryptomatorComponent {
 
     private Provider<KeyLoadingStrategy> bindMasterkeyFileLoadingStrategyProvider;
 
+    private Provider<NoKeychainController> noKeychainControllerProvider;
+
     private Provider<String> provideDeviceIdProvider;
 
     private Provider<HubConfig> provideHubConfigProvider;
@@ -4265,16 +4277,6 @@ public final class DaggerCryptomatorComponent {
 
     private Provider<InvalidLicenseController> invalidLicenseControllerProvider;
 
-    private Provider<Scene> provideHubLegacyRegisterSuccessSceneProvider;
-
-    private Provider<Scene> provideHubRegisterFailedSceneProvider;
-
-    private Provider<LegacyRegisterDeviceController> legacyRegisterDeviceControllerProvider;
-
-    private Provider<LegacyRegisterSuccessController> legacyRegisterSuccessControllerProvider;
-
-    private Provider<NoKeychainController> noKeychainControllerProvider;
-
     private Provider<Scene> provideHubRegisterDeviceSceneProvider;
 
     private Provider<Scene> provideHubLegacyRegisterDeviceSceneProvider;
@@ -4289,17 +4291,25 @@ public final class DaggerCryptomatorComponent {
 
     private Provider<Scene> provideHubRegisterSuccessSceneProvider;
 
+    private Provider<Scene> provideHubRegisterFailedSceneProvider;
+
     private Provider<Scene> provideHubRegisterDeviceAlreadyExistsSceneProvider;
 
     private Provider<RegisterDeviceController> registerDeviceControllerProvider;
 
-    private Provider<RegisterFailedController> registerFailedControllerProvider;
+    private Provider<Scene> provideHubLegacyRegisterSuccessSceneProvider;
+
+    private Provider<LegacyRegisterDeviceController> legacyRegisterDeviceControllerProvider;
+
+    private Provider<LegacyRegisterSuccessController> legacyRegisterSuccessControllerProvider;
 
     private Provider<RegisterSuccessController> registerSuccessControllerProvider;
 
-    private Provider<RequireAccountInitController> requireAccountInitControllerProvider;
+    private Provider<RegisterFailedController> registerFailedControllerProvider;
 
     private Provider<UnauthorizedDeviceController> unauthorizedDeviceControllerProvider;
+
+    private Provider<RequireAccountInitController> requireAccountInitControllerProvider;
 
     private Provider<Scene> provideHubAuthFlowSceneProvider;
 
@@ -4335,31 +4345,31 @@ public final class DaggerCryptomatorComponent {
           .<Class<? extends FxController>, javax.inject.Provider<FxController>>
               builderWithExpectedSize(14)
           .put(
+              UnlockSuccessController.class,
+              ((Provider) unlockComponentImpl.unlockSuccessControllerProvider))
+          .put(
               UnlockInvalidMountPointController.class,
               ((Provider) unlockComponentImpl.unlockInvalidMountPointControllerProvider))
           .put(
               UnlockRequiresRestartController.class,
               ((Provider) unlockComponentImpl.unlockRequiresRestartControllerProvider))
-          .put(
-              UnlockSuccessController.class,
-              ((Provider) unlockComponentImpl.unlockSuccessControllerProvider))
+          .put(NoKeychainController.class, ((Provider) noKeychainControllerProvider))
           .put(AuthFlowController.class, ((Provider) authFlowControllerProvider))
           .put(InvalidLicenseController.class, ((Provider) invalidLicenseControllerProvider))
+          .put(ReceiveKeyController.class, ((Provider) receiveKeyControllerProvider))
+          .put(RegisterDeviceController.class, ((Provider) registerDeviceControllerProvider))
           .put(
               LegacyRegisterDeviceController.class,
               ((Provider) legacyRegisterDeviceControllerProvider))
           .put(
               LegacyRegisterSuccessController.class,
               ((Provider) legacyRegisterSuccessControllerProvider))
-          .put(NoKeychainController.class, ((Provider) noKeychainControllerProvider))
-          .put(ReceiveKeyController.class, ((Provider) receiveKeyControllerProvider))
-          .put(RegisterDeviceController.class, ((Provider) registerDeviceControllerProvider))
-          .put(RegisterFailedController.class, ((Provider) registerFailedControllerProvider))
           .put(RegisterSuccessController.class, ((Provider) registerSuccessControllerProvider))
-          .put(
-              RequireAccountInitController.class, ((Provider) requireAccountInitControllerProvider))
+          .put(RegisterFailedController.class, ((Provider) registerFailedControllerProvider))
           .put(
               UnauthorizedDeviceController.class, ((Provider) unauthorizedDeviceControllerProvider))
+          .put(
+              RequireAccountInitController.class, ((Provider) requireAccountInitControllerProvider))
           .build();
     }
 
@@ -4393,6 +4403,13 @@ public final class DaggerCryptomatorComponent {
               1);
       this.bindMasterkeyFileLoadingStrategyProvider =
           DoubleCheck.provider((Provider) masterkeyFileLoadingStrategyProvider);
+      this.noKeychainControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl,
+              fxApplicationComponentImpl,
+              unlockComponentImpl,
+              _ocuk_KeyLoadingComponentImpl,
+              6);
       this.provideDeviceIdProvider =
           DoubleCheck.provider(
               new SwitchingProvider<String>(
@@ -4400,7 +4417,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
-                  7));
+                  8));
       this.provideHubConfigProvider =
           DoubleCheck.provider(
               new SwitchingProvider<HubConfig>(
@@ -4408,7 +4425,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
-                  8));
+                  9));
       this.provideBearerTokenRefProvider =
           DoubleCheck.provider(
               new SwitchingProvider<AtomicReference<String>>(
@@ -4416,7 +4433,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
-                  9));
+                  10));
       this.provideResultProvider =
           DoubleCheck.provider(
               new SwitchingProvider<CompletableFuture>(
@@ -4424,7 +4441,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
-                  10));
+                  11));
       this.provideFxmlLoaderFactoryProvider = new DelegateFactory<>();
       this.provideHubReceiveKeySceneProvider =
           DoubleCheck.provider(
@@ -4433,7 +4450,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
-                  11));
+                  12));
       this.authFlowControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<AuthFlowController>(
@@ -4441,53 +4458,14 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
-                  6));
+                  7));
       this.invalidLicenseControllerProvider =
           new SwitchingProvider<>(
               cryptomatorComponentImpl,
               fxApplicationComponentImpl,
               unlockComponentImpl,
               _ocuk_KeyLoadingComponentImpl,
-              12);
-      this.provideHubLegacyRegisterSuccessSceneProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  unlockComponentImpl,
-                  _ocuk_KeyLoadingComponentImpl,
-                  14));
-      this.provideHubRegisterFailedSceneProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  unlockComponentImpl,
-                  _ocuk_KeyLoadingComponentImpl,
-                  15));
-      this.legacyRegisterDeviceControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<LegacyRegisterDeviceController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  unlockComponentImpl,
-                  _ocuk_KeyLoadingComponentImpl,
-                  13));
-      this.legacyRegisterSuccessControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<LegacyRegisterSuccessController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  unlockComponentImpl,
-                  _ocuk_KeyLoadingComponentImpl,
-                  16));
-      this.noKeychainControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl,
-              fxApplicationComponentImpl,
-              unlockComponentImpl,
-              _ocuk_KeyLoadingComponentImpl,
-              17);
+              13);
       this.provideHubRegisterDeviceSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -4495,7 +4473,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
-                  19));
+                  15));
       this.provideHubLegacyRegisterDeviceSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -4503,7 +4481,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
-                  20));
+                  16));
       this.provideHubUnauthorizedDeviceSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -4511,7 +4489,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
-                  21));
+                  17));
       this.provideRequireAccountInitSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -4519,7 +4497,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
-                  22));
+                  18));
       this.provideInvalidLicenseSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -4527,7 +4505,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
-                  23));
+                  19));
       this.receiveKeyControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<ReceiveKeyController>(
@@ -4535,7 +4513,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
-                  18));
+                  14));
       this.provideHubRegisterSuccessSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -4543,7 +4521,15 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
-                  25));
+                  21));
+      this.provideHubRegisterFailedSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  unlockComponentImpl,
+                  _ocuk_KeyLoadingComponentImpl,
+                  22));
       this.provideHubRegisterDeviceAlreadyExistsSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -4551,7 +4537,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
-                  26));
+                  23));
       this.registerDeviceControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<RegisterDeviceController>(
@@ -4559,32 +4545,56 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
+                  20));
+      this.provideHubLegacyRegisterSuccessSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  unlockComponentImpl,
+                  _ocuk_KeyLoadingComponentImpl,
+                  25));
+      this.legacyRegisterDeviceControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<LegacyRegisterDeviceController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  unlockComponentImpl,
+                  _ocuk_KeyLoadingComponentImpl,
                   24));
-      this.registerFailedControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl,
-              fxApplicationComponentImpl,
-              unlockComponentImpl,
-              _ocuk_KeyLoadingComponentImpl,
-              27);
+      this.legacyRegisterSuccessControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<LegacyRegisterSuccessController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  unlockComponentImpl,
+                  _ocuk_KeyLoadingComponentImpl,
+                  26));
       this.registerSuccessControllerProvider =
           new SwitchingProvider<>(
               cryptomatorComponentImpl,
               fxApplicationComponentImpl,
               unlockComponentImpl,
               _ocuk_KeyLoadingComponentImpl,
+              27);
+      this.registerFailedControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl,
+              fxApplicationComponentImpl,
+              unlockComponentImpl,
+              _ocuk_KeyLoadingComponentImpl,
               28);
-      this.requireAccountInitControllerProvider =
+      this.unauthorizedDeviceControllerProvider =
           DoubleCheck.provider(
-              new SwitchingProvider<RequireAccountInitController>(
+              new SwitchingProvider<UnauthorizedDeviceController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
                   _ocuk_KeyLoadingComponentImpl,
                   29));
-      this.unauthorizedDeviceControllerProvider =
+      this.requireAccountInitControllerProvider =
           DoubleCheck.provider(
-              new SwitchingProvider<UnauthorizedDeviceController>(
+              new SwitchingProvider<RequireAccountInitController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   unlockComponentImpl,
@@ -4735,7 +4745,13 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 6: // org.cryptomator.ui.keyloading.hub.AuthFlowController
+          case 6: // org.cryptomator.ui.keyloading.hub.NoKeychainController
+            return (T)
+                new NoKeychainController(
+                    _ocuk_KeyLoadingComponentImpl.window,
+                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get());
+
+          case 7: // org.cryptomator.ui.keyloading.hub.AuthFlowController
             return (T)
                 new AuthFlowController(
                     fxApplicationComponentImpl.fxApplicationProvider.get(),
@@ -4748,69 +4764,32 @@ public final class DaggerCryptomatorComponent {
                     DoubleCheck.lazy(
                         _ocuk_KeyLoadingComponentImpl.provideHubReceiveKeySceneProvider));
 
-          case 7: // @javax.inject.Named("deviceId") java.lang.String
+          case 8: // @javax.inject.Named("deviceId") java.lang.String
             return (T)
                 HubKeyLoadingModule_ProvideDeviceIdFactory.provideDeviceId(
                     cryptomatorComponentImpl.deviceKeyProvider.get());
 
-          case 8: // org.cryptomator.ui.keyloading.hub.HubConfig
+          case 9: // org.cryptomator.ui.keyloading.hub.HubConfig
             return (T)
                 HubKeyLoadingModule_ProvideHubConfigFactory.provideHubConfig(
                     _ocuk_KeyLoadingComponentImpl.vault);
 
-          case 9: // @javax.inject.Named("bearerToken")
-                  // java.util.concurrent.atomic.AtomicReference<java.lang.String>
+          case 10: // @javax.inject.Named("bearerToken")
+                   // java.util.concurrent.atomic.AtomicReference<java.lang.String>
             return (T) HubKeyLoadingModule_ProvideBearerTokenRefFactory.provideBearerTokenRef();
 
-          case 10: // java.util.concurrent.CompletableFuture<org.cryptomator.ui.keyloading.hub.ReceivedKey>
+          case 11: // java.util.concurrent.CompletableFuture<org.cryptomator.ui.keyloading.hub.ReceivedKey>
             return (T) HubKeyLoadingModule_ProvideResultFactory.provideResult();
 
-          case 11: // @org.cryptomator.ui.common.FxmlScene(HUB_RECEIVE_KEY) javafx.scene.Scene
+          case 12: // @org.cryptomator.ui.common.FxmlScene(HUB_RECEIVE_KEY) javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideHubReceiveKeySceneFactory.provideHubReceiveKeyScene(
                     _ocuk_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 12: // org.cryptomator.ui.keyloading.hub.InvalidLicenseController
+          case 13: // org.cryptomator.ui.keyloading.hub.InvalidLicenseController
             return (T) new InvalidLicenseController(_ocuk_KeyLoadingComponentImpl.window);
 
-          case 13: // org.cryptomator.ui.keyloading.hub.LegacyRegisterDeviceController
-            return (T)
-                new LegacyRegisterDeviceController(
-                    _ocuk_KeyLoadingComponentImpl.window,
-                    cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
-                    _ocuk_KeyLoadingComponentImpl.provideHubConfigProvider.get(),
-                    _ocuk_KeyLoadingComponentImpl.provideDeviceIdProvider.get(),
-                    cryptomatorComponentImpl.deviceKeyProvider.get(),
-                    (CompletableFuture) _ocuk_KeyLoadingComponentImpl.provideResultProvider.get(),
-                    _ocuk_KeyLoadingComponentImpl.provideBearerTokenRefProvider.get(),
-                    DoubleCheck.lazy(
-                        _ocuk_KeyLoadingComponentImpl.provideHubLegacyRegisterSuccessSceneProvider),
-                    DoubleCheck.lazy(
-                        _ocuk_KeyLoadingComponentImpl.provideHubRegisterFailedSceneProvider));
-
-          case 14: // @org.cryptomator.ui.common.FxmlScene(HUB_LEGACY_REGISTER_SUCCESS)
-                   // javafx.scene.Scene
-            return (T)
-                HubKeyLoadingModule_ProvideHubLegacyRegisterSuccessSceneFactory
-                    .provideHubLegacyRegisterSuccessScene(
-                        _ocuk_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 15: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_FAILED) javafx.scene.Scene
-            return (T)
-                HubKeyLoadingModule_ProvideHubRegisterFailedSceneFactory
-                    .provideHubRegisterFailedScene(
-                        _ocuk_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 16: // org.cryptomator.ui.keyloading.hub.LegacyRegisterSuccessController
-            return (T) new LegacyRegisterSuccessController(_ocuk_KeyLoadingComponentImpl.window);
-
-          case 17: // org.cryptomator.ui.keyloading.hub.NoKeychainController
-            return (T)
-                new NoKeychainController(
-                    _ocuk_KeyLoadingComponentImpl.window,
-                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get());
-
-          case 18: // org.cryptomator.ui.keyloading.hub.ReceiveKeyController
+          case 14: // org.cryptomator.ui.keyloading.hub.ReceiveKeyController
             return (T)
                 new ReceiveKeyController(
                     _ocuk_KeyLoadingComponentImpl.vault,
@@ -4831,39 +4810,39 @@ public final class DaggerCryptomatorComponent {
                     DoubleCheck.lazy(
                         _ocuk_KeyLoadingComponentImpl.provideInvalidLicenseSceneProvider));
 
-          case 19: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_DEVICE) javafx.scene.Scene
+          case 15: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_DEVICE) javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideHubRegisterDeviceSceneFactory
                     .provideHubRegisterDeviceScene(
                         _ocuk_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 20: // @org.cryptomator.ui.common.FxmlScene(HUB_LEGACY_REGISTER_DEVICE)
+          case 16: // @org.cryptomator.ui.common.FxmlScene(HUB_LEGACY_REGISTER_DEVICE)
                    // javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideHubLegacyRegisterDeviceSceneFactory
                     .provideHubLegacyRegisterDeviceScene(
                         _ocuk_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 21: // @org.cryptomator.ui.common.FxmlScene(HUB_UNAUTHORIZED_DEVICE)
+          case 17: // @org.cryptomator.ui.common.FxmlScene(HUB_UNAUTHORIZED_DEVICE)
                    // javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideHubUnauthorizedDeviceSceneFactory
                     .provideHubUnauthorizedDeviceScene(
                         _ocuk_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 22: // @org.cryptomator.ui.common.FxmlScene(HUB_REQUIRE_ACCOUNT_INIT)
+          case 18: // @org.cryptomator.ui.common.FxmlScene(HUB_REQUIRE_ACCOUNT_INIT)
                    // javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideRequireAccountInitSceneFactory
                     .provideRequireAccountInitScene(
                         _ocuk_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 23: // @org.cryptomator.ui.common.FxmlScene(HUB_INVALID_LICENSE) javafx.scene.Scene
+          case 19: // @org.cryptomator.ui.common.FxmlScene(HUB_INVALID_LICENSE) javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideInvalidLicenseSceneFactory.provideInvalidLicenseScene(
                     _ocuk_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 24: // org.cryptomator.ui.keyloading.hub.RegisterDeviceController
+          case 20: // org.cryptomator.ui.keyloading.hub.RegisterDeviceController
             return (T)
                 new RegisterDeviceController(
                     _ocuk_KeyLoadingComponentImpl.window,
@@ -4881,26 +4860,51 @@ public final class DaggerCryptomatorComponent {
                         _ocuk_KeyLoadingComponentImpl
                             .provideHubRegisterDeviceAlreadyExistsSceneProvider));
 
-          case 25: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_SUCCESS) javafx.scene.Scene
+          case 21: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_SUCCESS) javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideHubRegisterSuccessSceneFactory
                     .provideHubRegisterSuccessScene(
                         _ocuk_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 26: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_DEVICE_ALREADY_EXISTS)
+          case 22: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_FAILED) javafx.scene.Scene
+            return (T)
+                HubKeyLoadingModule_ProvideHubRegisterFailedSceneFactory
+                    .provideHubRegisterFailedScene(
+                        _ocuk_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 23: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_DEVICE_ALREADY_EXISTS)
                    // javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideHubRegisterDeviceAlreadyExistsSceneFactory
                     .provideHubRegisterDeviceAlreadyExistsScene(
                         _ocuk_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 27: // org.cryptomator.ui.keyloading.hub.RegisterFailedController
+          case 24: // org.cryptomator.ui.keyloading.hub.LegacyRegisterDeviceController
             return (T)
-                new RegisterFailedController(
+                new LegacyRegisterDeviceController(
                     _ocuk_KeyLoadingComponentImpl.window,
-                    (CompletableFuture) _ocuk_KeyLoadingComponentImpl.provideResultProvider.get());
+                    cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
+                    _ocuk_KeyLoadingComponentImpl.provideHubConfigProvider.get(),
+                    _ocuk_KeyLoadingComponentImpl.provideDeviceIdProvider.get(),
+                    cryptomatorComponentImpl.deviceKeyProvider.get(),
+                    (CompletableFuture) _ocuk_KeyLoadingComponentImpl.provideResultProvider.get(),
+                    _ocuk_KeyLoadingComponentImpl.provideBearerTokenRefProvider.get(),
+                    DoubleCheck.lazy(
+                        _ocuk_KeyLoadingComponentImpl.provideHubLegacyRegisterSuccessSceneProvider),
+                    DoubleCheck.lazy(
+                        _ocuk_KeyLoadingComponentImpl.provideHubRegisterFailedSceneProvider));
 
-          case 28: // org.cryptomator.ui.keyloading.hub.RegisterSuccessController
+          case 25: // @org.cryptomator.ui.common.FxmlScene(HUB_LEGACY_REGISTER_SUCCESS)
+                   // javafx.scene.Scene
+            return (T)
+                HubKeyLoadingModule_ProvideHubLegacyRegisterSuccessSceneFactory
+                    .provideHubLegacyRegisterSuccessScene(
+                        _ocuk_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 26: // org.cryptomator.ui.keyloading.hub.LegacyRegisterSuccessController
+            return (T) new LegacyRegisterSuccessController(_ocuk_KeyLoadingComponentImpl.window);
+
+          case 27: // org.cryptomator.ui.keyloading.hub.RegisterSuccessController
             return (T)
                 new RegisterSuccessController(
                     _ocuk_KeyLoadingComponentImpl.window,
@@ -4909,17 +4913,23 @@ public final class DaggerCryptomatorComponent {
                         _ocuk_KeyLoadingComponentImpl.provideHubReceiveKeySceneProvider),
                     _ocuk_KeyLoadingComponentImpl.receiveKeyControllerProvider.get());
 
-          case 29: // org.cryptomator.ui.keyloading.hub.RequireAccountInitController
+          case 28: // org.cryptomator.ui.keyloading.hub.RegisterFailedController
+            return (T)
+                new RegisterFailedController(
+                    _ocuk_KeyLoadingComponentImpl.window,
+                    (CompletableFuture) _ocuk_KeyLoadingComponentImpl.provideResultProvider.get());
+
+          case 29: // org.cryptomator.ui.keyloading.hub.UnauthorizedDeviceController
+            return (T)
+                new UnauthorizedDeviceController(
+                    _ocuk_KeyLoadingComponentImpl.window,
+                    (CompletableFuture) _ocuk_KeyLoadingComponentImpl.provideResultProvider.get());
+
+          case 30: // org.cryptomator.ui.keyloading.hub.RequireAccountInitController
             return (T)
                 new RequireAccountInitController(
                     fxApplicationComponentImpl.fxApplicationProvider.get(),
                     _ocuk_KeyLoadingComponentImpl.provideHubConfigProvider.get(),
-                    _ocuk_KeyLoadingComponentImpl.window,
-                    (CompletableFuture) _ocuk_KeyLoadingComponentImpl.provideResultProvider.get());
-
-          case 30: // org.cryptomator.ui.keyloading.hub.UnauthorizedDeviceController
-            return (T)
-                new UnauthorizedDeviceController(
                     _ocuk_KeyLoadingComponentImpl.window,
                     (CompletableFuture) _ocuk_KeyLoadingComponentImpl.provideResultProvider.get());
 
@@ -4942,9 +4952,9 @@ public final class DaggerCryptomatorComponent {
   }
 
   private static final class UnlockComponentImpl implements UnlockComponent {
-    private final Vault arg0;
+    private final Vault vault;
 
-    private final Stage arg1;
+    private final Stage owner;
 
     private final CryptomatorComponentImpl cryptomatorComponentImpl;
 
@@ -4954,13 +4964,13 @@ public final class DaggerCryptomatorComponent {
 
     private Provider<Stage> provideStageProvider;
 
+    private Provider<UnlockSuccessController> unlockSuccessControllerProvider;
+
     private Provider<ObjectProperty<IllegalMountPointException>> illegalMountPointExceptionProvider;
 
     private Provider<UnlockInvalidMountPointController> unlockInvalidMountPointControllerProvider;
 
     private Provider<UnlockRequiresRestartController> unlockRequiresRestartControllerProvider;
-
-    private Provider<UnlockSuccessController> unlockSuccessControllerProvider;
 
     private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
 
@@ -4977,47 +4987,47 @@ public final class DaggerCryptomatorComponent {
     private UnlockComponentImpl(
         CryptomatorComponentImpl cryptomatorComponentImpl,
         FxApplicationComponentImpl fxApplicationComponentImpl,
-        Vault arg0Param,
-        Stage arg1Param) {
+        Vault vaultParam,
+        Stage ownerParam) {
       this.cryptomatorComponentImpl = cryptomatorComponentImpl;
       this.fxApplicationComponentImpl = fxApplicationComponentImpl;
-      this.arg0 = arg0Param;
-      this.arg1 = arg1Param;
-      initialize(arg0Param, arg1Param);
+      this.vault = vaultParam;
+      this.owner = ownerParam;
+      initialize(vaultParam, ownerParam);
     }
 
     private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
         mapOfClassOfAndProviderOfFxController() {
       return ImmutableMap.<Class<? extends FxController>, javax.inject.Provider<FxController>>of(
+          UnlockSuccessController.class,
+          ((Provider) unlockSuccessControllerProvider),
           UnlockInvalidMountPointController.class,
           ((Provider) unlockInvalidMountPointControllerProvider),
           UnlockRequiresRestartController.class,
-          ((Provider) unlockRequiresRestartControllerProvider),
-          UnlockSuccessController.class,
-          ((Provider) unlockSuccessControllerProvider));
+          ((Provider) unlockRequiresRestartControllerProvider));
     }
 
     @SuppressWarnings("unchecked")
-    private void initialize(final Vault arg0Param, final Stage arg1Param) {
+    private void initialize(final Vault vaultParam, final Stage ownerParam) {
       this.provideStageProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Stage>(
                   cryptomatorComponentImpl, fxApplicationComponentImpl, unlockComponentImpl, 1));
-      this.illegalMountPointExceptionProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<ObjectProperty<IllegalMountPointException>>(
-                  cryptomatorComponentImpl, fxApplicationComponentImpl, unlockComponentImpl, 5));
-      this.unlockInvalidMountPointControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<UnlockInvalidMountPointController>(
-                  cryptomatorComponentImpl, fxApplicationComponentImpl, unlockComponentImpl, 4));
-      this.unlockRequiresRestartControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<UnlockRequiresRestartController>(
-                  cryptomatorComponentImpl, fxApplicationComponentImpl, unlockComponentImpl, 6));
       this.unlockSuccessControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<UnlockSuccessController>(
+                  cryptomatorComponentImpl, fxApplicationComponentImpl, unlockComponentImpl, 4));
+      this.illegalMountPointExceptionProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<ObjectProperty<IllegalMountPointException>>(
+                  cryptomatorComponentImpl, fxApplicationComponentImpl, unlockComponentImpl, 6));
+      this.unlockInvalidMountPointControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<UnlockInvalidMountPointController>(
+                  cryptomatorComponentImpl, fxApplicationComponentImpl, unlockComponentImpl, 5));
+      this.unlockRequiresRestartControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<UnlockRequiresRestartController>(
                   cryptomatorComponentImpl, fxApplicationComponentImpl, unlockComponentImpl, 7));
       this.provideFxmlLoaderFactoryProvider =
           DoubleCheck.provider(
@@ -5079,7 +5089,7 @@ public final class DaggerCryptomatorComponent {
                 UnlockWorkflow_Factory.newInstance(
                     fxApplicationComponentImpl.primaryStage,
                     unlockComponentImpl.provideStageProvider.get(),
-                    unlockComponentImpl.arg0,
+                    unlockComponentImpl.vault,
                     fxApplicationComponentImpl.vaultServiceProvider.get(),
                     DoubleCheck.lazy(unlockComponentImpl.provideUnlockSuccessSceneProvider),
                     DoubleCheck.lazy(unlockComponentImpl.provideInvalidMountPointSceneProvider),
@@ -5092,8 +5102,8 @@ public final class DaggerCryptomatorComponent {
             return (T)
                 UnlockModule_ProvideStageFactory.provideStage(
                     fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    unlockComponentImpl.arg0,
-                    unlockComponentImpl.arg1);
+                    unlockComponentImpl.vault,
+                    unlockComponentImpl.owner);
 
           case 2: // @org.cryptomator.ui.common.FxmlScene(UNLOCK_SUCCESS) javafx.scene.Scene
             return (T)
@@ -5108,34 +5118,34 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 4: // org.cryptomator.ui.unlock.UnlockInvalidMountPointController
+          case 4: // org.cryptomator.ui.unlock.UnlockSuccessController
+            return (T)
+                new UnlockSuccessController(
+                    unlockComponentImpl.provideStageProvider.get(),
+                    unlockComponentImpl.vault,
+                    cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
+                    fxApplicationComponentImpl.vaultServiceProvider.get());
+
+          case 5: // org.cryptomator.ui.unlock.UnlockInvalidMountPointController
             return (T)
                 UnlockInvalidMountPointController_Factory.newInstance(
                     unlockComponentImpl.provideStageProvider.get(),
-                    unlockComponentImpl.arg0,
+                    unlockComponentImpl.vault,
                     unlockComponentImpl.illegalMountPointExceptionProvider.get(),
                     fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 5: // @org.cryptomator.ui.unlock.UnlockWindow
+          case 6: // @org.cryptomator.ui.unlock.UnlockWindow
                   // javafx.beans.property.ObjectProperty<org.cryptomator.common.mount.IllegalMountPointException>
             return (T) UnlockModule_IllegalMountPointExceptionFactory.illegalMountPointException();
 
-          case 6: // org.cryptomator.ui.unlock.UnlockRequiresRestartController
+          case 7: // org.cryptomator.ui.unlock.UnlockRequiresRestartController
             return (T)
                 UnlockRequiresRestartController_Factory.newInstance(
                     unlockComponentImpl.provideStageProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get(),
                     fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
-                    unlockComponentImpl.arg0);
-
-          case 7: // org.cryptomator.ui.unlock.UnlockSuccessController
-            return (T)
-                new UnlockSuccessController(
-                    unlockComponentImpl.provideStageProvider.get(),
-                    unlockComponentImpl.arg0,
-                    cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
-                    fxApplicationComponentImpl.vaultServiceProvider.get());
+                    unlockComponentImpl.vault);
 
           case 8: // @org.cryptomator.ui.common.FxmlScene(UNLOCK_INVALID_MOUNT_POINT)
                   // javafx.scene.Scene
@@ -5155,7 +5165,7 @@ public final class DaggerCryptomatorComponent {
                 UnlockModule_ProvideKeyLoadingStrategyFactory.provideKeyLoadingStrategy(
                     new ocuk_KeyLoadingComponentBuilder(
                         cryptomatorComponentImpl, fxApplicationComponentImpl, unlockComponentImpl),
-                    unlockComponentImpl.arg0,
+                    unlockComponentImpl.vault,
                     unlockComponentImpl.provideStageProvider.get());
 
           default:
@@ -5203,33 +5213,33 @@ public final class DaggerCryptomatorComponent {
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   updateReminderComponentImpl,
-                  3));
+                  0));
       this.updateReminderControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<UpdateReminderController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   updateReminderComponentImpl,
-                  2));
+                  3));
       this.provideFxmlLoaderFactoryProvider =
           DoubleCheck.provider(
               new SwitchingProvider<FxmlLoaderFactory>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   updateReminderComponentImpl,
-                  1));
+                  2));
       this.provideUpdateReminderSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   updateReminderComponentImpl,
-                  0));
+                  1));
     }
 
     @Override
-    public Settings settings() {
-      return cryptomatorComponentImpl.provideSettingsProvider.get();
+    public Stage window() {
+      return provideStageProvider.get();
     }
 
     @Override
@@ -5238,8 +5248,8 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public Stage window() {
-      return provideStageProvider.get();
+    public Settings settings() {
+      return cryptomatorComponentImpl.provideSettingsProvider.get();
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -5266,12 +5276,18 @@ public final class DaggerCryptomatorComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(UPDATE_REMINDER) javafx.scene.Scene
+          case 0: // @org.cryptomator.ui.updatereminder.UpdateReminderWindow javafx.stage.Stage
+            return (T)
+                UpdateReminderModule_ProvideStageFactory.provideStage(
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 1: // @org.cryptomator.ui.common.FxmlScene(UPDATE_REMINDER) javafx.scene.Scene
             return (T)
                 UpdateReminderModule_ProvideUpdateReminderSceneFactory.provideUpdateReminderScene(
                     updateReminderComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 1: // @org.cryptomator.ui.updatereminder.UpdateReminderWindow
+          case 2: // @org.cryptomator.ui.updatereminder.UpdateReminderWindow
                   // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
                 UpdateReminderModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
@@ -5279,18 +5295,12 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 2: // org.cryptomator.ui.updatereminder.UpdateReminderController
+          case 3: // org.cryptomator.ui.updatereminder.UpdateReminderController
             return (T)
                 UpdateReminderController_Factory.newInstance(
                     updateReminderComponentImpl.provideStageProvider.get(),
                     cryptomatorComponentImpl.provideSettingsProvider.get(),
                     fxApplicationComponentImpl.updateCheckerProvider.get());
-
-          case 3: // @org.cryptomator.ui.updatereminder.UpdateReminderWindow javafx.stage.Stage
-            return (T)
-                UpdateReminderModule_ProvideStageFactory.provideStage(
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
 
           default:
             throw new AssertionError(id);
@@ -5337,38 +5347,38 @@ public final class DaggerCryptomatorComponent {
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   dokanySupportEndComponentImpl,
-                  3));
+                  0));
       this.dokanySupportEndControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<DokanySupportEndController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   dokanySupportEndComponentImpl,
-                  2));
+                  3));
       this.provideFxmlLoaderFactoryProvider =
           DoubleCheck.provider(
               new SwitchingProvider<FxmlLoaderFactory>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   dokanySupportEndComponentImpl,
-                  1));
+                  2));
       this.provideDokanySupportEndSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   dokanySupportEndComponentImpl,
-                  0));
-    }
-
-    @Override
-    public Lazy<Scene> dokanySupportEndScene() {
-      return DoubleCheck.lazy(provideDokanySupportEndSceneProvider);
+                  1));
     }
 
     @Override
     public Stage window() {
       return provideStageProvider.get();
+    }
+
+    @Override
+    public Lazy<Scene> dokanySupportEndScene() {
+      return DoubleCheck.lazy(provideDokanySupportEndSceneProvider);
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -5395,13 +5405,19 @@ public final class DaggerCryptomatorComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(DOKANY_SUPPORT_END) javafx.scene.Scene
+          case 0: // @org.cryptomator.ui.dokanysupportend.DokanySupportEndWindow javafx.stage.Stage
+            return (T)
+                DokanySupportEndModule_ProvideStageFactory.provideStage(
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 1: // @org.cryptomator.ui.common.FxmlScene(DOKANY_SUPPORT_END) javafx.scene.Scene
             return (T)
                 DokanySupportEndModule_ProvideDokanySupportEndSceneFactory
                     .provideDokanySupportEndScene(
                         dokanySupportEndComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 1: // @org.cryptomator.ui.dokanysupportend.DokanySupportEndWindow
+          case 2: // @org.cryptomator.ui.dokanysupportend.DokanySupportEndWindow
                   // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
                 DokanySupportEndModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
@@ -5409,17 +5425,11 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 2: // org.cryptomator.ui.dokanysupportend.DokanySupportEndController
+          case 3: // org.cryptomator.ui.dokanysupportend.DokanySupportEndController
             return (T)
                 DokanySupportEndController_Factory.newInstance(
                     dokanySupportEndComponentImpl.provideStageProvider.get(),
                     fxApplicationComponentImpl.fxApplicationWindowsProvider.get());
-
-          case 3: // @org.cryptomator.ui.dokanysupportend.DokanySupportEndWindow javafx.stage.Stage
-            return (T)
-                DokanySupportEndModule_ProvideStageFactory.provideStage(
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
 
           default:
             throw new AssertionError(id);
@@ -5429,9 +5439,9 @@ public final class DaggerCryptomatorComponent {
   }
 
   private static final class LockComponentImpl implements LockComponent {
-    private final Vault arg0;
+    private final Vault vault;
 
-    private final Stage arg1;
+    private final Stage owner;
 
     private final CryptomatorComponentImpl cryptomatorComponentImpl;
 
@@ -5444,9 +5454,9 @@ public final class DaggerCryptomatorComponent {
     private Provider<AtomicReference<CompletableFuture<Boolean>>>
         provideForceRetryDecisionRefProvider;
 
-    private Provider<LockFailedController> lockFailedControllerProvider;
-
     private Provider<LockForcedController> lockForcedControllerProvider;
+
+    private Provider<LockFailedController> lockFailedControllerProvider;
 
     private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
 
@@ -5457,26 +5467,26 @@ public final class DaggerCryptomatorComponent {
     private LockComponentImpl(
         CryptomatorComponentImpl cryptomatorComponentImpl,
         FxApplicationComponentImpl fxApplicationComponentImpl,
-        Vault arg0Param,
-        Stage arg1Param) {
+        Vault vaultParam,
+        Stage ownerParam) {
       this.cryptomatorComponentImpl = cryptomatorComponentImpl;
       this.fxApplicationComponentImpl = fxApplicationComponentImpl;
-      this.arg0 = arg0Param;
-      this.arg1 = arg1Param;
-      initialize(arg0Param, arg1Param);
+      this.vault = vaultParam;
+      this.owner = ownerParam;
+      initialize(vaultParam, ownerParam);
     }
 
     private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
         mapOfClassOfAndProviderOfFxController() {
       return ImmutableMap.<Class<? extends FxController>, javax.inject.Provider<FxController>>of(
-          LockFailedController.class,
-          ((Provider) lockFailedControllerProvider),
           LockForcedController.class,
-          ((Provider) lockForcedControllerProvider));
+          ((Provider) lockForcedControllerProvider),
+          LockFailedController.class,
+          ((Provider) lockFailedControllerProvider));
     }
 
     @SuppressWarnings("unchecked")
-    private void initialize(final Vault arg0Param, final Stage arg1Param) {
+    private void initialize(final Vault vaultParam, final Stage ownerParam) {
       this.provideWindowProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Stage>(
@@ -5485,13 +5495,13 @@ public final class DaggerCryptomatorComponent {
           DoubleCheck.provider(
               new SwitchingProvider<AtomicReference<CompletableFuture<Boolean>>>(
                   cryptomatorComponentImpl, fxApplicationComponentImpl, lockComponentImpl, 1));
-      this.lockFailedControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<LockFailedController>(
-                  cryptomatorComponentImpl, fxApplicationComponentImpl, lockComponentImpl, 4));
       this.lockForcedControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<LockForcedController>(
+                  cryptomatorComponentImpl, fxApplicationComponentImpl, lockComponentImpl, 4));
+      this.lockFailedControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<LockFailedController>(
                   cryptomatorComponentImpl, fxApplicationComponentImpl, lockComponentImpl, 5));
       this.provideFxmlLoaderFactoryProvider =
           DoubleCheck.provider(
@@ -5516,7 +5526,7 @@ public final class DaggerCryptomatorComponent {
     public LockWorkflow lockWorkflow() {
       return new LockWorkflow(
           provideWindowProvider.get(),
-          arg0,
+          vault,
           provideForceRetryDecisionRefProvider.get(),
           DoubleCheck.lazy(provideForceLockSceneProvider),
           DoubleCheck.lazy(provideLockFailedSceneProvider),
@@ -5551,8 +5561,8 @@ public final class DaggerCryptomatorComponent {
             return (T)
                 LockModule_ProvideWindowFactory.provideWindow(
                     fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    lockComponentImpl.arg0,
-                    lockComponentImpl.arg1);
+                    lockComponentImpl.vault,
+                    lockComponentImpl.owner);
 
           case 1: // java.util.concurrent.atomic.AtomicReference<java.util.concurrent.CompletableFuture<java.lang.Boolean>>
             return (T)
@@ -5570,17 +5580,17 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 4: // org.cryptomator.ui.lock.LockFailedController
-            return (T)
-                new LockFailedController(
-                    lockComponentImpl.provideWindowProvider.get(), lockComponentImpl.arg0);
-
-          case 5: // org.cryptomator.ui.lock.LockForcedController
+          case 4: // org.cryptomator.ui.lock.LockForcedController
             return (T)
                 new LockForcedController(
                     lockComponentImpl.provideWindowProvider.get(),
-                    lockComponentImpl.arg0,
+                    lockComponentImpl.vault,
                     lockComponentImpl.provideForceRetryDecisionRefProvider.get());
+
+          case 5: // org.cryptomator.ui.lock.LockFailedController
+            return (T)
+                new LockFailedController(
+                    lockComponentImpl.provideWindowProvider.get(), lockComponentImpl.vault);
 
           case 6: // @org.cryptomator.ui.common.FxmlScene(LOCK_FAILED) javafx.scene.Scene
             return (T)
@@ -5595,11 +5605,11 @@ public final class DaggerCryptomatorComponent {
   }
 
   private static final class ErrorComponentImpl implements ErrorComponent {
-    private final Throwable arg0;
+    private final Stage window;
 
-    private final Scene arg2;
+    private final Throwable cause;
 
-    private final Stage arg1;
+    private final Scene previousScene;
 
     private final CryptomatorComponentImpl cryptomatorComponentImpl;
 
@@ -5612,23 +5622,23 @@ public final class DaggerCryptomatorComponent {
     private ErrorComponentImpl(
         CryptomatorComponentImpl cryptomatorComponentImpl,
         FxApplicationComponentImpl fxApplicationComponentImpl,
-        Throwable arg0Param,
-        Stage arg1Param,
-        Scene arg2Param) {
+        Throwable causeParam,
+        Stage windowParam,
+        Scene previousSceneParam) {
       this.cryptomatorComponentImpl = cryptomatorComponentImpl;
       this.fxApplicationComponentImpl = fxApplicationComponentImpl;
-      this.arg0 = arg0Param;
-      this.arg2 = arg2Param;
-      this.arg1 = arg1Param;
-      initialize(arg0Param, arg1Param, arg2Param);
+      this.window = windowParam;
+      this.cause = causeParam;
+      this.previousScene = previousSceneParam;
+      initialize(causeParam, windowParam, previousSceneParam);
     }
 
     private String namedString() {
-      return ErrorModule_ProvideStackTraceFactory.provideStackTrace(arg0);
+      return ErrorModule_ProvideStackTraceFactory.provideStackTrace(cause);
     }
 
     private ErrorCode errorCode() {
-      return ErrorModule_ProvideErrorCodeFactory.provideErrorCode(arg0);
+      return ErrorModule_ProvideErrorCodeFactory.provideErrorCode(cause);
     }
 
     private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
@@ -5646,20 +5656,20 @@ public final class DaggerCryptomatorComponent {
 
     @SuppressWarnings("unchecked")
     private void initialize(
-        final Throwable arg0Param, final Stage arg1Param, final Scene arg2Param) {
+        final Throwable causeParam, final Stage windowParam, final Scene previousSceneParam) {
       this.errorControllerProvider =
           new SwitchingProvider<>(
               cryptomatorComponentImpl, fxApplicationComponentImpl, errorComponentImpl, 0);
     }
 
     @Override
-    public Scene scene() {
-      return ErrorModule_ProvideErrorSceneFactory.provideErrorScene(fxmlLoaderFactory());
+    public Stage window() {
+      return window;
     }
 
     @Override
-    public Stage window() {
-      return arg1;
+    public Scene scene() {
+      return ErrorModule_ProvideErrorSceneFactory.provideErrorScene(fxmlLoaderFactory());
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -5692,326 +5702,10 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.fxApplicationProvider.get(),
                     errorComponentImpl.namedString(),
                     errorComponentImpl.errorCode(),
-                    errorComponentImpl.arg2,
-                    errorComponentImpl.arg1,
+                    errorComponentImpl.previousScene,
+                    errorComponentImpl.window,
                     cryptomatorComponentImpl.provideEnvironmentProvider.get(),
                     cryptomatorComponentImpl.provideExecutorServiceProvider.get());
-
-          default:
-            throw new AssertionError(id);
-        }
-      }
-    }
-  }
-
-  private static final class ConvertVaultComponentImpl implements ConvertVaultComponent {
-    private final Vault arg0;
-
-    private final Stage arg1;
-
-    private final CryptomatorComponentImpl cryptomatorComponentImpl;
-
-    private final FxApplicationComponentImpl fxApplicationComponentImpl;
-
-    private final VaultOptionsComponentImpl vaultOptionsComponentImpl;
-
-    private final ConvertVaultComponentImpl convertVaultComponentImpl = this;
-
-    private Provider<VaultConfig.UnverifiedVaultConfig> vaultConfigProvider;
-
-    private Provider<StringProperty> provideRecoveryKeyPropertyProvider;
-
-    private Provider<FxController> bindRecoveryKeyValidateControllerProvider;
-
-    private Provider<FxController> provideNewPasswordControllerProvider;
-
-    private Provider<Stage> provideStageProvider;
-
-    private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
-
-    private Provider<Scene> provideHubToPasswordSuccessSceneProvider;
-
-    private Provider<HubToPasswordConvertController> hubToPasswordConvertControllerProvider;
-
-    private Provider<Scene> provideHubToPasswordConvertSceneProvider;
-
-    private Provider<HubToPasswordStartController> hubToPasswordStartControllerProvider;
-
-    private Provider<HubToPasswordSuccessController> hubToPasswordSuccessControllerProvider;
-
-    private Provider<Scene> provideHubToPasswordStartSceneProvider;
-
-    private ConvertVaultComponentImpl(
-        CryptomatorComponentImpl cryptomatorComponentImpl,
-        FxApplicationComponentImpl fxApplicationComponentImpl,
-        VaultOptionsComponentImpl vaultOptionsComponentImpl,
-        Vault arg0Param,
-        Stage arg1Param) {
-      this.cryptomatorComponentImpl = cryptomatorComponentImpl;
-      this.fxApplicationComponentImpl = fxApplicationComponentImpl;
-      this.vaultOptionsComponentImpl = vaultOptionsComponentImpl;
-      this.arg0 = arg0Param;
-      this.arg1 = arg1Param;
-      initialize(arg0Param, arg1Param);
-    }
-
-    private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
-        mapOfClassOfAndProviderOfFxController() {
-      return ImmutableMap
-          .<Class<? extends FxController>, javax.inject.Provider<FxController>>
-              builderWithExpectedSize(10)
-          .put(
-              GeneralVaultOptionsController.class,
-              ((Provider) vaultOptionsComponentImpl.generalVaultOptionsControllerProvider))
-          .put(
-              HubOptionsController.class,
-              ((Provider) vaultOptionsComponentImpl.hubOptionsControllerProvider))
-          .put(
-              MasterkeyOptionsController.class,
-              ((Provider) vaultOptionsComponentImpl.masterkeyOptionsControllerProvider))
-          .put(
-              MountOptionsController.class,
-              ((Provider) vaultOptionsComponentImpl.mountOptionsControllerProvider))
-          .put(
-              VaultOptionsController.class,
-              ((Provider) vaultOptionsComponentImpl.vaultOptionsControllerProvider))
-          .put(RecoveryKeyValidateController.class, bindRecoveryKeyValidateControllerProvider)
-          .put(NewPasswordController.class, provideNewPasswordControllerProvider)
-          .put(
-              HubToPasswordConvertController.class,
-              ((Provider) hubToPasswordConvertControllerProvider))
-          .put(
-              HubToPasswordStartController.class, ((Provider) hubToPasswordStartControllerProvider))
-          .put(
-              HubToPasswordSuccessController.class,
-              ((Provider) hubToPasswordSuccessControllerProvider))
-          .build();
-    }
-
-    @SuppressWarnings("unchecked")
-    private void initialize(final Vault arg0Param, final Stage arg1Param) {
-      this.vaultConfigProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<VaultConfig.UnverifiedVaultConfig>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  vaultOptionsComponentImpl,
-                  convertVaultComponentImpl,
-                  3));
-      this.provideRecoveryKeyPropertyProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<StringProperty>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  vaultOptionsComponentImpl,
-                  convertVaultComponentImpl,
-                  4));
-      this.bindRecoveryKeyValidateControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl,
-              fxApplicationComponentImpl,
-              vaultOptionsComponentImpl,
-              convertVaultComponentImpl,
-              2);
-      this.provideNewPasswordControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl,
-              fxApplicationComponentImpl,
-              vaultOptionsComponentImpl,
-              convertVaultComponentImpl,
-              5);
-      this.provideStageProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Stage>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  vaultOptionsComponentImpl,
-                  convertVaultComponentImpl,
-                  7));
-      this.provideFxmlLoaderFactoryProvider = new DelegateFactory<>();
-      this.provideHubToPasswordSuccessSceneProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  vaultOptionsComponentImpl,
-                  convertVaultComponentImpl,
-                  8));
-      this.hubToPasswordConvertControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl,
-              fxApplicationComponentImpl,
-              vaultOptionsComponentImpl,
-              convertVaultComponentImpl,
-              6);
-      this.provideHubToPasswordConvertSceneProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  vaultOptionsComponentImpl,
-                  convertVaultComponentImpl,
-                  10));
-      this.hubToPasswordStartControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl,
-              fxApplicationComponentImpl,
-              vaultOptionsComponentImpl,
-              convertVaultComponentImpl,
-              9);
-      this.hubToPasswordSuccessControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl,
-              fxApplicationComponentImpl,
-              vaultOptionsComponentImpl,
-              convertVaultComponentImpl,
-              11);
-      DelegateFactory.setDelegate(
-          provideFxmlLoaderFactoryProvider,
-          DoubleCheck.provider(
-              new SwitchingProvider<FxmlLoaderFactory>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  vaultOptionsComponentImpl,
-                  convertVaultComponentImpl,
-                  1)));
-      this.provideHubToPasswordStartSceneProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  vaultOptionsComponentImpl,
-                  convertVaultComponentImpl,
-                  0));
-    }
-
-    @Override
-    public Lazy<Scene> hubToPasswordScene() {
-      return DoubleCheck.lazy(provideHubToPasswordStartSceneProvider);
-    }
-
-    @Override
-    public Stage window() {
-      return provideStageProvider.get();
-    }
-
-    private static final class SwitchingProvider<T> implements Provider<T> {
-      private final CryptomatorComponentImpl cryptomatorComponentImpl;
-
-      private final FxApplicationComponentImpl fxApplicationComponentImpl;
-
-      private final VaultOptionsComponentImpl vaultOptionsComponentImpl;
-
-      private final ConvertVaultComponentImpl convertVaultComponentImpl;
-
-      private final int id;
-
-      SwitchingProvider(
-          CryptomatorComponentImpl cryptomatorComponentImpl,
-          FxApplicationComponentImpl fxApplicationComponentImpl,
-          VaultOptionsComponentImpl vaultOptionsComponentImpl,
-          ConvertVaultComponentImpl convertVaultComponentImpl,
-          int id) {
-        this.cryptomatorComponentImpl = cryptomatorComponentImpl;
-        this.fxApplicationComponentImpl = fxApplicationComponentImpl;
-        this.vaultOptionsComponentImpl = vaultOptionsComponentImpl;
-        this.convertVaultComponentImpl = convertVaultComponentImpl;
-        this.id = id;
-      }
-
-      @SuppressWarnings("unchecked")
-      @Override
-      public T get() {
-        switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(CONVERTVAULT_HUBTOPASSWORD_START)
-                  // javafx.scene.Scene
-            return (T)
-                ConvertVaultModule_ProvideHubToPasswordStartSceneFactory
-                    .provideHubToPasswordStartScene(
-                        convertVaultComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 1: // @org.cryptomator.ui.convertvault.ConvertVaultWindow
-                  // org.cryptomator.ui.common.FxmlLoaderFactory
-            return (T)
-                ConvertVaultModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
-                    convertVaultComponentImpl.mapOfClassOfAndProviderOfFxController(),
-                    fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
-
-          case 2: // java.util.Map<java.lang.Class<? extends
-                  // org.cryptomator.ui.common.FxController>,javax.inject.Provider<org.cryptomator.ui.common.FxController>> org.cryptomator.ui.convertvault.ConvertVaultModule#bindRecoveryKeyValidateController
-            return (T)
-                ConvertVaultModule_BindRecoveryKeyValidateControllerFactory
-                    .bindRecoveryKeyValidateController(
-                        convertVaultComponentImpl.arg0,
-                        convertVaultComponentImpl.vaultConfigProvider.get(),
-                        convertVaultComponentImpl.provideRecoveryKeyPropertyProvider.get(),
-                        cryptomatorComponentImpl.recoveryKeyFactoryProvider.get());
-
-          case 3: // @org.cryptomator.ui.convertvault.ConvertVaultWindow
-                  // org.cryptomator.cryptofs.VaultConfig.UnverifiedVaultConfig
-            return (T)
-                ConvertVaultModule_VaultConfigFactory.vaultConfig(convertVaultComponentImpl.arg0);
-
-          case 4: // @org.cryptomator.ui.convertvault.ConvertVaultWindow
-                  // javafx.beans.property.StringProperty
-            return (T)
-                ConvertVaultModule_ProvideRecoveryKeyPropertyFactory.provideRecoveryKeyProperty();
-
-          case 5: // java.util.Map<java.lang.Class<? extends
-                  // org.cryptomator.ui.common.FxController>,javax.inject.Provider<org.cryptomator.ui.common.FxController>> org.cryptomator.ui.convertvault.ConvertVaultModule#provideNewPasswordController
-            return (T)
-                ConvertVaultModule_ProvideNewPasswordControllerFactory.provideNewPasswordController(
-                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
-                    fxApplicationComponentImpl.passwordStrengthUtilProvider.get());
-
-          case 6: // org.cryptomator.ui.convertvault.HubToPasswordConvertController
-            return (T)
-                new HubToPasswordConvertController(
-                    convertVaultComponentImpl.provideStageProvider.get(),
-                    DoubleCheck.lazy(
-                        convertVaultComponentImpl.provideHubToPasswordSuccessSceneProvider),
-                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
-                    convertVaultComponentImpl.arg0,
-                    convertVaultComponentImpl.provideRecoveryKeyPropertyProvider.get(),
-                    cryptomatorComponentImpl.recoveryKeyFactoryProvider.get(),
-                    cryptomatorComponentImpl.provideMasterkeyFileAccessProvider.get(),
-                    cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
-
-          case 7: // @org.cryptomator.ui.convertvault.ConvertVaultWindow javafx.stage.Stage
-            return (T)
-                ConvertVaultModule_ProvideStageFactory.provideStage(
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    convertVaultComponentImpl.arg1,
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
-
-          case 8: // @org.cryptomator.ui.common.FxmlScene(CONVERTVAULT_HUBTOPASSWORD_SUCCESS)
-                  // javafx.scene.Scene
-            return (T)
-                ConvertVaultModule_ProvideHubToPasswordSuccessSceneFactory
-                    .provideHubToPasswordSuccessScene(
-                        convertVaultComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 9: // org.cryptomator.ui.convertvault.HubToPasswordStartController
-            return (T)
-                new HubToPasswordStartController(
-                    convertVaultComponentImpl.provideStageProvider.get(),
-                    DoubleCheck.lazy(
-                        convertVaultComponentImpl.provideHubToPasswordConvertSceneProvider));
-
-          case 10: // @org.cryptomator.ui.common.FxmlScene(CONVERTVAULT_HUBTOPASSWORD_CONVERT)
-                   // javafx.scene.Scene
-            return (T)
-                ConvertVaultModule_ProvideHubToPasswordConvertSceneFactory
-                    .provideHubToPasswordConvertScene(
-                        convertVaultComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 11: // org.cryptomator.ui.convertvault.HubToPasswordSuccessController
-            return (T)
-                HubToPasswordSuccessController_Factory.newInstance(
-                    convertVaultComponentImpl.provideStageProvider.get(),
-                    convertVaultComponentImpl.arg0);
 
           default:
             throw new AssertionError(id);
@@ -6033,9 +5727,9 @@ public final class DaggerCryptomatorComponent {
 
     private final ChangePasswordComponentImpl changePasswordComponentImpl = this;
 
-    private Provider<FxController> provideNewPasswordControllerProvider;
-
     private Provider<Stage> provideStageProvider;
+
+    private Provider<FxController> provideNewPasswordControllerProvider;
 
     private Provider<ChangePasswordController> changePasswordControllerProvider;
 
@@ -6047,14 +5741,14 @@ public final class DaggerCryptomatorComponent {
         CryptomatorComponentImpl cryptomatorComponentImpl,
         FxApplicationComponentImpl fxApplicationComponentImpl,
         VaultOptionsComponentImpl vaultOptionsComponentImpl,
-        Stage ownerParam,
-        Vault vaultParam) {
+        Vault vaultParam,
+        Stage ownerParam) {
       this.cryptomatorComponentImpl = cryptomatorComponentImpl;
       this.fxApplicationComponentImpl = fxApplicationComponentImpl;
       this.vaultOptionsComponentImpl = vaultOptionsComponentImpl;
       this.owner = ownerParam;
       this.vault = vaultParam;
-      initialize(ownerParam, vaultParam);
+      initialize(vaultParam, ownerParam);
     }
 
     private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
@@ -6063,34 +5757,27 @@ public final class DaggerCryptomatorComponent {
           .<Class<? extends FxController>, javax.inject.Provider<FxController>>
               builderWithExpectedSize(7)
           .put(
+              VaultOptionsController.class,
+              ((Provider) vaultOptionsComponentImpl.vaultOptionsControllerProvider))
+          .put(
               GeneralVaultOptionsController.class,
               ((Provider) vaultOptionsComponentImpl.generalVaultOptionsControllerProvider))
-          .put(
-              HubOptionsController.class,
-              ((Provider) vaultOptionsComponentImpl.hubOptionsControllerProvider))
-          .put(
-              MasterkeyOptionsController.class,
-              ((Provider) vaultOptionsComponentImpl.masterkeyOptionsControllerProvider))
           .put(
               MountOptionsController.class,
               ((Provider) vaultOptionsComponentImpl.mountOptionsControllerProvider))
           .put(
-              VaultOptionsController.class,
-              ((Provider) vaultOptionsComponentImpl.vaultOptionsControllerProvider))
+              MasterkeyOptionsController.class,
+              ((Provider) vaultOptionsComponentImpl.masterkeyOptionsControllerProvider))
+          .put(
+              HubOptionsController.class,
+              ((Provider) vaultOptionsComponentImpl.hubOptionsControllerProvider))
           .put(NewPasswordController.class, provideNewPasswordControllerProvider)
           .put(ChangePasswordController.class, ((Provider) changePasswordControllerProvider))
           .build();
     }
 
     @SuppressWarnings("unchecked")
-    private void initialize(final Stage ownerParam, final Vault vaultParam) {
-      this.provideNewPasswordControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl,
-              fxApplicationComponentImpl,
-              vaultOptionsComponentImpl,
-              changePasswordComponentImpl,
-              2);
+    private void initialize(final Vault vaultParam, final Stage ownerParam) {
       this.provideStageProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Stage>(
@@ -6098,7 +5785,14 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
                   changePasswordComponentImpl,
-                  4));
+                  0));
+      this.provideNewPasswordControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl,
+              fxApplicationComponentImpl,
+              vaultOptionsComponentImpl,
+              changePasswordComponentImpl,
+              3);
       this.changePasswordControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<ChangePasswordController>(
@@ -6106,7 +5800,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
                   changePasswordComponentImpl,
-                  3));
+                  4));
       this.provideFxmlLoaderFactoryProvider =
           DoubleCheck.provider(
               new SwitchingProvider<FxmlLoaderFactory>(
@@ -6114,7 +5808,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
                   changePasswordComponentImpl,
-                  1));
+                  2));
       this.provideUnlockSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -6122,17 +5816,17 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
                   changePasswordComponentImpl,
-                  0));
-    }
-
-    @Override
-    public Lazy<Scene> scene() {
-      return DoubleCheck.lazy(provideUnlockSceneProvider);
+                  1));
     }
 
     @Override
     public Stage window() {
       return provideStageProvider.get();
+    }
+
+    @Override
+    public Lazy<Scene> scene() {
+      return DoubleCheck.lazy(provideUnlockSceneProvider);
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -6163,12 +5857,19 @@ public final class DaggerCryptomatorComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(CHANGEPASSWORD) javafx.scene.Scene
+          case 0: // @org.cryptomator.ui.changepassword.ChangePasswordWindow javafx.stage.Stage
+            return (T)
+                ChangePasswordModule_ProvideStageFactory.provideStage(
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    changePasswordComponentImpl.owner,
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 1: // @org.cryptomator.ui.common.FxmlScene(CHANGEPASSWORD) javafx.scene.Scene
             return (T)
                 ChangePasswordModule_ProvideUnlockSceneFactory.provideUnlockScene(
                     changePasswordComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 1: // @org.cryptomator.ui.changepassword.ChangePasswordWindow
+          case 2: // @org.cryptomator.ui.changepassword.ChangePasswordWindow
                   // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
                 ChangePasswordModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
@@ -6176,7 +5877,7 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 2: // java.util.Map<java.lang.Class<? extends
+          case 3: // java.util.Map<java.lang.Class<? extends
                   // org.cryptomator.ui.common.FxController>,javax.inject.Provider<org.cryptomator.ui.common.FxController>> org.cryptomator.ui.changepassword.ChangePasswordModule#provideNewPasswordController
             return (T)
                 ChangePasswordModule_ProvideNewPasswordControllerFactory
@@ -6184,7 +5885,7 @@ public final class DaggerCryptomatorComponent {
                         cryptomatorComponentImpl.provideLocalizationProvider.get(),
                         fxApplicationComponentImpl.passwordStrengthUtilProvider.get());
 
-          case 3: // org.cryptomator.ui.changepassword.ChangePasswordController
+          case 4: // org.cryptomator.ui.changepassword.ChangePasswordController
             return (T)
                 new ChangePasswordController(
                     changePasswordComponentImpl.provideStageProvider.get(),
@@ -6192,13 +5893,6 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
                     cryptomatorComponentImpl.keychainManagerProvider.get(),
                     cryptomatorComponentImpl.provideMasterkeyFileAccessProvider.get());
-
-          case 4: // @org.cryptomator.ui.changepassword.ChangePasswordWindow javafx.stage.Stage
-            return (T)
-                ChangePasswordModule_ProvideStageFactory.provideStage(
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    changePasswordComponentImpl.owner,
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
 
           default:
             throw new AssertionError(id);
@@ -6208,9 +5902,9 @@ public final class DaggerCryptomatorComponent {
   }
 
   private static final class RecoveryKeyComponentImpl implements RecoveryKeyComponent {
-    private final Vault arg0;
+    private final Stage owner;
 
-    private final Stage arg1;
+    private final Vault vault;
 
     private final CryptomatorComponentImpl cryptomatorComponentImpl;
 
@@ -6220,17 +5914,17 @@ public final class DaggerCryptomatorComponent {
 
     private final RecoveryKeyComponentImpl recoveryKeyComponentImpl = this;
 
-    private Provider<VaultConfig.UnverifiedVaultConfig> vaultConfigProvider;
+    private Provider<Stage> provideStageProvider;
 
     private Provider<StringProperty> provideRecoveryKeyPropertyProvider;
+
+    private Provider<FxController> provideRecoveryKeyDisplayControllerProvider;
+
+    private Provider<VaultConfig.UnverifiedVaultConfig> vaultConfigProvider;
 
     private Provider<FxController> bindRecoveryKeyValidateControllerProvider;
 
     private Provider<FxController> provideNewPasswordControllerProvider;
-
-    private Provider<Stage> provideStageProvider;
-
-    private Provider<FxController> provideRecoveryKeyDisplayControllerProvider;
 
     private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
 
@@ -6238,18 +5932,18 @@ public final class DaggerCryptomatorComponent {
 
     private Provider<RecoveryKeyCreationController> recoveryKeyCreationControllerProvider;
 
+    private Provider<Scene> provideRecoveryKeyResetPasswordSceneProvider;
+
+    private Provider<RecoveryKeyRecoverController> recoveryKeyRecoverControllerProvider;
+
+    private Provider<RecoveryKeySuccessController> recoveryKeySuccessControllerProvider;
+
     private Provider<Scene> provideRecoveryKeyResetPasswordSuccessSceneProvider;
 
     private Provider<RecoveryKeyResetPasswordController> recoveryKeyResetPasswordControllerProvider;
 
     private Provider<RecoveryKeyResetPasswordSuccessController>
         recoveryKeyResetPasswordSuccessControllerProvider;
-
-    private Provider<RecoveryKeySuccessController> recoveryKeySuccessControllerProvider;
-
-    private Provider<Scene> provideRecoveryKeyResetPasswordSceneProvider;
-
-    private Provider<RecoveryKeyRecoverController> recoveryKeyRecoverControllerProvider;
 
     private Provider<Scene> provideRecoveryKeyCreationSceneProvider;
 
@@ -6259,14 +5953,14 @@ public final class DaggerCryptomatorComponent {
         CryptomatorComponentImpl cryptomatorComponentImpl,
         FxApplicationComponentImpl fxApplicationComponentImpl,
         VaultOptionsComponentImpl vaultOptionsComponentImpl,
-        Vault arg0Param,
-        Stage arg1Param) {
+        Vault vaultParam,
+        Stage ownerParam) {
       this.cryptomatorComponentImpl = cryptomatorComponentImpl;
       this.fxApplicationComponentImpl = fxApplicationComponentImpl;
       this.vaultOptionsComponentImpl = vaultOptionsComponentImpl;
-      this.arg0 = arg0Param;
-      this.arg1 = arg1Param;
-      initialize(arg0Param, arg1Param);
+      this.owner = ownerParam;
+      this.vault = vaultParam;
+      initialize(vaultParam, ownerParam);
     }
 
     private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
@@ -6275,49 +5969,49 @@ public final class DaggerCryptomatorComponent {
           .<Class<? extends FxController>, javax.inject.Provider<FxController>>
               builderWithExpectedSize(13)
           .put(
+              VaultOptionsController.class,
+              ((Provider) vaultOptionsComponentImpl.vaultOptionsControllerProvider))
+          .put(
               GeneralVaultOptionsController.class,
               ((Provider) vaultOptionsComponentImpl.generalVaultOptionsControllerProvider))
-          .put(
-              HubOptionsController.class,
-              ((Provider) vaultOptionsComponentImpl.hubOptionsControllerProvider))
-          .put(
-              MasterkeyOptionsController.class,
-              ((Provider) vaultOptionsComponentImpl.masterkeyOptionsControllerProvider))
           .put(
               MountOptionsController.class,
               ((Provider) vaultOptionsComponentImpl.mountOptionsControllerProvider))
           .put(
-              VaultOptionsController.class,
-              ((Provider) vaultOptionsComponentImpl.vaultOptionsControllerProvider))
+              MasterkeyOptionsController.class,
+              ((Provider) vaultOptionsComponentImpl.masterkeyOptionsControllerProvider))
+          .put(
+              HubOptionsController.class,
+              ((Provider) vaultOptionsComponentImpl.hubOptionsControllerProvider))
+          .put(RecoveryKeyDisplayController.class, provideRecoveryKeyDisplayControllerProvider)
           .put(RecoveryKeyValidateController.class, bindRecoveryKeyValidateControllerProvider)
           .put(NewPasswordController.class, provideNewPasswordControllerProvider)
-          .put(RecoveryKeyDisplayController.class, provideRecoveryKeyDisplayControllerProvider)
           .put(
               RecoveryKeyCreationController.class,
               ((Provider) recoveryKeyCreationControllerProvider))
+          .put(
+              RecoveryKeyRecoverController.class, ((Provider) recoveryKeyRecoverControllerProvider))
+          .put(
+              RecoveryKeySuccessController.class, ((Provider) recoveryKeySuccessControllerProvider))
           .put(
               RecoveryKeyResetPasswordController.class,
               ((Provider) recoveryKeyResetPasswordControllerProvider))
           .put(
               RecoveryKeyResetPasswordSuccessController.class,
               ((Provider) recoveryKeyResetPasswordSuccessControllerProvider))
-          .put(
-              RecoveryKeySuccessController.class, ((Provider) recoveryKeySuccessControllerProvider))
-          .put(
-              RecoveryKeyRecoverController.class, ((Provider) recoveryKeyRecoverControllerProvider))
           .build();
     }
 
     @SuppressWarnings("unchecked")
-    private void initialize(final Vault arg0Param, final Stage arg1Param) {
-      this.vaultConfigProvider =
+    private void initialize(final Vault vaultParam, final Stage ownerParam) {
+      this.provideStageProvider =
           DoubleCheck.provider(
-              new SwitchingProvider<VaultConfig.UnverifiedVaultConfig>(
+              new SwitchingProvider<Stage>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
                   recoveryKeyComponentImpl,
-                  3));
+                  0));
       this.provideRecoveryKeyPropertyProvider =
           DoubleCheck.provider(
               new SwitchingProvider<StringProperty>(
@@ -6326,35 +6020,35 @@ public final class DaggerCryptomatorComponent {
                   vaultOptionsComponentImpl,
                   recoveryKeyComponentImpl,
                   4));
-      this.bindRecoveryKeyValidateControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl,
-              fxApplicationComponentImpl,
-              vaultOptionsComponentImpl,
-              recoveryKeyComponentImpl,
-              2);
-      this.provideNewPasswordControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl,
-              fxApplicationComponentImpl,
-              vaultOptionsComponentImpl,
-              recoveryKeyComponentImpl,
-              5);
-      this.provideStageProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Stage>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  vaultOptionsComponentImpl,
-                  recoveryKeyComponentImpl,
-                  7));
       this.provideRecoveryKeyDisplayControllerProvider =
           new SwitchingProvider<>(
               cryptomatorComponentImpl,
               fxApplicationComponentImpl,
               vaultOptionsComponentImpl,
               recoveryKeyComponentImpl,
-              6);
+              3);
+      this.vaultConfigProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<VaultConfig.UnverifiedVaultConfig>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  vaultOptionsComponentImpl,
+                  recoveryKeyComponentImpl,
+                  6));
+      this.bindRecoveryKeyValidateControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl,
+              fxApplicationComponentImpl,
+              vaultOptionsComponentImpl,
+              recoveryKeyComponentImpl,
+              5);
+      this.provideNewPasswordControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl,
+              fxApplicationComponentImpl,
+              vaultOptionsComponentImpl,
+              recoveryKeyComponentImpl,
+              7);
       this.provideFxmlLoaderFactoryProvider = new DelegateFactory<>();
       this.provideRecoveryKeySuccessSceneProvider =
           DoubleCheck.provider(
@@ -6372,38 +6066,6 @@ public final class DaggerCryptomatorComponent {
                   vaultOptionsComponentImpl,
                   recoveryKeyComponentImpl,
                   8));
-      this.provideRecoveryKeyResetPasswordSuccessSceneProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  vaultOptionsComponentImpl,
-                  recoveryKeyComponentImpl,
-                  11));
-      this.recoveryKeyResetPasswordControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<RecoveryKeyResetPasswordController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  vaultOptionsComponentImpl,
-                  recoveryKeyComponentImpl,
-                  10));
-      this.recoveryKeyResetPasswordSuccessControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<RecoveryKeyResetPasswordSuccessController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  vaultOptionsComponentImpl,
-                  recoveryKeyComponentImpl,
-                  12));
-      this.recoveryKeySuccessControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<RecoveryKeySuccessController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  vaultOptionsComponentImpl,
-                  recoveryKeyComponentImpl,
-                  13));
       this.provideRecoveryKeyResetPasswordSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -6411,7 +6073,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
                   recoveryKeyComponentImpl,
-                  15));
+                  11));
       this.recoveryKeyRecoverControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<RecoveryKeyRecoverController>(
@@ -6419,7 +6081,39 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
                   recoveryKeyComponentImpl,
+                  10));
+      this.recoveryKeySuccessControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<RecoveryKeySuccessController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  vaultOptionsComponentImpl,
+                  recoveryKeyComponentImpl,
+                  12));
+      this.provideRecoveryKeyResetPasswordSuccessSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  vaultOptionsComponentImpl,
+                  recoveryKeyComponentImpl,
                   14));
+      this.recoveryKeyResetPasswordControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<RecoveryKeyResetPasswordController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  vaultOptionsComponentImpl,
+                  recoveryKeyComponentImpl,
+                  13));
+      this.recoveryKeyResetPasswordSuccessControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<RecoveryKeyResetPasswordSuccessController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  vaultOptionsComponentImpl,
+                  recoveryKeyComponentImpl,
+                  15));
       DelegateFactory.setDelegate(
           provideFxmlLoaderFactoryProvider,
           DoubleCheck.provider(
@@ -6428,7 +6122,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
                   recoveryKeyComponentImpl,
-                  1)));
+                  2)));
       this.provideRecoveryKeyCreationSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -6436,7 +6130,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
                   recoveryKeyComponentImpl,
-                  0));
+                  1));
       this.provideRecoveryKeyRecoverSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -6448,6 +6142,11 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
+    public Stage window() {
+      return provideStageProvider.get();
+    }
+
+    @Override
     public Lazy<Scene> creationScene() {
       return DoubleCheck.lazy(provideRecoveryKeyCreationSceneProvider);
     }
@@ -6455,11 +6154,6 @@ public final class DaggerCryptomatorComponent {
     @Override
     public Lazy<Scene> recoverScene() {
       return DoubleCheck.lazy(provideRecoveryKeyRecoverSceneProvider);
-    }
-
-    @Override
-    public Stage window() {
-      return provideStageProvider.get();
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -6490,13 +6184,19 @@ public final class DaggerCryptomatorComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(RECOVERYKEY_CREATE) javafx.scene.Scene
+          case 0: // @org.cryptomator.ui.recoverykey.RecoveryKeyWindow javafx.stage.Stage
+            return (T)
+                RecoveryKeyModule_ProvideStageFactory.provideStage(
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    recoveryKeyComponentImpl.owner);
+
+          case 1: // @org.cryptomator.ui.common.FxmlScene(RECOVERYKEY_CREATE) javafx.scene.Scene
             return (T)
                 RecoveryKeyModule_ProvideRecoveryKeyCreationSceneFactory
                     .provideRecoveryKeyCreationScene(
                         recoveryKeyComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 1: // @org.cryptomator.ui.recoverykey.RecoveryKeyWindow
+          case 2: // @org.cryptomator.ui.recoverykey.RecoveryKeyWindow
                   // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
                 RecoveryKeyModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
@@ -6504,20 +6204,15 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 2: // java.util.Map<java.lang.Class<? extends
-                  // org.cryptomator.ui.common.FxController>,javax.inject.Provider<org.cryptomator.ui.common.FxController>> org.cryptomator.ui.recoverykey.RecoveryKeyModule#bindRecoveryKeyValidateController
+          case 3: // java.util.Map<java.lang.Class<? extends
+                  // org.cryptomator.ui.common.FxController>,javax.inject.Provider<org.cryptomator.ui.common.FxController>> org.cryptomator.ui.recoverykey.RecoveryKeyModule#provideRecoveryKeyDisplayController
             return (T)
-                RecoveryKeyModule_BindRecoveryKeyValidateControllerFactory
-                    .bindRecoveryKeyValidateController(
-                        recoveryKeyComponentImpl.arg0,
-                        recoveryKeyComponentImpl.vaultConfigProvider.get(),
+                RecoveryKeyModule_ProvideRecoveryKeyDisplayControllerFactory
+                    .provideRecoveryKeyDisplayController(
+                        recoveryKeyComponentImpl.provideStageProvider.get(),
+                        recoveryKeyComponentImpl.vault,
                         recoveryKeyComponentImpl.provideRecoveryKeyPropertyProvider.get(),
-                        cryptomatorComponentImpl.recoveryKeyFactoryProvider.get());
-
-          case 3: // @org.cryptomator.ui.recoverykey.RecoveryKeyWindow
-                  // org.cryptomator.cryptofs.VaultConfig.UnverifiedVaultConfig
-            return (T)
-                RecoveryKeyModule_VaultConfigFactory.vaultConfig(recoveryKeyComponentImpl.arg0);
+                        cryptomatorComponentImpl.provideLocalizationProvider.get());
 
           case 4: // @org.cryptomator.ui.recoverykey.RecoveryKeyWindow
                   // javafx.beans.property.StringProperty
@@ -6525,27 +6220,26 @@ public final class DaggerCryptomatorComponent {
                 RecoveryKeyModule_ProvideRecoveryKeyPropertyFactory.provideRecoveryKeyProperty();
 
           case 5: // java.util.Map<java.lang.Class<? extends
+                  // org.cryptomator.ui.common.FxController>,javax.inject.Provider<org.cryptomator.ui.common.FxController>> org.cryptomator.ui.recoverykey.RecoveryKeyModule#bindRecoveryKeyValidateController
+            return (T)
+                RecoveryKeyModule_BindRecoveryKeyValidateControllerFactory
+                    .bindRecoveryKeyValidateController(
+                        recoveryKeyComponentImpl.vault,
+                        recoveryKeyComponentImpl.vaultConfigProvider.get(),
+                        recoveryKeyComponentImpl.provideRecoveryKeyPropertyProvider.get(),
+                        cryptomatorComponentImpl.recoveryKeyFactoryProvider.get());
+
+          case 6: // @org.cryptomator.ui.recoverykey.RecoveryKeyWindow
+                  // org.cryptomator.cryptofs.VaultConfig.UnverifiedVaultConfig
+            return (T)
+                RecoveryKeyModule_VaultConfigFactory.vaultConfig(recoveryKeyComponentImpl.vault);
+
+          case 7: // java.util.Map<java.lang.Class<? extends
                   // org.cryptomator.ui.common.FxController>,javax.inject.Provider<org.cryptomator.ui.common.FxController>> org.cryptomator.ui.recoverykey.RecoveryKeyModule#provideNewPasswordController
             return (T)
                 RecoveryKeyModule_ProvideNewPasswordControllerFactory.provideNewPasswordController(
                     cryptomatorComponentImpl.provideLocalizationProvider.get(),
                     fxApplicationComponentImpl.passwordStrengthUtilProvider.get());
-
-          case 6: // java.util.Map<java.lang.Class<? extends
-                  // org.cryptomator.ui.common.FxController>,javax.inject.Provider<org.cryptomator.ui.common.FxController>> org.cryptomator.ui.recoverykey.RecoveryKeyModule#provideRecoveryKeyDisplayController
-            return (T)
-                RecoveryKeyModule_ProvideRecoveryKeyDisplayControllerFactory
-                    .provideRecoveryKeyDisplayController(
-                        recoveryKeyComponentImpl.provideStageProvider.get(),
-                        recoveryKeyComponentImpl.arg0,
-                        recoveryKeyComponentImpl.provideRecoveryKeyPropertyProvider.get(),
-                        cryptomatorComponentImpl.provideLocalizationProvider.get());
-
-          case 7: // @org.cryptomator.ui.recoverykey.RecoveryKeyWindow javafx.stage.Stage
-            return (T)
-                RecoveryKeyModule_ProvideStageFactory.provideStage(
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    recoveryKeyComponentImpl.arg1);
 
           case 8: // org.cryptomator.ui.recoverykey.RecoveryKeyCreationController
             return (T)
@@ -6553,7 +6247,7 @@ public final class DaggerCryptomatorComponent {
                     recoveryKeyComponentImpl.provideStageProvider.get(),
                     DoubleCheck.lazy(
                         recoveryKeyComponentImpl.provideRecoveryKeySuccessSceneProvider),
-                    recoveryKeyComponentImpl.arg0,
+                    recoveryKeyComponentImpl.vault,
                     cryptomatorComponentImpl.recoveryKeyFactoryProvider.get(),
                     cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
                     recoveryKeyComponentImpl.provideRecoveryKeyPropertyProvider.get(),
@@ -6566,11 +6260,33 @@ public final class DaggerCryptomatorComponent {
                     .provideRecoveryKeySuccessScene(
                         recoveryKeyComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 10: // org.cryptomator.ui.recoverykey.RecoveryKeyResetPasswordController
+          case 10: // org.cryptomator.ui.recoverykey.RecoveryKeyRecoverController
+            return (T)
+                new RecoveryKeyRecoverController(
+                    recoveryKeyComponentImpl.provideStageProvider.get(),
+                    recoveryKeyComponentImpl.vault,
+                    recoveryKeyComponentImpl.provideRecoveryKeyPropertyProvider.get(),
+                    DoubleCheck.lazy(
+                        recoveryKeyComponentImpl.provideRecoveryKeyResetPasswordSceneProvider),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 11: // @org.cryptomator.ui.common.FxmlScene(RECOVERYKEY_RESET_PASSWORD)
+                   // javafx.scene.Scene
+            return (T)
+                RecoveryKeyModule_ProvideRecoveryKeyResetPasswordSceneFactory
+                    .provideRecoveryKeyResetPasswordScene(
+                        recoveryKeyComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 12: // org.cryptomator.ui.recoverykey.RecoveryKeySuccessController
+            return (T)
+                new RecoveryKeySuccessController(
+                    recoveryKeyComponentImpl.provideStageProvider.get());
+
+          case 13: // org.cryptomator.ui.recoverykey.RecoveryKeyResetPasswordController
             return (T)
                 new RecoveryKeyResetPasswordController(
                     recoveryKeyComponentImpl.provideStageProvider.get(),
-                    recoveryKeyComponentImpl.arg0,
+                    recoveryKeyComponentImpl.vault,
                     cryptomatorComponentImpl.recoveryKeyFactoryProvider.get(),
                     cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
                     recoveryKeyComponentImpl.provideRecoveryKeyPropertyProvider.get(),
@@ -6579,39 +6295,17 @@ public final class DaggerCryptomatorComponent {
                             .provideRecoveryKeyResetPasswordSuccessSceneProvider),
                     fxApplicationComponentImpl.fxApplicationWindowsProvider.get());
 
-          case 11: // @org.cryptomator.ui.common.FxmlScene(RECOVERYKEY_RESET_PASSWORD_SUCCESS)
+          case 14: // @org.cryptomator.ui.common.FxmlScene(RECOVERYKEY_RESET_PASSWORD_SUCCESS)
                    // javafx.scene.Scene
             return (T)
                 RecoveryKeyModule_ProvideRecoveryKeyResetPasswordSuccessSceneFactory
                     .provideRecoveryKeyResetPasswordSuccessScene(
                         recoveryKeyComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 12: // org.cryptomator.ui.recoverykey.RecoveryKeyResetPasswordSuccessController
+          case 15: // org.cryptomator.ui.recoverykey.RecoveryKeyResetPasswordSuccessController
             return (T)
                 new RecoveryKeyResetPasswordSuccessController(
                     recoveryKeyComponentImpl.provideStageProvider.get());
-
-          case 13: // org.cryptomator.ui.recoverykey.RecoveryKeySuccessController
-            return (T)
-                new RecoveryKeySuccessController(
-                    recoveryKeyComponentImpl.provideStageProvider.get());
-
-          case 14: // org.cryptomator.ui.recoverykey.RecoveryKeyRecoverController
-            return (T)
-                new RecoveryKeyRecoverController(
-                    recoveryKeyComponentImpl.provideStageProvider.get(),
-                    recoveryKeyComponentImpl.arg0,
-                    recoveryKeyComponentImpl.provideRecoveryKeyPropertyProvider.get(),
-                    DoubleCheck.lazy(
-                        recoveryKeyComponentImpl.provideRecoveryKeyResetPasswordSceneProvider),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
-
-          case 15: // @org.cryptomator.ui.common.FxmlScene(RECOVERYKEY_RESET_PASSWORD)
-                   // javafx.scene.Scene
-            return (T)
-                RecoveryKeyModule_ProvideRecoveryKeyResetPasswordSceneFactory
-                    .provideRecoveryKeyResetPasswordScene(
-                        recoveryKeyComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
           case 16: // @org.cryptomator.ui.common.FxmlScene(RECOVERYKEY_RECOVER) javafx.scene.Scene
             return (T)
@@ -6653,14 +6347,14 @@ public final class DaggerCryptomatorComponent {
         CryptomatorComponentImpl cryptomatorComponentImpl,
         FxApplicationComponentImpl fxApplicationComponentImpl,
         VaultOptionsComponentImpl vaultOptionsComponentImpl,
-        Stage ownerParam,
-        Vault vaultParam) {
+        Vault vaultParam,
+        Stage ownerParam) {
       this.cryptomatorComponentImpl = cryptomatorComponentImpl;
       this.fxApplicationComponentImpl = fxApplicationComponentImpl;
       this.vaultOptionsComponentImpl = vaultOptionsComponentImpl;
       this.owner = ownerParam;
       this.vault = vaultParam;
-      initialize(ownerParam, vaultParam);
+      initialize(vaultParam, ownerParam);
     }
 
     private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
@@ -6669,26 +6363,26 @@ public final class DaggerCryptomatorComponent {
           .<Class<? extends FxController>, javax.inject.Provider<FxController>>
               builderWithExpectedSize(6)
           .put(
+              VaultOptionsController.class,
+              ((Provider) vaultOptionsComponentImpl.vaultOptionsControllerProvider))
+          .put(
               GeneralVaultOptionsController.class,
               ((Provider) vaultOptionsComponentImpl.generalVaultOptionsControllerProvider))
-          .put(
-              HubOptionsController.class,
-              ((Provider) vaultOptionsComponentImpl.hubOptionsControllerProvider))
-          .put(
-              MasterkeyOptionsController.class,
-              ((Provider) vaultOptionsComponentImpl.masterkeyOptionsControllerProvider))
           .put(
               MountOptionsController.class,
               ((Provider) vaultOptionsComponentImpl.mountOptionsControllerProvider))
           .put(
-              VaultOptionsController.class,
-              ((Provider) vaultOptionsComponentImpl.vaultOptionsControllerProvider))
+              MasterkeyOptionsController.class,
+              ((Provider) vaultOptionsComponentImpl.masterkeyOptionsControllerProvider))
+          .put(
+              HubOptionsController.class,
+              ((Provider) vaultOptionsComponentImpl.hubOptionsControllerProvider))
           .put(ForgetPasswordController.class, ((Provider) forgetPasswordControllerProvider))
           .build();
     }
 
     @SuppressWarnings("unchecked")
-    private void initialize(final Stage ownerParam, final Vault vaultParam) {
+    private void initialize(final Vault vaultParam, final Stage ownerParam) {
       this.provideConfirmedPropertyProvider =
           DoubleCheck.provider(
               new SwitchingProvider<BooleanProperty>(
@@ -6704,7 +6398,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
                   _ocuf2_ForgetPasswordComponentImpl,
-                  4));
+                  1));
       this.forgetPasswordControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<ForgetPasswordController>(
@@ -6712,7 +6406,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
                   _ocuf2_ForgetPasswordComponentImpl,
-                  3));
+                  4));
       this.provideFxmlLoaderFactoryProvider =
           DoubleCheck.provider(
               new SwitchingProvider<FxmlLoaderFactory>(
@@ -6720,7 +6414,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
                   _ocuf2_ForgetPasswordComponentImpl,
-                  2));
+                  3));
       this.provideForgetPasswordSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -6728,7 +6422,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
                   _ocuf2_ForgetPasswordComponentImpl,
-                  1));
+                  2));
     }
 
     @Override
@@ -6737,13 +6431,13 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public Lazy<Scene> scene() {
-      return DoubleCheck.lazy(provideForgetPasswordSceneProvider);
+    public Stage window() {
+      return provideStageProvider.get();
     }
 
     @Override
-    public Stage window() {
-      return provideStageProvider.get();
+    public Lazy<Scene> scene() {
+      return DoubleCheck.lazy(provideForgetPasswordSceneProvider);
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -6779,12 +6473,19 @@ public final class DaggerCryptomatorComponent {
             return (T)
                 ForgetPasswordModule_ProvideConfirmedPropertyFactory.provideConfirmedProperty();
 
-          case 1: // @org.cryptomator.ui.common.FxmlScene(FORGET_PASSWORD) javafx.scene.Scene
+          case 1: // @org.cryptomator.ui.forgetpassword.ForgetPasswordWindow javafx.stage.Stage
+            return (T)
+                ForgetPasswordModule_ProvideStageFactory.provideStage(
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
+                    _ocuf2_ForgetPasswordComponentImpl.owner);
+
+          case 2: // @org.cryptomator.ui.common.FxmlScene(FORGET_PASSWORD) javafx.scene.Scene
             return (T)
                 ForgetPasswordModule_ProvideForgetPasswordSceneFactory.provideForgetPasswordScene(
                     _ocuf2_ForgetPasswordComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 2: // @org.cryptomator.ui.forgetpassword.ForgetPasswordWindow
+          case 3: // @org.cryptomator.ui.forgetpassword.ForgetPasswordWindow
                   // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
                 ForgetPasswordModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
@@ -6792,7 +6493,7 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 3: // org.cryptomator.ui.forgetpassword.ForgetPasswordController
+          case 4: // org.cryptomator.ui.forgetpassword.ForgetPasswordController
             return (T)
                 new ForgetPasswordController(
                     _ocuf2_ForgetPasswordComponentImpl.provideStageProvider.get(),
@@ -6800,12 +6501,321 @@ public final class DaggerCryptomatorComponent {
                     cryptomatorComponentImpl.keychainManagerProvider.get(),
                     _ocuf2_ForgetPasswordComponentImpl.provideConfirmedPropertyProvider.get());
 
-          case 4: // @org.cryptomator.ui.forgetpassword.ForgetPasswordWindow javafx.stage.Stage
+          default:
+            throw new AssertionError(id);
+        }
+      }
+    }
+  }
+
+  private static final class ConvertVaultComponentImpl implements ConvertVaultComponent {
+    private final Stage owner;
+
+    private final Vault vault;
+
+    private final CryptomatorComponentImpl cryptomatorComponentImpl;
+
+    private final FxApplicationComponentImpl fxApplicationComponentImpl;
+
+    private final VaultOptionsComponentImpl vaultOptionsComponentImpl;
+
+    private final ConvertVaultComponentImpl convertVaultComponentImpl = this;
+
+    private Provider<Stage> provideStageProvider;
+
+    private Provider<FxController> provideNewPasswordControllerProvider;
+
+    private Provider<VaultConfig.UnverifiedVaultConfig> vaultConfigProvider;
+
+    private Provider<StringProperty> provideRecoveryKeyPropertyProvider;
+
+    private Provider<FxController> bindRecoveryKeyValidateControllerProvider;
+
+    private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
+
+    private Provider<Scene> provideHubToPasswordConvertSceneProvider;
+
+    private Provider<HubToPasswordStartController> hubToPasswordStartControllerProvider;
+
+    private Provider<Scene> provideHubToPasswordSuccessSceneProvider;
+
+    private Provider<HubToPasswordConvertController> hubToPasswordConvertControllerProvider;
+
+    private Provider<HubToPasswordSuccessController> hubToPasswordSuccessControllerProvider;
+
+    private Provider<Scene> provideHubToPasswordStartSceneProvider;
+
+    private ConvertVaultComponentImpl(
+        CryptomatorComponentImpl cryptomatorComponentImpl,
+        FxApplicationComponentImpl fxApplicationComponentImpl,
+        VaultOptionsComponentImpl vaultOptionsComponentImpl,
+        Vault vaultParam,
+        Stage ownerParam) {
+      this.cryptomatorComponentImpl = cryptomatorComponentImpl;
+      this.fxApplicationComponentImpl = fxApplicationComponentImpl;
+      this.vaultOptionsComponentImpl = vaultOptionsComponentImpl;
+      this.owner = ownerParam;
+      this.vault = vaultParam;
+      initialize(vaultParam, ownerParam);
+    }
+
+    private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
+        mapOfClassOfAndProviderOfFxController() {
+      return ImmutableMap
+          .<Class<? extends FxController>, javax.inject.Provider<FxController>>
+              builderWithExpectedSize(10)
+          .put(
+              VaultOptionsController.class,
+              ((Provider) vaultOptionsComponentImpl.vaultOptionsControllerProvider))
+          .put(
+              GeneralVaultOptionsController.class,
+              ((Provider) vaultOptionsComponentImpl.generalVaultOptionsControllerProvider))
+          .put(
+              MountOptionsController.class,
+              ((Provider) vaultOptionsComponentImpl.mountOptionsControllerProvider))
+          .put(
+              MasterkeyOptionsController.class,
+              ((Provider) vaultOptionsComponentImpl.masterkeyOptionsControllerProvider))
+          .put(
+              HubOptionsController.class,
+              ((Provider) vaultOptionsComponentImpl.hubOptionsControllerProvider))
+          .put(NewPasswordController.class, provideNewPasswordControllerProvider)
+          .put(RecoveryKeyValidateController.class, bindRecoveryKeyValidateControllerProvider)
+          .put(
+              HubToPasswordStartController.class, ((Provider) hubToPasswordStartControllerProvider))
+          .put(
+              HubToPasswordConvertController.class,
+              ((Provider) hubToPasswordConvertControllerProvider))
+          .put(
+              HubToPasswordSuccessController.class,
+              ((Provider) hubToPasswordSuccessControllerProvider))
+          .build();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initialize(final Vault vaultParam, final Stage ownerParam) {
+      this.provideStageProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Stage>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  vaultOptionsComponentImpl,
+                  convertVaultComponentImpl,
+                  0));
+      this.provideNewPasswordControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl,
+              fxApplicationComponentImpl,
+              vaultOptionsComponentImpl,
+              convertVaultComponentImpl,
+              3);
+      this.vaultConfigProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<VaultConfig.UnverifiedVaultConfig>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  vaultOptionsComponentImpl,
+                  convertVaultComponentImpl,
+                  5));
+      this.provideRecoveryKeyPropertyProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<StringProperty>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  vaultOptionsComponentImpl,
+                  convertVaultComponentImpl,
+                  6));
+      this.bindRecoveryKeyValidateControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl,
+              fxApplicationComponentImpl,
+              vaultOptionsComponentImpl,
+              convertVaultComponentImpl,
+              4);
+      this.provideFxmlLoaderFactoryProvider = new DelegateFactory<>();
+      this.provideHubToPasswordConvertSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  vaultOptionsComponentImpl,
+                  convertVaultComponentImpl,
+                  8));
+      this.hubToPasswordStartControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl,
+              fxApplicationComponentImpl,
+              vaultOptionsComponentImpl,
+              convertVaultComponentImpl,
+              7);
+      this.provideHubToPasswordSuccessSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  vaultOptionsComponentImpl,
+                  convertVaultComponentImpl,
+                  10));
+      this.hubToPasswordConvertControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl,
+              fxApplicationComponentImpl,
+              vaultOptionsComponentImpl,
+              convertVaultComponentImpl,
+              9);
+      this.hubToPasswordSuccessControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl,
+              fxApplicationComponentImpl,
+              vaultOptionsComponentImpl,
+              convertVaultComponentImpl,
+              11);
+      DelegateFactory.setDelegate(
+          provideFxmlLoaderFactoryProvider,
+          DoubleCheck.provider(
+              new SwitchingProvider<FxmlLoaderFactory>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  vaultOptionsComponentImpl,
+                  convertVaultComponentImpl,
+                  2)));
+      this.provideHubToPasswordStartSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  vaultOptionsComponentImpl,
+                  convertVaultComponentImpl,
+                  1));
+    }
+
+    @Override
+    public Stage window() {
+      return provideStageProvider.get();
+    }
+
+    @Override
+    public Lazy<Scene> hubToPasswordScene() {
+      return DoubleCheck.lazy(provideHubToPasswordStartSceneProvider);
+    }
+
+    private static final class SwitchingProvider<T> implements Provider<T> {
+      private final CryptomatorComponentImpl cryptomatorComponentImpl;
+
+      private final FxApplicationComponentImpl fxApplicationComponentImpl;
+
+      private final VaultOptionsComponentImpl vaultOptionsComponentImpl;
+
+      private final ConvertVaultComponentImpl convertVaultComponentImpl;
+
+      private final int id;
+
+      SwitchingProvider(
+          CryptomatorComponentImpl cryptomatorComponentImpl,
+          FxApplicationComponentImpl fxApplicationComponentImpl,
+          VaultOptionsComponentImpl vaultOptionsComponentImpl,
+          ConvertVaultComponentImpl convertVaultComponentImpl,
+          int id) {
+        this.cryptomatorComponentImpl = cryptomatorComponentImpl;
+        this.fxApplicationComponentImpl = fxApplicationComponentImpl;
+        this.vaultOptionsComponentImpl = vaultOptionsComponentImpl;
+        this.convertVaultComponentImpl = convertVaultComponentImpl;
+        this.id = id;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public T get() {
+        switch (id) {
+          case 0: // @org.cryptomator.ui.convertvault.ConvertVaultWindow javafx.stage.Stage
             return (T)
-                ForgetPasswordModule_ProvideStageFactory.provideStage(
+                ConvertVaultModule_ProvideStageFactory.provideStage(
                     fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    convertVaultComponentImpl.owner,
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 1: // @org.cryptomator.ui.common.FxmlScene(CONVERTVAULT_HUBTOPASSWORD_START)
+                  // javafx.scene.Scene
+            return (T)
+                ConvertVaultModule_ProvideHubToPasswordStartSceneFactory
+                    .provideHubToPasswordStartScene(
+                        convertVaultComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 2: // @org.cryptomator.ui.convertvault.ConvertVaultWindow
+                  // org.cryptomator.ui.common.FxmlLoaderFactory
+            return (T)
+                ConvertVaultModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
+                    convertVaultComponentImpl.mapOfClassOfAndProviderOfFxController(),
+                    fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 3: // java.util.Map<java.lang.Class<? extends
+                  // org.cryptomator.ui.common.FxController>,javax.inject.Provider<org.cryptomator.ui.common.FxController>> org.cryptomator.ui.convertvault.ConvertVaultModule#provideNewPasswordController
+            return (T)
+                ConvertVaultModule_ProvideNewPasswordControllerFactory.provideNewPasswordController(
                     cryptomatorComponentImpl.provideLocalizationProvider.get(),
-                    _ocuf2_ForgetPasswordComponentImpl.owner);
+                    fxApplicationComponentImpl.passwordStrengthUtilProvider.get());
+
+          case 4: // java.util.Map<java.lang.Class<? extends
+                  // org.cryptomator.ui.common.FxController>,javax.inject.Provider<org.cryptomator.ui.common.FxController>> org.cryptomator.ui.convertvault.ConvertVaultModule#bindRecoveryKeyValidateController
+            return (T)
+                ConvertVaultModule_BindRecoveryKeyValidateControllerFactory
+                    .bindRecoveryKeyValidateController(
+                        convertVaultComponentImpl.vault,
+                        convertVaultComponentImpl.vaultConfigProvider.get(),
+                        convertVaultComponentImpl.provideRecoveryKeyPropertyProvider.get(),
+                        cryptomatorComponentImpl.recoveryKeyFactoryProvider.get());
+
+          case 5: // @org.cryptomator.ui.convertvault.ConvertVaultWindow
+                  // org.cryptomator.cryptofs.VaultConfig.UnverifiedVaultConfig
+            return (T)
+                ConvertVaultModule_VaultConfigFactory.vaultConfig(convertVaultComponentImpl.vault);
+
+          case 6: // @org.cryptomator.ui.convertvault.ConvertVaultWindow
+                  // javafx.beans.property.StringProperty
+            return (T)
+                ConvertVaultModule_ProvideRecoveryKeyPropertyFactory.provideRecoveryKeyProperty();
+
+          case 7: // org.cryptomator.ui.convertvault.HubToPasswordStartController
+            return (T)
+                new HubToPasswordStartController(
+                    convertVaultComponentImpl.provideStageProvider.get(),
+                    DoubleCheck.lazy(
+                        convertVaultComponentImpl.provideHubToPasswordConvertSceneProvider));
+
+          case 8: // @org.cryptomator.ui.common.FxmlScene(CONVERTVAULT_HUBTOPASSWORD_CONVERT)
+                  // javafx.scene.Scene
+            return (T)
+                ConvertVaultModule_ProvideHubToPasswordConvertSceneFactory
+                    .provideHubToPasswordConvertScene(
+                        convertVaultComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 9: // org.cryptomator.ui.convertvault.HubToPasswordConvertController
+            return (T)
+                new HubToPasswordConvertController(
+                    convertVaultComponentImpl.provideStageProvider.get(),
+                    DoubleCheck.lazy(
+                        convertVaultComponentImpl.provideHubToPasswordSuccessSceneProvider),
+                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
+                    convertVaultComponentImpl.vault,
+                    convertVaultComponentImpl.provideRecoveryKeyPropertyProvider.get(),
+                    cryptomatorComponentImpl.recoveryKeyFactoryProvider.get(),
+                    cryptomatorComponentImpl.provideMasterkeyFileAccessProvider.get(),
+                    cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 10: // @org.cryptomator.ui.common.FxmlScene(CONVERTVAULT_HUBTOPASSWORD_SUCCESS)
+                   // javafx.scene.Scene
+            return (T)
+                ConvertVaultModule_ProvideHubToPasswordSuccessSceneFactory
+                    .provideHubToPasswordSuccessScene(
+                        convertVaultComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 11: // org.cryptomator.ui.convertvault.HubToPasswordSuccessController
+            return (T)
+                HubToPasswordSuccessController_Factory.newInstance(
+                    convertVaultComponentImpl.provideStageProvider.get(),
+                    convertVaultComponentImpl.vault);
 
           default:
             throw new AssertionError(id);
@@ -6815,7 +6825,7 @@ public final class DaggerCryptomatorComponent {
   }
 
   private static final class VaultOptionsComponentImpl implements VaultOptionsComponent {
-    private final Vault arg0;
+    private final Vault vault;
 
     private final CryptomatorComponentImpl cryptomatorComponentImpl;
 
@@ -6825,17 +6835,17 @@ public final class DaggerCryptomatorComponent {
 
     private Provider<Stage> provideStageProvider;
 
-    private Provider<GeneralVaultOptionsController> generalVaultOptionsControllerProvider;
-
-    private Provider<HubOptionsController> hubOptionsControllerProvider;
-
-    private Provider<MasterkeyOptionsController> masterkeyOptionsControllerProvider;
-
-    private Provider<MountOptionsController> mountOptionsControllerProvider;
-
     private Provider<ObjectProperty<SelectedVaultOptionsTab>> provideSelectedTabPropertyProvider;
 
     private Provider<VaultOptionsController> vaultOptionsControllerProvider;
+
+    private Provider<GeneralVaultOptionsController> generalVaultOptionsControllerProvider;
+
+    private Provider<MountOptionsController> mountOptionsControllerProvider;
+
+    private Provider<MasterkeyOptionsController> masterkeyOptionsControllerProvider;
+
+    private Provider<HubOptionsController> hubOptionsControllerProvider;
 
     private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
 
@@ -6844,33 +6854,47 @@ public final class DaggerCryptomatorComponent {
     private VaultOptionsComponentImpl(
         CryptomatorComponentImpl cryptomatorComponentImpl,
         FxApplicationComponentImpl fxApplicationComponentImpl,
-        Vault arg0Param) {
+        Vault vaultParam) {
       this.cryptomatorComponentImpl = cryptomatorComponentImpl;
       this.fxApplicationComponentImpl = fxApplicationComponentImpl;
-      this.arg0 = arg0Param;
-      initialize(arg0Param);
+      this.vault = vaultParam;
+      initialize(vaultParam);
     }
 
     private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
         mapOfClassOfAndProviderOfFxController() {
       return ImmutableMap.<Class<? extends FxController>, javax.inject.Provider<FxController>>of(
+          VaultOptionsController.class,
+          ((Provider) vaultOptionsControllerProvider),
           GeneralVaultOptionsController.class,
           ((Provider) generalVaultOptionsControllerProvider),
-          HubOptionsController.class,
-          ((Provider) hubOptionsControllerProvider),
-          MasterkeyOptionsController.class,
-          ((Provider) masterkeyOptionsControllerProvider),
           MountOptionsController.class,
           ((Provider) mountOptionsControllerProvider),
-          VaultOptionsController.class,
-          ((Provider) vaultOptionsControllerProvider));
+          MasterkeyOptionsController.class,
+          ((Provider) masterkeyOptionsControllerProvider),
+          HubOptionsController.class,
+          ((Provider) hubOptionsControllerProvider));
     }
 
     @SuppressWarnings("unchecked")
-    private void initialize(final Vault arg0Param) {
+    private void initialize(final Vault vaultParam) {
       this.provideStageProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Stage>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  vaultOptionsComponentImpl,
+                  0));
+      this.provideSelectedTabPropertyProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<ObjectProperty<SelectedVaultOptionsTab>>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  vaultOptionsComponentImpl,
+                  4));
+      this.vaultOptionsControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<VaultOptionsController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
@@ -6878,16 +6902,6 @@ public final class DaggerCryptomatorComponent {
       this.generalVaultOptionsControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<GeneralVaultOptionsController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  vaultOptionsComponentImpl,
-                  2));
-      this.hubOptionsControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl, fxApplicationComponentImpl, vaultOptionsComponentImpl, 4);
-      this.masterkeyOptionsControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<MasterkeyOptionsController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
@@ -6899,34 +6913,35 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
                   6));
-      this.provideSelectedTabPropertyProvider =
+      this.masterkeyOptionsControllerProvider =
           DoubleCheck.provider(
-              new SwitchingProvider<ObjectProperty<SelectedVaultOptionsTab>>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  vaultOptionsComponentImpl,
-                  8));
-      this.vaultOptionsControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<VaultOptionsController>(
+              new SwitchingProvider<MasterkeyOptionsController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
                   7));
+      this.hubOptionsControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl, fxApplicationComponentImpl, vaultOptionsComponentImpl, 8);
       this.provideFxmlLoaderFactoryProvider =
           DoubleCheck.provider(
               new SwitchingProvider<FxmlLoaderFactory>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
-                  1));
+                  2));
       this.provideVaultOptionsSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   vaultOptionsComponentImpl,
-                  0));
+                  1));
+    }
+
+    @Override
+    public Stage window() {
+      return provideStageProvider.get();
     }
 
     @Override
@@ -6937,11 +6952,6 @@ public final class DaggerCryptomatorComponent {
     @Override
     public ObjectProperty<SelectedVaultOptionsTab> selectedTabProperty() {
       return provideSelectedTabPropertyProvider.get();
-    }
-
-    @Override
-    public Stage window() {
-      return provideStageProvider.get();
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -6968,12 +6978,19 @@ public final class DaggerCryptomatorComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(VAULT_OPTIONS) javafx.scene.Scene
+          case 0: // @org.cryptomator.ui.vaultoptions.VaultOptionsWindow javafx.stage.Stage
+            return (T)
+                VaultOptionsModule_ProvideStageFactory.provideStage(
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    fxApplicationComponentImpl.primaryStage,
+                    vaultOptionsComponentImpl.vault);
+
+          case 1: // @org.cryptomator.ui.common.FxmlScene(VAULT_OPTIONS) javafx.scene.Scene
             return (T)
                 VaultOptionsModule_ProvideVaultOptionsSceneFactory.provideVaultOptionsScene(
                     vaultOptionsComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 1: // @org.cryptomator.ui.vaultoptions.VaultOptionsWindow
+          case 2: // @org.cryptomator.ui.vaultoptions.VaultOptionsWindow
                   // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
                 VaultOptionsModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
@@ -6981,36 +6998,43 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 2: // org.cryptomator.ui.vaultoptions.GeneralVaultOptionsController
+          case 3: // org.cryptomator.ui.vaultoptions.VaultOptionsController
+            return (T)
+                VaultOptionsController_Factory.newInstance(
+                    vaultOptionsComponentImpl.provideStageProvider.get(),
+                    vaultOptionsComponentImpl.vault,
+                    vaultOptionsComponentImpl.provideSelectedTabPropertyProvider.get());
+
+          case 4: // javafx.beans.property.ObjectProperty<org.cryptomator.ui.vaultoptions.SelectedVaultOptionsTab>
+            return (T)
+                VaultOptionsModule_ProvideSelectedTabPropertyFactory.provideSelectedTabProperty();
+
+          case 5: // org.cryptomator.ui.vaultoptions.GeneralVaultOptionsController
             return (T)
                 GeneralVaultOptionsController_Factory.newInstance(
                     vaultOptionsComponentImpl.provideStageProvider.get(),
-                    vaultOptionsComponentImpl.arg0,
+                    vaultOptionsComponentImpl.vault,
                     new HealthCheckComponentBuilder(
                         cryptomatorComponentImpl, fxApplicationComponentImpl),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 3: // @org.cryptomator.ui.vaultoptions.VaultOptionsWindow javafx.stage.Stage
+          case 6: // org.cryptomator.ui.vaultoptions.MountOptionsController
             return (T)
-                VaultOptionsModule_ProvideStageFactory.provideStage(
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    fxApplicationComponentImpl.primaryStage,
-                    vaultOptionsComponentImpl.arg0);
-
-          case 4: // org.cryptomator.ui.vaultoptions.HubOptionsController
-            return (T)
-                new HubOptionsController(
-                    vaultOptionsComponentImpl.arg0,
+                MountOptionsController_Factory.newInstance(
                     vaultOptionsComponentImpl.provideStageProvider.get(),
-                    new ConvertVaultComponentFactory(
-                        cryptomatorComponentImpl,
-                        fxApplicationComponentImpl,
-                        vaultOptionsComponentImpl));
+                    vaultOptionsComponentImpl.vault,
+                    cryptomatorComponentImpl.windowsDriveLettersProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
+                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
+                    DoubleCheck.lazy(fxApplicationComponentImpl.fxApplicationProvider),
+                    cryptomatorComponentImpl.provideSupportedMountServicesProvider.get(),
+                    cryptomatorComponentImpl.mounterProvider.get(),
+                    cryptomatorComponentImpl.provideDefaultMountServiceProvider.get());
 
-          case 5: // org.cryptomator.ui.vaultoptions.MasterkeyOptionsController
+          case 7: // org.cryptomator.ui.vaultoptions.MasterkeyOptionsController
             return (T)
                 MasterkeyOptionsController_Factory.newInstance(
-                    vaultOptionsComponentImpl.arg0,
+                    vaultOptionsComponentImpl.vault,
                     vaultOptionsComponentImpl.provideStageProvider.get(),
                     new ChangePasswordComponentBuilder(
                         cryptomatorComponentImpl,
@@ -7026,29 +7050,15 @@ public final class DaggerCryptomatorComponent {
                         vaultOptionsComponentImpl),
                     cryptomatorComponentImpl.keychainManagerProvider.get());
 
-          case 6: // org.cryptomator.ui.vaultoptions.MountOptionsController
+          case 8: // org.cryptomator.ui.vaultoptions.HubOptionsController
             return (T)
-                MountOptionsController_Factory.newInstance(
+                new HubOptionsController(
+                    vaultOptionsComponentImpl.vault,
                     vaultOptionsComponentImpl.provideStageProvider.get(),
-                    vaultOptionsComponentImpl.arg0,
-                    cryptomatorComponentImpl.windowsDriveLettersProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
-                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
-                    DoubleCheck.lazy(fxApplicationComponentImpl.fxApplicationProvider),
-                    cryptomatorComponentImpl.provideSupportedMountServicesProvider.get(),
-                    cryptomatorComponentImpl.mounterProvider.get(),
-                    cryptomatorComponentImpl.provideDefaultMountServiceProvider.get());
-
-          case 7: // org.cryptomator.ui.vaultoptions.VaultOptionsController
-            return (T)
-                VaultOptionsController_Factory.newInstance(
-                    vaultOptionsComponentImpl.provideStageProvider.get(),
-                    vaultOptionsComponentImpl.arg0,
-                    vaultOptionsComponentImpl.provideSelectedTabPropertyProvider.get());
-
-          case 8: // javafx.beans.property.ObjectProperty<org.cryptomator.ui.vaultoptions.SelectedVaultOptionsTab>
-            return (T)
-                VaultOptionsModule_ProvideSelectedTabPropertyFactory.provideSelectedTabProperty();
+                    new ConvertVaultComponentFactory(
+                        cryptomatorComponentImpl,
+                        fxApplicationComponentImpl,
+                        vaultOptionsComponentImpl));
 
           default:
             throw new AssertionError(id);
@@ -7058,7 +7068,7 @@ public final class DaggerCryptomatorComponent {
   }
 
   private static final class ShareVaultComponentImpl implements ShareVaultComponent {
-    private final Vault arg0;
+    private final Vault vault;
 
     private final CryptomatorComponentImpl cryptomatorComponentImpl;
 
@@ -7077,11 +7087,11 @@ public final class DaggerCryptomatorComponent {
     private ShareVaultComponentImpl(
         CryptomatorComponentImpl cryptomatorComponentImpl,
         FxApplicationComponentImpl fxApplicationComponentImpl,
-        Vault arg0Param) {
+        Vault vaultParam) {
       this.cryptomatorComponentImpl = cryptomatorComponentImpl;
       this.fxApplicationComponentImpl = fxApplicationComponentImpl;
-      this.arg0 = arg0Param;
-      initialize(arg0Param);
+      this.vault = vaultParam;
+      initialize(vaultParam);
     }
 
     private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
@@ -7091,45 +7101,45 @@ public final class DaggerCryptomatorComponent {
     }
 
     @SuppressWarnings("unchecked")
-    private void initialize(final Vault arg0Param) {
+    private void initialize(final Vault vaultParam) {
       this.provideStageProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Stage>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   shareVaultComponentImpl,
-                  3));
+                  0));
       this.shareVaultControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<ShareVaultController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   shareVaultComponentImpl,
-                  2));
+                  3));
       this.provideFxmlLoaderFactoryProvider =
           DoubleCheck.provider(
               new SwitchingProvider<FxmlLoaderFactory>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   shareVaultComponentImpl,
-                  1));
+                  2));
       this.provideShareVaultSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   shareVaultComponentImpl,
-                  0));
-    }
-
-    @Override
-    public Lazy<Scene> scene() {
-      return DoubleCheck.lazy(provideShareVaultSceneProvider);
+                  1));
     }
 
     @Override
     public Stage window() {
       return provideStageProvider.get();
+    }
+
+    @Override
+    public Lazy<Scene> scene() {
+      return DoubleCheck.lazy(provideShareVaultSceneProvider);
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -7156,12 +7166,18 @@ public final class DaggerCryptomatorComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(SHARE_VAULT) javafx.scene.Scene
+          case 0: // @org.cryptomator.ui.sharevault.ShareVaultWindow javafx.stage.Stage
+            return (T)
+                ShareVaultModule_ProvideStageFactory.provideStage(
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 1: // @org.cryptomator.ui.common.FxmlScene(SHARE_VAULT) javafx.scene.Scene
             return (T)
                 ShareVaultModule_ProvideShareVaultSceneFactory.provideShareVaultScene(
                     shareVaultComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 1: // @org.cryptomator.ui.sharevault.ShareVaultWindow
+          case 2: // @org.cryptomator.ui.sharevault.ShareVaultWindow
                   // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
                 ShareVaultModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
@@ -7169,18 +7185,12 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 2: // org.cryptomator.ui.sharevault.ShareVaultController
+          case 3: // org.cryptomator.ui.sharevault.ShareVaultController
             return (T)
                 ShareVaultController_Factory.newInstance(
                     shareVaultComponentImpl.provideStageProvider.get(),
                     DoubleCheck.lazy(fxApplicationComponentImpl.fxApplicationProvider),
-                    shareVaultComponentImpl.arg0);
-
-          case 3: // @org.cryptomator.ui.sharevault.ShareVaultWindow javafx.stage.Stage
-            return (T)
-                ShareVaultModule_ProvideStageFactory.provideStage(
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+                    shareVaultComponentImpl.vault);
 
           default:
             throw new AssertionError(id);
@@ -7214,21 +7224,21 @@ public final class DaggerCryptomatorComponent {
       this.provideFirstSupportedTrayMenuControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Optional<TrayMenuController>>(
-                  cryptomatorComponentImpl, fxApplicationComponentImpl, trayMenuComponentImpl, 1));
+                  cryptomatorComponentImpl, fxApplicationComponentImpl, trayMenuComponentImpl, 0));
       this.trayMenuBuilderProvider =
           DoubleCheck.provider(
               new SwitchingProvider<TrayMenuBuilder>(
-                  cryptomatorComponentImpl, fxApplicationComponentImpl, trayMenuComponentImpl, 0));
-    }
-
-    @Override
-    public TrayMenuBuilder trayMenuBuilder() {
-      return trayMenuBuilderProvider.get();
+                  cryptomatorComponentImpl, fxApplicationComponentImpl, trayMenuComponentImpl, 1));
     }
 
     @Override
     public Optional<TrayMenuController> trayMenuController() {
       return provideFirstSupportedTrayMenuControllerProvider.get();
+    }
+
+    @Override
+    public TrayMenuBuilder trayMenuBuilder() {
+      return trayMenuBuilderProvider.get();
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -7255,7 +7265,12 @@ public final class DaggerCryptomatorComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // org.cryptomator.ui.traymenu.TrayMenuBuilder
+          case 0: // java.util.Optional<org.cryptomator.integrations.tray.TrayMenuController>
+            return (T)
+                TrayMenuModule_ProvideFirstSupportedTrayMenuControllerFactory
+                    .provideFirstSupportedTrayMenuController();
+
+          case 1: // org.cryptomator.ui.traymenu.TrayMenuBuilder
             return (T)
                 TrayMenuBuilder_Factory.newInstance(
                     cryptomatorComponentImpl.provideLocalizationProvider.get(),
@@ -7264,11 +7279,6 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.fxApplicationTerminatorProvider.get(),
                     cryptomatorComponentImpl.provideVaultListProvider.get(),
                     trayMenuComponentImpl.provideFirstSupportedTrayMenuControllerProvider.get());
-
-          case 1: // java.util.Optional<org.cryptomator.integrations.tray.TrayMenuController>
-            return (T)
-                TrayMenuModule_ProvideFirstSupportedTrayMenuControllerFactory
-                    .provideFirstSupportedTrayMenuController();
 
           default:
             throw new AssertionError(id);
@@ -7578,15 +7588,15 @@ public final class DaggerCryptomatorComponent {
         FxApplicationComponentImpl fxApplicationComponentImpl,
         HealthCheckComponentImpl healthCheckComponentImpl,
         ocuk2_KeyLoadingComponentImpl _ocuk2_KeyLoadingComponentImpl,
-        Stage ownerParam,
-        Vault vaultParam) {
+        Vault vaultParam,
+        Stage ownerParam) {
       this.cryptomatorComponentImpl = cryptomatorComponentImpl;
       this.fxApplicationComponentImpl = fxApplicationComponentImpl;
       this.healthCheckComponentImpl = healthCheckComponentImpl;
       this._ocuk2_KeyLoadingComponentImpl = _ocuk2_KeyLoadingComponentImpl;
       this.owner = ownerParam;
       this.vault = vaultParam;
-      initialize(ownerParam, vaultParam);
+      initialize(vaultParam, ownerParam);
     }
 
     private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
@@ -7594,6 +7604,7 @@ public final class DaggerCryptomatorComponent {
       return ImmutableMap
           .<Class<? extends FxController>, javax.inject.Provider<FxController>>
               builderWithExpectedSize(17)
+          .put(StartController.class, ((Provider) healthCheckComponentImpl.startControllerProvider))
           .put(
               CheckListController.class,
               ((Provider) healthCheckComponentImpl.checkListControllerProvider))
@@ -7601,12 +7612,14 @@ public final class DaggerCryptomatorComponent {
               CheckDetailController.class,
               ((Provider) healthCheckComponentImpl.checkDetailControllerProvider))
           .put(
+              ResultListCellController.class,
+              ((Provider) healthCheckComponentImpl.resultListCellControllerProvider))
+          .put(
               CheckListCellController.class,
               ((Provider) healthCheckComponentImpl.checkListCellControllerProvider))
           .put(
-              ResultListCellController.class,
-              ((Provider) healthCheckComponentImpl.resultListCellControllerProvider))
-          .put(StartController.class, ((Provider) healthCheckComponentImpl.startControllerProvider))
+              NoKeychainController.class,
+              ((Provider) _ocuk2_KeyLoadingComponentImpl.noKeychainControllerProvider))
           .put(
               AuthFlowController.class,
               ((Provider) _ocuk2_KeyLoadingComponentImpl.authFlowControllerProvider))
@@ -7614,38 +7627,35 @@ public final class DaggerCryptomatorComponent {
               InvalidLicenseController.class,
               ((Provider) _ocuk2_KeyLoadingComponentImpl.invalidLicenseControllerProvider))
           .put(
-              LegacyRegisterDeviceController.class,
-              ((Provider) _ocuk2_KeyLoadingComponentImpl.legacyRegisterDeviceControllerProvider))
-          .put(
-              LegacyRegisterSuccessController.class,
-              ((Provider) _ocuk2_KeyLoadingComponentImpl.legacyRegisterSuccessControllerProvider))
-          .put(
-              NoKeychainController.class,
-              ((Provider) _ocuk2_KeyLoadingComponentImpl.noKeychainControllerProvider))
-          .put(
               ReceiveKeyController.class,
               ((Provider) _ocuk2_KeyLoadingComponentImpl.receiveKeyControllerProvider))
           .put(
               RegisterDeviceController.class,
               ((Provider) _ocuk2_KeyLoadingComponentImpl.registerDeviceControllerProvider))
           .put(
-              RegisterFailedController.class,
-              ((Provider) _ocuk2_KeyLoadingComponentImpl.registerFailedControllerProvider))
+              LegacyRegisterDeviceController.class,
+              ((Provider) _ocuk2_KeyLoadingComponentImpl.legacyRegisterDeviceControllerProvider))
+          .put(
+              LegacyRegisterSuccessController.class,
+              ((Provider) _ocuk2_KeyLoadingComponentImpl.legacyRegisterSuccessControllerProvider))
           .put(
               RegisterSuccessController.class,
               ((Provider) _ocuk2_KeyLoadingComponentImpl.registerSuccessControllerProvider))
           .put(
-              RequireAccountInitController.class,
-              ((Provider) _ocuk2_KeyLoadingComponentImpl.requireAccountInitControllerProvider))
+              RegisterFailedController.class,
+              ((Provider) _ocuk2_KeyLoadingComponentImpl.registerFailedControllerProvider))
           .put(
               UnauthorizedDeviceController.class,
               ((Provider) _ocuk2_KeyLoadingComponentImpl.unauthorizedDeviceControllerProvider))
+          .put(
+              RequireAccountInitController.class,
+              ((Provider) _ocuk2_KeyLoadingComponentImpl.requireAccountInitControllerProvider))
           .put(ForgetPasswordController.class, ((Provider) forgetPasswordControllerProvider))
           .build();
     }
 
     @SuppressWarnings("unchecked")
-    private void initialize(final Stage ownerParam, final Vault vaultParam) {
+    private void initialize(final Vault vaultParam, final Stage ownerParam) {
       this.provideConfirmedPropertyProvider =
           DoubleCheck.provider(
               new SwitchingProvider<BooleanProperty>(
@@ -7663,7 +7673,7 @@ public final class DaggerCryptomatorComponent {
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
                   _ocuf3_ForgetPasswordComponentImpl,
-                  4));
+                  1));
       this.forgetPasswordControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<ForgetPasswordController>(
@@ -7672,7 +7682,7 @@ public final class DaggerCryptomatorComponent {
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
                   _ocuf3_ForgetPasswordComponentImpl,
-                  3));
+                  4));
       this.provideFxmlLoaderFactoryProvider =
           DoubleCheck.provider(
               new SwitchingProvider<FxmlLoaderFactory>(
@@ -7681,7 +7691,7 @@ public final class DaggerCryptomatorComponent {
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
                   _ocuf3_ForgetPasswordComponentImpl,
-                  2));
+                  3));
       this.provideForgetPasswordSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -7690,7 +7700,7 @@ public final class DaggerCryptomatorComponent {
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
                   _ocuf3_ForgetPasswordComponentImpl,
-                  1));
+                  2));
     }
 
     @Override
@@ -7699,13 +7709,13 @@ public final class DaggerCryptomatorComponent {
     }
 
     @Override
-    public Lazy<Scene> scene() {
-      return DoubleCheck.lazy(provideForgetPasswordSceneProvider);
+    public Stage window() {
+      return provideStageProvider.get();
     }
 
     @Override
-    public Stage window() {
-      return provideStageProvider.get();
+    public Lazy<Scene> scene() {
+      return DoubleCheck.lazy(provideForgetPasswordSceneProvider);
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -7745,12 +7755,19 @@ public final class DaggerCryptomatorComponent {
             return (T)
                 ForgetPasswordModule_ProvideConfirmedPropertyFactory.provideConfirmedProperty();
 
-          case 1: // @org.cryptomator.ui.common.FxmlScene(FORGET_PASSWORD) javafx.scene.Scene
+          case 1: // @org.cryptomator.ui.forgetpassword.ForgetPasswordWindow javafx.stage.Stage
+            return (T)
+                ForgetPasswordModule_ProvideStageFactory.provideStage(
+                    fxApplicationComponentImpl.stageFactoryProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
+                    _ocuf3_ForgetPasswordComponentImpl.owner);
+
+          case 2: // @org.cryptomator.ui.common.FxmlScene(FORGET_PASSWORD) javafx.scene.Scene
             return (T)
                 ForgetPasswordModule_ProvideForgetPasswordSceneFactory.provideForgetPasswordScene(
                     _ocuf3_ForgetPasswordComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 2: // @org.cryptomator.ui.forgetpassword.ForgetPasswordWindow
+          case 3: // @org.cryptomator.ui.forgetpassword.ForgetPasswordWindow
                   // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
                 ForgetPasswordModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
@@ -7758,20 +7775,13 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 3: // org.cryptomator.ui.forgetpassword.ForgetPasswordController
+          case 4: // org.cryptomator.ui.forgetpassword.ForgetPasswordController
             return (T)
                 new ForgetPasswordController(
                     _ocuf3_ForgetPasswordComponentImpl.provideStageProvider.get(),
                     _ocuf3_ForgetPasswordComponentImpl.vault,
                     cryptomatorComponentImpl.keychainManagerProvider.get(),
                     _ocuf3_ForgetPasswordComponentImpl.provideConfirmedPropertyProvider.get());
-
-          case 4: // @org.cryptomator.ui.forgetpassword.ForgetPasswordWindow javafx.stage.Stage
-            return (T)
-                ForgetPasswordModule_ProvideStageFactory.provideStage(
-                    fxApplicationComponentImpl.stageFactoryProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get(),
-                    _ocuf3_ForgetPasswordComponentImpl.owner);
 
           default:
             throw new AssertionError(id);
@@ -7799,6 +7809,8 @@ public final class DaggerCryptomatorComponent {
 
     private Provider<KeyLoadingStrategy> bindMasterkeyFileLoadingStrategyProvider;
 
+    private Provider<NoKeychainController> noKeychainControllerProvider;
+
     private Provider<String> provideDeviceIdProvider;
 
     private Provider<HubConfig> provideHubConfigProvider;
@@ -7816,16 +7828,6 @@ public final class DaggerCryptomatorComponent {
 
     private Provider<InvalidLicenseController> invalidLicenseControllerProvider;
 
-    private Provider<Scene> provideHubLegacyRegisterSuccessSceneProvider;
-
-    private Provider<Scene> provideHubRegisterFailedSceneProvider;
-
-    private Provider<LegacyRegisterDeviceController> legacyRegisterDeviceControllerProvider;
-
-    private Provider<LegacyRegisterSuccessController> legacyRegisterSuccessControllerProvider;
-
-    private Provider<NoKeychainController> noKeychainControllerProvider;
-
     private Provider<Scene> provideHubRegisterDeviceSceneProvider;
 
     private Provider<Scene> provideHubLegacyRegisterDeviceSceneProvider;
@@ -7840,17 +7842,25 @@ public final class DaggerCryptomatorComponent {
 
     private Provider<Scene> provideHubRegisterSuccessSceneProvider;
 
+    private Provider<Scene> provideHubRegisterFailedSceneProvider;
+
     private Provider<Scene> provideHubRegisterDeviceAlreadyExistsSceneProvider;
 
     private Provider<RegisterDeviceController> registerDeviceControllerProvider;
 
-    private Provider<RegisterFailedController> registerFailedControllerProvider;
+    private Provider<Scene> provideHubLegacyRegisterSuccessSceneProvider;
+
+    private Provider<LegacyRegisterDeviceController> legacyRegisterDeviceControllerProvider;
+
+    private Provider<LegacyRegisterSuccessController> legacyRegisterSuccessControllerProvider;
 
     private Provider<RegisterSuccessController> registerSuccessControllerProvider;
 
-    private Provider<RequireAccountInitController> requireAccountInitControllerProvider;
+    private Provider<RegisterFailedController> registerFailedControllerProvider;
 
     private Provider<UnauthorizedDeviceController> unauthorizedDeviceControllerProvider;
+
+    private Provider<RequireAccountInitController> requireAccountInitControllerProvider;
 
     private Provider<Scene> provideHubAuthFlowSceneProvider;
 
@@ -7885,6 +7895,7 @@ public final class DaggerCryptomatorComponent {
       return ImmutableMap
           .<Class<? extends FxController>, javax.inject.Provider<FxController>>
               builderWithExpectedSize(16)
+          .put(StartController.class, ((Provider) healthCheckComponentImpl.startControllerProvider))
           .put(
               CheckListController.class,
               ((Provider) healthCheckComponentImpl.checkListControllerProvider))
@@ -7892,29 +7903,28 @@ public final class DaggerCryptomatorComponent {
               CheckDetailController.class,
               ((Provider) healthCheckComponentImpl.checkDetailControllerProvider))
           .put(
-              CheckListCellController.class,
-              ((Provider) healthCheckComponentImpl.checkListCellControllerProvider))
-          .put(
               ResultListCellController.class,
               ((Provider) healthCheckComponentImpl.resultListCellControllerProvider))
-          .put(StartController.class, ((Provider) healthCheckComponentImpl.startControllerProvider))
+          .put(
+              CheckListCellController.class,
+              ((Provider) healthCheckComponentImpl.checkListCellControllerProvider))
+          .put(NoKeychainController.class, ((Provider) noKeychainControllerProvider))
           .put(AuthFlowController.class, ((Provider) authFlowControllerProvider))
           .put(InvalidLicenseController.class, ((Provider) invalidLicenseControllerProvider))
+          .put(ReceiveKeyController.class, ((Provider) receiveKeyControllerProvider))
+          .put(RegisterDeviceController.class, ((Provider) registerDeviceControllerProvider))
           .put(
               LegacyRegisterDeviceController.class,
               ((Provider) legacyRegisterDeviceControllerProvider))
           .put(
               LegacyRegisterSuccessController.class,
               ((Provider) legacyRegisterSuccessControllerProvider))
-          .put(NoKeychainController.class, ((Provider) noKeychainControllerProvider))
-          .put(ReceiveKeyController.class, ((Provider) receiveKeyControllerProvider))
-          .put(RegisterDeviceController.class, ((Provider) registerDeviceControllerProvider))
-          .put(RegisterFailedController.class, ((Provider) registerFailedControllerProvider))
           .put(RegisterSuccessController.class, ((Provider) registerSuccessControllerProvider))
-          .put(
-              RequireAccountInitController.class, ((Provider) requireAccountInitControllerProvider))
+          .put(RegisterFailedController.class, ((Provider) registerFailedControllerProvider))
           .put(
               UnauthorizedDeviceController.class, ((Provider) unauthorizedDeviceControllerProvider))
+          .put(
+              RequireAccountInitController.class, ((Provider) requireAccountInitControllerProvider))
           .build();
     }
 
@@ -7948,6 +7958,13 @@ public final class DaggerCryptomatorComponent {
               1);
       this.bindMasterkeyFileLoadingStrategyProvider =
           DoubleCheck.provider((Provider) masterkeyFileLoadingStrategyProvider);
+      this.noKeychainControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl,
+              fxApplicationComponentImpl,
+              healthCheckComponentImpl,
+              _ocuk2_KeyLoadingComponentImpl,
+              6);
       this.provideDeviceIdProvider =
           DoubleCheck.provider(
               new SwitchingProvider<String>(
@@ -7955,7 +7972,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
-                  7));
+                  8));
       this.provideHubConfigProvider =
           DoubleCheck.provider(
               new SwitchingProvider<HubConfig>(
@@ -7963,7 +7980,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
-                  8));
+                  9));
       this.provideBearerTokenRefProvider =
           DoubleCheck.provider(
               new SwitchingProvider<AtomicReference<String>>(
@@ -7971,7 +7988,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
-                  9));
+                  10));
       this.provideResultProvider =
           DoubleCheck.provider(
               new SwitchingProvider<CompletableFuture>(
@@ -7979,7 +7996,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
-                  10));
+                  11));
       this.provideFxmlLoaderFactoryProvider = new DelegateFactory<>();
       this.provideHubReceiveKeySceneProvider =
           DoubleCheck.provider(
@@ -7988,7 +8005,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
-                  11));
+                  12));
       this.authFlowControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<AuthFlowController>(
@@ -7996,53 +8013,14 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
-                  6));
+                  7));
       this.invalidLicenseControllerProvider =
           new SwitchingProvider<>(
               cryptomatorComponentImpl,
               fxApplicationComponentImpl,
               healthCheckComponentImpl,
               _ocuk2_KeyLoadingComponentImpl,
-              12);
-      this.provideHubLegacyRegisterSuccessSceneProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  healthCheckComponentImpl,
-                  _ocuk2_KeyLoadingComponentImpl,
-                  14));
-      this.provideHubRegisterFailedSceneProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Scene>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  healthCheckComponentImpl,
-                  _ocuk2_KeyLoadingComponentImpl,
-                  15));
-      this.legacyRegisterDeviceControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<LegacyRegisterDeviceController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  healthCheckComponentImpl,
-                  _ocuk2_KeyLoadingComponentImpl,
-                  13));
-      this.legacyRegisterSuccessControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<LegacyRegisterSuccessController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  healthCheckComponentImpl,
-                  _ocuk2_KeyLoadingComponentImpl,
-                  16));
-      this.noKeychainControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl,
-              fxApplicationComponentImpl,
-              healthCheckComponentImpl,
-              _ocuk2_KeyLoadingComponentImpl,
-              17);
+              13);
       this.provideHubRegisterDeviceSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -8050,7 +8028,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
-                  19));
+                  15));
       this.provideHubLegacyRegisterDeviceSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -8058,7 +8036,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
-                  20));
+                  16));
       this.provideHubUnauthorizedDeviceSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -8066,7 +8044,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
-                  21));
+                  17));
       this.provideRequireAccountInitSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -8074,7 +8052,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
-                  22));
+                  18));
       this.provideInvalidLicenseSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -8082,7 +8060,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
-                  23));
+                  19));
       this.receiveKeyControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<ReceiveKeyController>(
@@ -8090,7 +8068,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
-                  18));
+                  14));
       this.provideHubRegisterSuccessSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -8098,7 +8076,15 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
-                  25));
+                  21));
+      this.provideHubRegisterFailedSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  healthCheckComponentImpl,
+                  _ocuk2_KeyLoadingComponentImpl,
+                  22));
       this.provideHubRegisterDeviceAlreadyExistsSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
@@ -8106,7 +8092,7 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
-                  26));
+                  23));
       this.registerDeviceControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<RegisterDeviceController>(
@@ -8114,32 +8100,56 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
+                  20));
+      this.provideHubLegacyRegisterSuccessSceneProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Scene>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  healthCheckComponentImpl,
+                  _ocuk2_KeyLoadingComponentImpl,
+                  25));
+      this.legacyRegisterDeviceControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<LegacyRegisterDeviceController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  healthCheckComponentImpl,
+                  _ocuk2_KeyLoadingComponentImpl,
                   24));
-      this.registerFailedControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl,
-              fxApplicationComponentImpl,
-              healthCheckComponentImpl,
-              _ocuk2_KeyLoadingComponentImpl,
-              27);
+      this.legacyRegisterSuccessControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<LegacyRegisterSuccessController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  healthCheckComponentImpl,
+                  _ocuk2_KeyLoadingComponentImpl,
+                  26));
       this.registerSuccessControllerProvider =
           new SwitchingProvider<>(
               cryptomatorComponentImpl,
               fxApplicationComponentImpl,
               healthCheckComponentImpl,
               _ocuk2_KeyLoadingComponentImpl,
+              27);
+      this.registerFailedControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl,
+              fxApplicationComponentImpl,
+              healthCheckComponentImpl,
+              _ocuk2_KeyLoadingComponentImpl,
               28);
-      this.requireAccountInitControllerProvider =
+      this.unauthorizedDeviceControllerProvider =
           DoubleCheck.provider(
-              new SwitchingProvider<RequireAccountInitController>(
+              new SwitchingProvider<UnauthorizedDeviceController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   _ocuk2_KeyLoadingComponentImpl,
                   29));
-      this.unauthorizedDeviceControllerProvider =
+      this.requireAccountInitControllerProvider =
           DoubleCheck.provider(
-              new SwitchingProvider<UnauthorizedDeviceController>(
+              new SwitchingProvider<RequireAccountInitController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
@@ -8291,7 +8301,13 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 6: // org.cryptomator.ui.keyloading.hub.AuthFlowController
+          case 6: // org.cryptomator.ui.keyloading.hub.NoKeychainController
+            return (T)
+                new NoKeychainController(
+                    _ocuk2_KeyLoadingComponentImpl.window,
+                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get());
+
+          case 7: // org.cryptomator.ui.keyloading.hub.AuthFlowController
             return (T)
                 new AuthFlowController(
                     fxApplicationComponentImpl.fxApplicationProvider.get(),
@@ -8304,70 +8320,32 @@ public final class DaggerCryptomatorComponent {
                     DoubleCheck.lazy(
                         _ocuk2_KeyLoadingComponentImpl.provideHubReceiveKeySceneProvider));
 
-          case 7: // @javax.inject.Named("deviceId") java.lang.String
+          case 8: // @javax.inject.Named("deviceId") java.lang.String
             return (T)
                 HubKeyLoadingModule_ProvideDeviceIdFactory.provideDeviceId(
                     cryptomatorComponentImpl.deviceKeyProvider.get());
 
-          case 8: // org.cryptomator.ui.keyloading.hub.HubConfig
+          case 9: // org.cryptomator.ui.keyloading.hub.HubConfig
             return (T)
                 HubKeyLoadingModule_ProvideHubConfigFactory.provideHubConfig(
                     _ocuk2_KeyLoadingComponentImpl.vault);
 
-          case 9: // @javax.inject.Named("bearerToken")
-                  // java.util.concurrent.atomic.AtomicReference<java.lang.String>
+          case 10: // @javax.inject.Named("bearerToken")
+                   // java.util.concurrent.atomic.AtomicReference<java.lang.String>
             return (T) HubKeyLoadingModule_ProvideBearerTokenRefFactory.provideBearerTokenRef();
 
-          case 10: // java.util.concurrent.CompletableFuture<org.cryptomator.ui.keyloading.hub.ReceivedKey>
+          case 11: // java.util.concurrent.CompletableFuture<org.cryptomator.ui.keyloading.hub.ReceivedKey>
             return (T) HubKeyLoadingModule_ProvideResultFactory.provideResult();
 
-          case 11: // @org.cryptomator.ui.common.FxmlScene(HUB_RECEIVE_KEY) javafx.scene.Scene
+          case 12: // @org.cryptomator.ui.common.FxmlScene(HUB_RECEIVE_KEY) javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideHubReceiveKeySceneFactory.provideHubReceiveKeyScene(
                     _ocuk2_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 12: // org.cryptomator.ui.keyloading.hub.InvalidLicenseController
+          case 13: // org.cryptomator.ui.keyloading.hub.InvalidLicenseController
             return (T) new InvalidLicenseController(_ocuk2_KeyLoadingComponentImpl.window);
 
-          case 13: // org.cryptomator.ui.keyloading.hub.LegacyRegisterDeviceController
-            return (T)
-                new LegacyRegisterDeviceController(
-                    _ocuk2_KeyLoadingComponentImpl.window,
-                    cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
-                    _ocuk2_KeyLoadingComponentImpl.provideHubConfigProvider.get(),
-                    _ocuk2_KeyLoadingComponentImpl.provideDeviceIdProvider.get(),
-                    cryptomatorComponentImpl.deviceKeyProvider.get(),
-                    (CompletableFuture) _ocuk2_KeyLoadingComponentImpl.provideResultProvider.get(),
-                    _ocuk2_KeyLoadingComponentImpl.provideBearerTokenRefProvider.get(),
-                    DoubleCheck.lazy(
-                        _ocuk2_KeyLoadingComponentImpl
-                            .provideHubLegacyRegisterSuccessSceneProvider),
-                    DoubleCheck.lazy(
-                        _ocuk2_KeyLoadingComponentImpl.provideHubRegisterFailedSceneProvider));
-
-          case 14: // @org.cryptomator.ui.common.FxmlScene(HUB_LEGACY_REGISTER_SUCCESS)
-                   // javafx.scene.Scene
-            return (T)
-                HubKeyLoadingModule_ProvideHubLegacyRegisterSuccessSceneFactory
-                    .provideHubLegacyRegisterSuccessScene(
-                        _ocuk2_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 15: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_FAILED) javafx.scene.Scene
-            return (T)
-                HubKeyLoadingModule_ProvideHubRegisterFailedSceneFactory
-                    .provideHubRegisterFailedScene(
-                        _ocuk2_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 16: // org.cryptomator.ui.keyloading.hub.LegacyRegisterSuccessController
-            return (T) new LegacyRegisterSuccessController(_ocuk2_KeyLoadingComponentImpl.window);
-
-          case 17: // org.cryptomator.ui.keyloading.hub.NoKeychainController
-            return (T)
-                new NoKeychainController(
-                    _ocuk2_KeyLoadingComponentImpl.window,
-                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get());
-
-          case 18: // org.cryptomator.ui.keyloading.hub.ReceiveKeyController
+          case 14: // org.cryptomator.ui.keyloading.hub.ReceiveKeyController
             return (T)
                 new ReceiveKeyController(
                     _ocuk2_KeyLoadingComponentImpl.vault,
@@ -8388,39 +8366,39 @@ public final class DaggerCryptomatorComponent {
                     DoubleCheck.lazy(
                         _ocuk2_KeyLoadingComponentImpl.provideInvalidLicenseSceneProvider));
 
-          case 19: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_DEVICE) javafx.scene.Scene
+          case 15: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_DEVICE) javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideHubRegisterDeviceSceneFactory
                     .provideHubRegisterDeviceScene(
                         _ocuk2_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 20: // @org.cryptomator.ui.common.FxmlScene(HUB_LEGACY_REGISTER_DEVICE)
+          case 16: // @org.cryptomator.ui.common.FxmlScene(HUB_LEGACY_REGISTER_DEVICE)
                    // javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideHubLegacyRegisterDeviceSceneFactory
                     .provideHubLegacyRegisterDeviceScene(
                         _ocuk2_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 21: // @org.cryptomator.ui.common.FxmlScene(HUB_UNAUTHORIZED_DEVICE)
+          case 17: // @org.cryptomator.ui.common.FxmlScene(HUB_UNAUTHORIZED_DEVICE)
                    // javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideHubUnauthorizedDeviceSceneFactory
                     .provideHubUnauthorizedDeviceScene(
                         _ocuk2_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 22: // @org.cryptomator.ui.common.FxmlScene(HUB_REQUIRE_ACCOUNT_INIT)
+          case 18: // @org.cryptomator.ui.common.FxmlScene(HUB_REQUIRE_ACCOUNT_INIT)
                    // javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideRequireAccountInitSceneFactory
                     .provideRequireAccountInitScene(
                         _ocuk2_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 23: // @org.cryptomator.ui.common.FxmlScene(HUB_INVALID_LICENSE) javafx.scene.Scene
+          case 19: // @org.cryptomator.ui.common.FxmlScene(HUB_INVALID_LICENSE) javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideInvalidLicenseSceneFactory.provideInvalidLicenseScene(
                     _ocuk2_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 24: // org.cryptomator.ui.keyloading.hub.RegisterDeviceController
+          case 20: // org.cryptomator.ui.keyloading.hub.RegisterDeviceController
             return (T)
                 new RegisterDeviceController(
                     _ocuk2_KeyLoadingComponentImpl.window,
@@ -8438,26 +8416,52 @@ public final class DaggerCryptomatorComponent {
                         _ocuk2_KeyLoadingComponentImpl
                             .provideHubRegisterDeviceAlreadyExistsSceneProvider));
 
-          case 25: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_SUCCESS) javafx.scene.Scene
+          case 21: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_SUCCESS) javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideHubRegisterSuccessSceneFactory
                     .provideHubRegisterSuccessScene(
                         _ocuk2_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 26: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_DEVICE_ALREADY_EXISTS)
+          case 22: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_FAILED) javafx.scene.Scene
+            return (T)
+                HubKeyLoadingModule_ProvideHubRegisterFailedSceneFactory
+                    .provideHubRegisterFailedScene(
+                        _ocuk2_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 23: // @org.cryptomator.ui.common.FxmlScene(HUB_REGISTER_DEVICE_ALREADY_EXISTS)
                    // javafx.scene.Scene
             return (T)
                 HubKeyLoadingModule_ProvideHubRegisterDeviceAlreadyExistsSceneFactory
                     .provideHubRegisterDeviceAlreadyExistsScene(
                         _ocuk2_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 27: // org.cryptomator.ui.keyloading.hub.RegisterFailedController
+          case 24: // org.cryptomator.ui.keyloading.hub.LegacyRegisterDeviceController
             return (T)
-                new RegisterFailedController(
+                new LegacyRegisterDeviceController(
                     _ocuk2_KeyLoadingComponentImpl.window,
-                    (CompletableFuture) _ocuk2_KeyLoadingComponentImpl.provideResultProvider.get());
+                    cryptomatorComponentImpl.provideExecutorServiceProvider.get(),
+                    _ocuk2_KeyLoadingComponentImpl.provideHubConfigProvider.get(),
+                    _ocuk2_KeyLoadingComponentImpl.provideDeviceIdProvider.get(),
+                    cryptomatorComponentImpl.deviceKeyProvider.get(),
+                    (CompletableFuture) _ocuk2_KeyLoadingComponentImpl.provideResultProvider.get(),
+                    _ocuk2_KeyLoadingComponentImpl.provideBearerTokenRefProvider.get(),
+                    DoubleCheck.lazy(
+                        _ocuk2_KeyLoadingComponentImpl
+                            .provideHubLegacyRegisterSuccessSceneProvider),
+                    DoubleCheck.lazy(
+                        _ocuk2_KeyLoadingComponentImpl.provideHubRegisterFailedSceneProvider));
 
-          case 28: // org.cryptomator.ui.keyloading.hub.RegisterSuccessController
+          case 25: // @org.cryptomator.ui.common.FxmlScene(HUB_LEGACY_REGISTER_SUCCESS)
+                   // javafx.scene.Scene
+            return (T)
+                HubKeyLoadingModule_ProvideHubLegacyRegisterSuccessSceneFactory
+                    .provideHubLegacyRegisterSuccessScene(
+                        _ocuk2_KeyLoadingComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 26: // org.cryptomator.ui.keyloading.hub.LegacyRegisterSuccessController
+            return (T) new LegacyRegisterSuccessController(_ocuk2_KeyLoadingComponentImpl.window);
+
+          case 27: // org.cryptomator.ui.keyloading.hub.RegisterSuccessController
             return (T)
                 new RegisterSuccessController(
                     _ocuk2_KeyLoadingComponentImpl.window,
@@ -8466,17 +8470,23 @@ public final class DaggerCryptomatorComponent {
                         _ocuk2_KeyLoadingComponentImpl.provideHubReceiveKeySceneProvider),
                     _ocuk2_KeyLoadingComponentImpl.receiveKeyControllerProvider.get());
 
-          case 29: // org.cryptomator.ui.keyloading.hub.RequireAccountInitController
+          case 28: // org.cryptomator.ui.keyloading.hub.RegisterFailedController
+            return (T)
+                new RegisterFailedController(
+                    _ocuk2_KeyLoadingComponentImpl.window,
+                    (CompletableFuture) _ocuk2_KeyLoadingComponentImpl.provideResultProvider.get());
+
+          case 29: // org.cryptomator.ui.keyloading.hub.UnauthorizedDeviceController
+            return (T)
+                new UnauthorizedDeviceController(
+                    _ocuk2_KeyLoadingComponentImpl.window,
+                    (CompletableFuture) _ocuk2_KeyLoadingComponentImpl.provideResultProvider.get());
+
+          case 30: // org.cryptomator.ui.keyloading.hub.RequireAccountInitController
             return (T)
                 new RequireAccountInitController(
                     fxApplicationComponentImpl.fxApplicationProvider.get(),
                     _ocuk2_KeyLoadingComponentImpl.provideHubConfigProvider.get(),
-                    _ocuk2_KeyLoadingComponentImpl.window,
-                    (CompletableFuture) _ocuk2_KeyLoadingComponentImpl.provideResultProvider.get());
-
-          case 30: // org.cryptomator.ui.keyloading.hub.UnauthorizedDeviceController
-            return (T)
-                new UnauthorizedDeviceController(
                     _ocuk2_KeyLoadingComponentImpl.window,
                     (CompletableFuture) _ocuk2_KeyLoadingComponentImpl.provideResultProvider.get());
 
@@ -8515,17 +8525,25 @@ public final class DaggerCryptomatorComponent {
 
     private Provider<Stage> provideStageProvider;
 
-    private Provider<List<Check>> provideAvailableChecksProvider;
+    private Provider<Stage> provideUnlockWindowProvider;
+
+    private Provider<KeyLoadingStrategy> provideKeyLoadingStrategyProvider;
 
     private Provider<AtomicReference<VaultConfig>> provideVaultConfigRefProvider;
+
+    private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
+
+    private Provider<Scene> provideHealthCheckListSceneProvider;
+
+    private Provider<StartController> startControllerProvider;
+
+    private Provider<List<Check>> provideAvailableChecksProvider;
 
     private Provider<CheckExecutor> checkExecutorProvider;
 
     private Provider<ReportWriter> reportWriterProvider;
 
     private Provider<ObjectProperty<Check>> provideSelectedCheckProvider;
-
-    private Provider<FxmlLoaderFactory> provideFxmlLoaderFactoryProvider;
 
     private Provider<CheckListController> checkListControllerProvider;
 
@@ -8536,30 +8554,22 @@ public final class DaggerCryptomatorComponent {
 
     private Provider<CheckDetailController> checkDetailControllerProvider;
 
-    private Provider<CheckListCellController> checkListCellControllerProvider;
-
     private Provider<ResultListCellController> resultListCellControllerProvider;
 
-    private Provider<Stage> provideUnlockWindowProvider;
-
-    private Provider<KeyLoadingStrategy> provideKeyLoadingStrategyProvider;
-
-    private Provider<Scene> provideHealthCheckListSceneProvider;
-
-    private Provider<StartController> startControllerProvider;
+    private Provider<CheckListCellController> checkListCellControllerProvider;
 
     private Provider<Scene> provideHealthStartSceneProvider;
 
     private HealthCheckComponentImpl(
         CryptomatorComponentImpl cryptomatorComponentImpl,
         FxApplicationComponentImpl fxApplicationComponentImpl,
-        Stage ownerParam,
-        Vault vaultParam) {
+        Vault vaultParam,
+        Stage ownerParam) {
       this.cryptomatorComponentImpl = cryptomatorComponentImpl;
       this.fxApplicationComponentImpl = fxApplicationComponentImpl;
       this.owner = ownerParam;
       this.vault = vaultParam;
-      initialize(ownerParam, vaultParam);
+      initialize(vaultParam, ownerParam);
     }
 
     private CheckListCellFactory checkListCellFactory() {
@@ -8569,44 +8579,51 @@ public final class DaggerCryptomatorComponent {
     private Map<Class<? extends FxController>, javax.inject.Provider<FxController>>
         mapOfClassOfAndProviderOfFxController() {
       return ImmutableMap.<Class<? extends FxController>, javax.inject.Provider<FxController>>of(
+          StartController.class,
+          ((Provider) startControllerProvider),
           CheckListController.class,
           ((Provider) checkListControllerProvider),
           CheckDetailController.class,
           ((Provider) checkDetailControllerProvider),
-          CheckListCellController.class,
-          ((Provider) checkListCellControllerProvider),
           ResultListCellController.class,
           ((Provider) resultListCellControllerProvider),
-          StartController.class,
-          ((Provider) startControllerProvider));
+          CheckListCellController.class,
+          ((Provider) checkListCellControllerProvider));
     }
 
     @SuppressWarnings("unchecked")
-    private void initialize(final Stage ownerParam, final Vault vaultParam) {
+    private void initialize(final Vault vaultParam, final Stage ownerParam) {
       this.provideMasterkeyRefProvider =
           DoubleCheck.provider(
               new SwitchingProvider<AtomicReference<Masterkey>>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
-                  5));
+                  2));
       this.provideWindowShowingChangeListenerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<ChangeListener<Boolean>>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
-                  4));
+                  1));
       this.provideStageProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Stage>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
-                  3));
-      this.provideAvailableChecksProvider =
+                  0));
+      this.provideUnlockWindowProvider =
           DoubleCheck.provider(
-              new SwitchingProvider<List<Check>>(
+              new SwitchingProvider<Stage>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  healthCheckComponentImpl,
+                  7));
+      this.provideKeyLoadingStrategyProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<KeyLoadingStrategy>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
@@ -8618,90 +8635,83 @@ public final class DaggerCryptomatorComponent {
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
                   8));
-      this.checkExecutorProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<CheckExecutor>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  healthCheckComponentImpl,
-                  7));
-      this.reportWriterProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<ReportWriter>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  healthCheckComponentImpl,
-                  9));
-      this.provideSelectedCheckProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<ObjectProperty<Check>>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  healthCheckComponentImpl,
-                  10));
       this.provideFxmlLoaderFactoryProvider = new DelegateFactory<>();
-      this.checkListControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<CheckListController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  healthCheckComponentImpl,
-                  2));
-      this.resultListCellFactoryProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<ResultListCellFactory>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  healthCheckComponentImpl,
-                  12));
-      this.resultFixApplierProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Object>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  healthCheckComponentImpl,
-                  13));
-      this.checkDetailControllerProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<CheckDetailController>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  healthCheckComponentImpl,
-                  11));
-      this.checkListCellControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl, fxApplicationComponentImpl, healthCheckComponentImpl, 14);
-      this.resultListCellControllerProvider =
-          new SwitchingProvider<>(
-              cryptomatorComponentImpl, fxApplicationComponentImpl, healthCheckComponentImpl, 15);
-      this.provideUnlockWindowProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<Stage>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  healthCheckComponentImpl,
-                  18));
-      this.provideKeyLoadingStrategyProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<KeyLoadingStrategy>(
-                  cryptomatorComponentImpl,
-                  fxApplicationComponentImpl,
-                  healthCheckComponentImpl,
-                  17));
       this.provideHealthCheckListSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
-                  19));
+                  9));
       this.startControllerProvider =
           DoubleCheck.provider(
               new SwitchingProvider<StartController>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
+                  5));
+      this.provideAvailableChecksProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<List<Check>>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  healthCheckComponentImpl,
+                  11));
+      this.checkExecutorProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<CheckExecutor>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  healthCheckComponentImpl,
+                  12));
+      this.reportWriterProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<ReportWriter>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  healthCheckComponentImpl,
+                  13));
+      this.provideSelectedCheckProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<ObjectProperty<Check>>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  healthCheckComponentImpl,
+                  14));
+      this.checkListControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<CheckListController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  healthCheckComponentImpl,
+                  10));
+      this.resultListCellFactoryProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<ResultListCellFactory>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  healthCheckComponentImpl,
                   16));
+      this.resultFixApplierProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<Object>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  healthCheckComponentImpl,
+                  17));
+      this.checkDetailControllerProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<CheckDetailController>(
+                  cryptomatorComponentImpl,
+                  fxApplicationComponentImpl,
+                  healthCheckComponentImpl,
+                  15));
+      this.resultListCellControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl, fxApplicationComponentImpl, healthCheckComponentImpl, 18);
+      this.checkListCellControllerProvider =
+          new SwitchingProvider<>(
+              cryptomatorComponentImpl, fxApplicationComponentImpl, healthCheckComponentImpl, 19);
       DelegateFactory.setDelegate(
           provideFxmlLoaderFactoryProvider,
           DoubleCheck.provider(
@@ -8709,24 +8719,24 @@ public final class DaggerCryptomatorComponent {
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
-                  1)));
+                  4)));
       this.provideHealthStartSceneProvider =
           DoubleCheck.provider(
               new SwitchingProvider<Scene>(
                   cryptomatorComponentImpl,
                   fxApplicationComponentImpl,
                   healthCheckComponentImpl,
-                  0));
-    }
-
-    @Override
-    public Lazy<Scene> startScene() {
-      return DoubleCheck.lazy(provideHealthStartSceneProvider);
+                  3));
     }
 
     @Override
     public Stage window() {
       return provideStageProvider.get();
+    }
+
+    @Override
+    public Lazy<Scene> startScene() {
+      return DoubleCheck.lazy(provideHealthStartSceneProvider);
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -8753,31 +8763,7 @@ public final class DaggerCryptomatorComponent {
       @Override
       public T get() {
         switch (id) {
-          case 0: // @org.cryptomator.ui.common.FxmlScene(HEALTH_START) javafx.scene.Scene
-            return (T)
-                HealthCheckModule_ProvideHealthStartSceneFactory.provideHealthStartScene(
-                    healthCheckComponentImpl.provideFxmlLoaderFactoryProvider.get());
-
-          case 1: // @org.cryptomator.ui.health.HealthCheckWindow
-                  // org.cryptomator.ui.common.FxmlLoaderFactory
-            return (T)
-                HealthCheckModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
-                    healthCheckComponentImpl.mapOfClassOfAndProviderOfFxController(),
-                    fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
-
-          case 2: // org.cryptomator.ui.health.CheckListController
-            return (T)
-                new CheckListController(
-                    healthCheckComponentImpl.provideStageProvider.get(),
-                    healthCheckComponentImpl.provideAvailableChecksProvider.get(),
-                    healthCheckComponentImpl.checkExecutorProvider.get(),
-                    healthCheckComponentImpl.reportWriterProvider.get(),
-                    healthCheckComponentImpl.provideSelectedCheckProvider.get(),
-                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
-                    healthCheckComponentImpl.checkListCellFactory());
-
-          case 3: // @org.cryptomator.ui.health.HealthCheckWindow javafx.stage.Stage
+          case 0: // @org.cryptomator.ui.health.HealthCheckWindow javafx.stage.Stage
             return (T)
                 HealthCheckModule_ProvideStageFactory.provideStage(
                     fxApplicationComponentImpl.stageFactoryProvider.get(),
@@ -8786,71 +8772,29 @@ public final class DaggerCryptomatorComponent {
                     healthCheckComponentImpl.provideWindowShowingChangeListenerProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 4: // javafx.beans.value.ChangeListener<java.lang.Boolean>
+          case 1: // javafx.beans.value.ChangeListener<java.lang.Boolean>
             return (T)
                 HealthCheckModule_ProvideWindowShowingChangeListenerFactory
                     .provideWindowShowingChangeListener(
                         healthCheckComponentImpl.provideMasterkeyRefProvider.get());
 
-          case 5: // java.util.concurrent.atomic.AtomicReference<org.cryptomator.cryptolib.api.Masterkey>
+          case 2: // java.util.concurrent.atomic.AtomicReference<org.cryptomator.cryptolib.api.Masterkey>
             return (T) HealthCheckModule_ProvideMasterkeyRefFactory.provideMasterkeyRef();
 
-          case 6: // java.util.List<org.cryptomator.ui.health.Check>
-            return (T) HealthCheckModule_ProvideAvailableChecksFactory.provideAvailableChecks();
-
-          case 7: // org.cryptomator.ui.health.CheckExecutor
+          case 3: // @org.cryptomator.ui.common.FxmlScene(HEALTH_START) javafx.scene.Scene
             return (T)
-                new CheckExecutor(
-                    healthCheckComponentImpl.vault,
-                    healthCheckComponentImpl.provideMasterkeyRefProvider.get(),
-                    healthCheckComponentImpl.provideVaultConfigRefProvider.get(),
-                    cryptomatorComponentImpl.provideCSPRNGProvider.get());
-
-          case 8: // java.util.concurrent.atomic.AtomicReference<org.cryptomator.cryptofs.VaultConfig>
-            return (T) HealthCheckModule_ProvideVaultConfigRefFactory.provideVaultConfigRef();
-
-          case 9: // org.cryptomator.ui.health.ReportWriter
-            return (T)
-                new ReportWriter(
-                    healthCheckComponentImpl.vault,
-                    healthCheckComponentImpl.provideVaultConfigRefProvider.get(),
-                    fxApplicationComponentImpl.fxApplicationProvider.get(),
-                    cryptomatorComponentImpl.provideEnvironmentProvider.get());
-
-          case 10: // javafx.beans.property.ObjectProperty<org.cryptomator.ui.health.Check>
-            return (T) HealthCheckModule_ProvideSelectedCheckFactory.provideSelectedCheck();
-
-          case 11: // org.cryptomator.ui.health.CheckDetailController
-            return (T)
-                CheckDetailController_Factory.newInstance(
-                    healthCheckComponentImpl.provideSelectedCheckProvider.get(),
-                    healthCheckComponentImpl.resultListCellFactoryProvider.get(),
-                    healthCheckComponentImpl.resultFixApplierProvider.get(),
-                    cryptomatorComponentImpl.provideLocalizationProvider.get());
-
-          case 12: // org.cryptomator.ui.health.ResultListCellFactory
-            return (T)
-                ResultListCellFactory_Factory.newInstance(
+                HealthCheckModule_ProvideHealthStartSceneFactory.provideHealthStartScene(
                     healthCheckComponentImpl.provideFxmlLoaderFactoryProvider.get());
 
-          case 13: // org.cryptomator.ui.health.ResultFixApplier
+          case 4: // @org.cryptomator.ui.health.HealthCheckWindow
+                  // org.cryptomator.ui.common.FxmlLoaderFactory
             return (T)
-                ResultFixApplier_Factory.newInstance(
-                    healthCheckComponentImpl.vault,
-                    healthCheckComponentImpl.provideMasterkeyRefProvider.get(),
-                    healthCheckComponentImpl.provideVaultConfigRefProvider.get(),
-                    cryptomatorComponentImpl.provideCSPRNGProvider.get());
-
-          case 14: // org.cryptomator.ui.health.CheckListCellController
-            return (T) new CheckListCellController();
-
-          case 15: // org.cryptomator.ui.health.ResultListCellController
-            return (T)
-                ResultListCellController_Factory.newInstance(
-                    healthCheckComponentImpl.resultFixApplierProvider.get(),
+                HealthCheckModule_ProvideFxmlLoaderFactoryFactory.provideFxmlLoaderFactory(
+                    healthCheckComponentImpl.mapOfClassOfAndProviderOfFxController(),
+                    fxApplicationComponentImpl.defaultSceneFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 16: // org.cryptomator.ui.health.StartController
+          case 5: // org.cryptomator.ui.health.StartController
             return (T)
                 new StartController(
                     healthCheckComponentImpl.provideStageProvider.get(),
@@ -8863,8 +8807,8 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
                     healthCheckComponentImpl.provideUnlockWindowProvider.get());
 
-          case 17: // @org.cryptomator.ui.health.HealthCheckWindow
-                   // org.cryptomator.ui.keyloading.KeyLoadingStrategy
+          case 6: // @org.cryptomator.ui.health.HealthCheckWindow
+                  // org.cryptomator.ui.keyloading.KeyLoadingStrategy
             return (T)
                 HealthCheckModule_ProvideKeyLoadingStrategyFactory.provideKeyLoadingStrategy(
                     new ocuk2_KeyLoadingComponentBuilder(
@@ -8874,7 +8818,7 @@ public final class DaggerCryptomatorComponent {
                     healthCheckComponentImpl.vault,
                     healthCheckComponentImpl.provideUnlockWindowProvider.get());
 
-          case 18: // @javax.inject.Named("unlockWindow") javafx.stage.Stage
+          case 7: // @javax.inject.Named("unlockWindow") javafx.stage.Stage
             return (T)
                 HealthCheckModule_ProvideUnlockWindowFactory.provideUnlockWindow(
                     healthCheckComponentImpl.provideStageProvider.get(),
@@ -8882,10 +8826,76 @@ public final class DaggerCryptomatorComponent {
                     fxApplicationComponentImpl.stageFactoryProvider.get(),
                     cryptomatorComponentImpl.provideLocalizationProvider.get());
 
-          case 19: // @org.cryptomator.ui.common.FxmlScene(HEALTH_CHECK_LIST) javafx.scene.Scene
+          case 8: // java.util.concurrent.atomic.AtomicReference<org.cryptomator.cryptofs.VaultConfig>
+            return (T) HealthCheckModule_ProvideVaultConfigRefFactory.provideVaultConfigRef();
+
+          case 9: // @org.cryptomator.ui.common.FxmlScene(HEALTH_CHECK_LIST) javafx.scene.Scene
             return (T)
                 HealthCheckModule_ProvideHealthCheckListSceneFactory.provideHealthCheckListScene(
                     healthCheckComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 10: // org.cryptomator.ui.health.CheckListController
+            return (T)
+                new CheckListController(
+                    healthCheckComponentImpl.provideStageProvider.get(),
+                    healthCheckComponentImpl.provideAvailableChecksProvider.get(),
+                    healthCheckComponentImpl.checkExecutorProvider.get(),
+                    healthCheckComponentImpl.reportWriterProvider.get(),
+                    healthCheckComponentImpl.provideSelectedCheckProvider.get(),
+                    fxApplicationComponentImpl.fxApplicationWindowsProvider.get(),
+                    healthCheckComponentImpl.checkListCellFactory());
+
+          case 11: // java.util.List<org.cryptomator.ui.health.Check>
+            return (T) HealthCheckModule_ProvideAvailableChecksFactory.provideAvailableChecks();
+
+          case 12: // org.cryptomator.ui.health.CheckExecutor
+            return (T)
+                new CheckExecutor(
+                    healthCheckComponentImpl.vault,
+                    healthCheckComponentImpl.provideMasterkeyRefProvider.get(),
+                    healthCheckComponentImpl.provideVaultConfigRefProvider.get(),
+                    cryptomatorComponentImpl.provideCSPRNGProvider.get());
+
+          case 13: // org.cryptomator.ui.health.ReportWriter
+            return (T)
+                new ReportWriter(
+                    healthCheckComponentImpl.vault,
+                    healthCheckComponentImpl.provideVaultConfigRefProvider.get(),
+                    fxApplicationComponentImpl.fxApplicationProvider.get(),
+                    cryptomatorComponentImpl.provideEnvironmentProvider.get());
+
+          case 14: // javafx.beans.property.ObjectProperty<org.cryptomator.ui.health.Check>
+            return (T) HealthCheckModule_ProvideSelectedCheckFactory.provideSelectedCheck();
+
+          case 15: // org.cryptomator.ui.health.CheckDetailController
+            return (T)
+                CheckDetailController_Factory.newInstance(
+                    healthCheckComponentImpl.provideSelectedCheckProvider.get(),
+                    healthCheckComponentImpl.resultListCellFactoryProvider.get(),
+                    healthCheckComponentImpl.resultFixApplierProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 16: // org.cryptomator.ui.health.ResultListCellFactory
+            return (T)
+                ResultListCellFactory_Factory.newInstance(
+                    healthCheckComponentImpl.provideFxmlLoaderFactoryProvider.get());
+
+          case 17: // org.cryptomator.ui.health.ResultFixApplier
+            return (T)
+                ResultFixApplier_Factory.newInstance(
+                    healthCheckComponentImpl.vault,
+                    healthCheckComponentImpl.provideMasterkeyRefProvider.get(),
+                    healthCheckComponentImpl.provideVaultConfigRefProvider.get(),
+                    cryptomatorComponentImpl.provideCSPRNGProvider.get());
+
+          case 18: // org.cryptomator.ui.health.ResultListCellController
+            return (T)
+                ResultListCellController_Factory.newInstance(
+                    healthCheckComponentImpl.resultFixApplierProvider.get(),
+                    cryptomatorComponentImpl.provideLocalizationProvider.get());
+
+          case 19: // org.cryptomator.ui.health.CheckListCellController
+            return (T) new CheckListCellController();
 
           default:
             throw new AssertionError(id);
@@ -8938,9 +8948,9 @@ public final class DaggerCryptomatorComponent {
 
     private Provider<StageFactory> stageFactoryProvider;
 
-    private Provider<DefaultSceneFactory> defaultSceneFactoryProvider;
-
     private Provider<PasswordStrengthUtil> passwordStrengthUtilProvider;
+
+    private Provider<DefaultSceneFactory> defaultSceneFactoryProvider;
 
     private FxApplicationComponentImpl(
         CryptomatorComponentImpl cryptomatorComponentImpl,
@@ -9022,13 +9032,13 @@ public final class DaggerCryptomatorComponent {
           DoubleCheck.provider(
               new SwitchingProvider<StageFactory>(
                   cryptomatorComponentImpl, fxApplicationComponentImpl, 16));
-      this.defaultSceneFactoryProvider =
-          DoubleCheck.provider(
-              new SwitchingProvider<DefaultSceneFactory>(
-                  cryptomatorComponentImpl, fxApplicationComponentImpl, 17));
       this.passwordStrengthUtilProvider =
           DoubleCheck.provider(
               new SwitchingProvider<PasswordStrengthUtil>(
+                  cryptomatorComponentImpl, fxApplicationComponentImpl, 17));
+      this.defaultSceneFactoryProvider =
+          DoubleCheck.provider(
+              new SwitchingProvider<DefaultSceneFactory>(
                   cryptomatorComponentImpl, fxApplicationComponentImpl, 18));
     }
 
@@ -9187,15 +9197,15 @@ public final class DaggerCryptomatorComponent {
           case 16: // org.cryptomator.ui.common.StageFactory
             return (T) new StageFactory(fxApplicationComponentImpl.stageInitializerProvider.get());
 
-          case 17: // org.cryptomator.ui.common.DefaultSceneFactory
-            return (T)
-                new DefaultSceneFactory(cryptomatorComponentImpl.provideSettingsProvider.get());
-
-          case 18: // org.cryptomator.ui.changepassword.PasswordStrengthUtil
+          case 17: // org.cryptomator.ui.changepassword.PasswordStrengthUtil
             return (T)
                 new PasswordStrengthUtil(
                     cryptomatorComponentImpl.provideLocalizationProvider.get(),
                     cryptomatorComponentImpl.provideEnvironmentProvider.get());
+
+          case 18: // org.cryptomator.ui.common.DefaultSceneFactory
+            return (T)
+                new DefaultSceneFactory(cryptomatorComponentImpl.provideSettingsProvider.get());
 
           default:
             throw new AssertionError(id);
@@ -9205,15 +9215,15 @@ public final class DaggerCryptomatorComponent {
   }
 
   private static final class VaultComponentImpl implements VaultComponent {
-    private final VaultSettings arg0;
+    private final VaultSettings vaultSettings;
 
-    private final VaultConfigCache arg1;
+    private final VaultConfigCache configCache;
 
     private final VaultModule vaultModule;
 
-    private final VaultState.Value arg2;
+    private final VaultState.Value vaultState;
 
-    private final Exception arg3;
+    private final Exception initialErrorCause;
 
     private final CryptomatorComponentImpl cryptomatorComponentImpl;
 
@@ -9232,26 +9242,31 @@ public final class DaggerCryptomatorComponent {
     private VaultComponentImpl(
         CryptomatorComponentImpl cryptomatorComponentImpl,
         VaultModule vaultModuleParam,
-        VaultSettings arg0Param,
-        VaultConfigCache arg1Param,
-        VaultState.Value arg2Param,
-        Exception arg3Param) {
+        VaultSettings vaultSettingsParam,
+        VaultConfigCache configCacheParam,
+        VaultState.Value vaultStateParam,
+        Exception initialErrorCauseParam) {
       this.cryptomatorComponentImpl = cryptomatorComponentImpl;
-      this.arg0 = arg0Param;
-      this.arg1 = arg1Param;
+      this.vaultSettings = vaultSettingsParam;
+      this.configCache = configCacheParam;
       this.vaultModule = vaultModuleParam;
-      this.arg2 = arg2Param;
-      this.arg3 = arg3Param;
-      initialize(vaultModuleParam, arg0Param, arg1Param, arg2Param, arg3Param);
+      this.vaultState = vaultStateParam;
+      this.initialErrorCause = initialErrorCauseParam;
+      initialize(
+          vaultModuleParam,
+          vaultSettingsParam,
+          configCacheParam,
+          vaultStateParam,
+          initialErrorCauseParam);
     }
 
     @SuppressWarnings("unchecked")
     private void initialize(
         final VaultModule vaultModuleParam,
-        final VaultSettings arg0Param,
-        final VaultConfigCache arg1Param,
-        final VaultState.Value arg2Param,
-        final Exception arg3Param) {
+        final VaultSettings vaultSettingsParam,
+        final VaultConfigCache configCacheParam,
+        final VaultState.Value vaultStateParam,
+        final Exception initialErrorCauseParam) {
       this.provideCryptoFileSystemReferenceProvider =
           DoubleCheck.provider(
               new SwitchingProvider<AtomicReference<CryptoFileSystem>>(
@@ -9299,8 +9314,8 @@ public final class DaggerCryptomatorComponent {
           case 0: // org.cryptomator.common.vaults.Vault
             return (T)
                 Vault_Factory.newInstance(
-                    vaultComponentImpl.arg0,
-                    vaultComponentImpl.arg1,
+                    vaultComponentImpl.vaultSettings,
+                    vaultComponentImpl.configCache,
                     vaultComponentImpl.provideCryptoFileSystemReferenceProvider.get(),
                     vaultComponentImpl.vaultStateProvider.get(),
                     vaultComponentImpl.provideLastKnownExceptionProvider.get(),
@@ -9314,13 +9329,13 @@ public final class DaggerCryptomatorComponent {
                     .provideCryptoFileSystemReference(vaultComponentImpl.vaultModule);
 
           case 2: // org.cryptomator.common.vaults.VaultState
-            return (T) new VaultState(vaultComponentImpl.arg2);
+            return (T) new VaultState(vaultComponentImpl.vaultState);
 
           case 3: // @javax.inject.Named("lastKnownException")
                   // javafx.beans.property.ObjectProperty<java.lang.Exception>
             return (T)
                 VaultModule_ProvideLastKnownExceptionFactory.provideLastKnownException(
-                    vaultComponentImpl.vaultModule, vaultComponentImpl.arg3);
+                    vaultComponentImpl.vaultModule, vaultComponentImpl.initialErrorCause);
 
           case 4: // org.cryptomator.common.vaults.VaultStats
             return (T)
