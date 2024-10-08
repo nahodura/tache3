@@ -1,4 +1,4 @@
-package org.cryptomator.tests;
+package org.cryptomator.common;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

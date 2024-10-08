@@ -1,4 +1,4 @@
-package org.cryptomator.tests;
+package org.cryptomator.common;
 
 import org.cryptomator.common.CommonsModule;
 import org.cryptomator.common.ShutdownHook;
