@@ -54,7 +54,25 @@ public class KeychainManagerTest {
 			Assertions.assertTimeoutPreemptively(Duration.ofSeconds(1), () -> latch.await());
 			Assertions.assertTrue(result.get());
 		}
-
 	}
 
+	/**
+	 * Test for the method {@link KeychainManager#deletePassphrase(String)}.
+	 * @throws KeychainAccessException
+	 * Asserts that the passphrase is deleted successfully.
+	 */
+	@Test
+	public void testDeletePassphrase() throws KeychainAccessException {
+		//Arrange
+		KeychainManager keychainManager = new KeychainManager(new SimpleObjectProperty<>(new MapKeychainAccess()));
+
+		//Act
+		keychainManager.storePassphrase("testKey", "testToDeleteKey", "helloWorld");
+		keychainManager.storePassphrase("testKey2", "testToDeleteKey2", "helloFriend");
+		keychainManager.deletePassphrase("testKey");
+
+		//Assert
+		Assertions.assertFalse(keychainManager.isPassphraseStored("testKey"));
+		Assertions.assertTrue(keychainManager.isPassphraseStored("testKey2"));
+	}
 }
