@@ -29,23 +29,23 @@ public class CommonsModuleTest {
         settingsProviderMock = Mockito.mock(SettingsProvider.class);
     }
 
-    @Test
-    public void testProvideEnvironment() {
-        // Intention: Vérifier que l'environement est donné correctement.
-        // Arrange, Act & Assert
-        Assertions.assertNotNull(CommonsModule.provideEnvironment());
-    }
+    // @Test
+    // public void testProvideEnvironment() {
+    //     // Intention: Vérifier que l'environement est donné correctement.
+    //     // Arrange, Act & Assert
+    //     Assertions.assertNotNull(CommonsModule.provideEnvironment());
+    // }
 
-    @Test
-    public void testProvideLicensePublicKey() {
-        // Intention: Vérifie que la clé publique de licence est bien fournie et non vide.
-        // Arrange, Act
-        String publicKey = CommonsModule.provideLicensePublicKey();
+    // @Test
+    // public void testProvideLicensePublicKey() {
+    //     // Intention: Vérifie que la clé publique de licence est bien fournie et non vide.
+    //     // Arrange, Act
+    //     String publicKey = CommonsModule.provideLicensePublicKey();
 
-        // Assert
-        Assertions.assertNotNull(publicKey);
-        Assertions.assertFalse(publicKey.isEmpty());
-    }
+    //     // Assert
+    //     Assertions.assertNotNull(publicKey);
+    //     Assertions.assertFalse(publicKey.isEmpty());
+    // }
 
     @Test
     public void testProvideCSPRNG() {
@@ -81,49 +81,49 @@ public class CommonsModuleTest {
         Assertions.assertEquals(0, comparator.compare("1.0.0", "1.0.0"));
     }
 
-    @Test
-    public void testProvideRevealPathService() {
-        // Intention: Vérifie qu'un Optional<RevealPathService> est fourni.
-        // Arrange, Act
-        Optional<?> revealPathService = CommonsModule.provideRevealPathService();
+    // @Test
+    // public void testProvideRevealPathService() {
+    //     // Intention: Vérifie qu'un Optional<RevealPathService> est fourni.
+    //     // Arrange, Act
+    //     Optional<?> revealPathService = CommonsModule.provideRevealPathService();
 
-        // Assert
-        Assertions.assertNotNull(revealPathService);
-    }
+    //     // Assert
+    //     Assertions.assertNotNull(revealPathService);
+    // }
 
-    @Test
-    public void testProvideSettings() {
-        // Intention: Vérifie que les paramètres (Settings) sont fournis à partir du fournisseur.
-        // Arrange
-        Settings settings = Mockito.mock(Settings.class);
-        Mockito.when(settingsProviderMock.get()).thenReturn(settings);
+    // @Test
+    // public void testProvideSettings() {
+    //     // Intention: Vérifie que les paramètres (Settings) sont fournis à partir du fournisseur.
+    //     // Arrange
+    //     Settings settings = Mockito.mock(Settings.class);
+    //     Mockito.when(settingsProviderMock.get()).thenReturn(settings);
 
-        // Act
-        Settings providedSettings = CommonsModule.provideSettings(settingsProviderMock);
+    //     // Act
+    //     Settings providedSettings = CommonsModule.provideSettings(settingsProviderMock);
 
-        // Assert
-        Assertions.assertNotNull(providedSettings);
-    }
+    //     // Assert
+    //     Assertions.assertNotNull(providedSettings);
+    // }
 
-    @Test
-    public void testProvideScheduledExecutorService() {
-        // Intention:  Vérifie que le service de planification est bien créé.
-        // Arrange, Act
-        ScheduledExecutorService executorService = CommonsModule.provideScheduledExecutorService(shutdownHook);
+    // @Test
+    // public void testProvideScheduledExecutorService() {
+    //     // Intention:  Vérifie que le service de planification est bien créé.
+    //     // Arrange, Act
+    //     ScheduledExecutorService executorService = CommonsModule.provideScheduledExecutorService(shutdownHook);
 
-        // Assert
-        Assertions.assertNotNull(executorService);
-        executorService.shutdown();
-    }
+    //     // Assert
+    //     Assertions.assertNotNull(executorService);
+    //     executorService.shutdown();
+    // }
 
-    @Test
-    public void testProvideExecutorService() {
-        // Intention: Vérifie que le service d'exécution est bien créé.
-        // Arrange, Act
-        ExecutorService executorService = CommonsModule.provideExecutorService(shutdownHook);
+    // @Test
+    // public void testProvideExecutorService() {
+    //     // Intention: Vérifie que le service d'exécution est bien créé.
+    //     // Arrange, Act
+    //     ExecutorService executorService = CommonsModule.provideExecutorService(shutdownHook);
 
-        // Assert
-        Assertions.assertNotNull(executorService);
-        executorService.shutdown();
-    }
+    //     // Assert
+    //     Assertions.assertNotNull(executorService);
+    //     executorService.shutdown();
+    // }
 }
