@@ -58,8 +58,9 @@ public class KeychainManagerTest {
 
 	/**
 	 * Test for the method {@link KeychainManager#deletePassphrase(String)}.
-	 * @throws KeychainAccessException
-	 * Asserts that the passphrase is deleted successfully.
+	 * @throws KeychainAccessException if an error occurs while deleting the passphrase.
+	 * Asserts that the correct passphrase is deleted successfully and that any attempt to use the
+	 * 'changePassphrase' method on a deleted Passphrase will have no effect.
 	 */
 	@Test
 	public void testDeletePassphrase() throws KeychainAccessException {
@@ -69,10 +70,13 @@ public class KeychainManagerTest {
 		//Act
 		keychainManager.storePassphrase("testKey", "testToDeleteKey", "helloWorld");
 		keychainManager.storePassphrase("testKey2", "testToDeleteKey2", "helloFriend");
+
 		keychainManager.deletePassphrase("testKey");
+		keychainManager.changePassphrase("testKey", "testToDeleteKey", "helloFriend");
 
 		//Assert
 		Assertions.assertFalse(keychainManager.isPassphraseStored("testKey"));
 		Assertions.assertTrue(keychainManager.isPassphraseStored("testKey2"));
 	}
+
 }

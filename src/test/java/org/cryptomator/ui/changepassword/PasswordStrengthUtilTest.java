@@ -30,4 +30,29 @@ public class PasswordStrengthUtilTest {
 		Assertions.assertEquals(4, result2);
 	}
 
+	/**
+	 * Test for the method {@link PasswordStrengthUtil#getStrengthDescription(Number)}.
+	 * Asserts that the method returns the correct strength description for a given score.
+	 */
+	@Test
+	public void testValidPasswordStrength() {
+		// Arrange
+		ResourceBundle mockBundle = Mockito.mock(ResourceBundle.class);
+		String prefix = "passwordStrength.messageLabel.";
+		String expectedKey = prefix + 3;
+		Mockito.when(mockBundle.getString(expectedKey)).thenReturn("Password strength: Strong");
+		Mockito.when(mockBundle.containsKey(expectedKey)).thenReturn(true);
+
+		Environment mockEnv = Mockito.mock(Environment.class);
+		Mockito.when(mockEnv.getMinPwLength()).thenReturn(8);
+
+		PasswordStrengthUtil util = new PasswordStrengthUtil(mockBundle, mockEnv);
+
+		// Act
+		String strengthDescription = util.getStrengthDescription(3);
+
+		// Assert
+		Assertions.assertEquals("Password strength: Strong", strengthDescription);
+	}
+
 }
