@@ -2,15 +2,14 @@ package org.cryptomator.ui.changepassword;
 
 import com.google.common.base.Strings;
 import org.cryptomator.common.Environment;
-import org.cryptomator.ui.changepassword.PasswordStrengthUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
 import java.time.Duration;
 import java.util.ResourceBundle;
 
 public class PasswordStrengthUtilTest {
+
 
 	@Test
 	public void testLongPasswords() {
@@ -38,15 +37,15 @@ public class PasswordStrengthUtilTest {
 	public void testValidPasswordStrength() {
 		// Arrange
 		ResourceBundle mockBundle = Mockito.mock(ResourceBundle.class);
+		Environment mockEnv = Mockito.mock(Environment.class);
+		PasswordStrengthUtil util = new PasswordStrengthUtil(mockBundle, mockEnv);
+
 		String prefix = "passwordStrength.messageLabel.";
 		String expectedKey = prefix + 3;
+
 		Mockito.when(mockBundle.getString(expectedKey)).thenReturn("Password strength: Strong");
 		Mockito.when(mockBundle.containsKey(expectedKey)).thenReturn(true);
-
-		Environment mockEnv = Mockito.mock(Environment.class);
 		Mockito.when(mockEnv.getMinPwLength()).thenReturn(8);
-
-		PasswordStrengthUtil util = new PasswordStrengthUtil(mockBundle, mockEnv);
 
 		// Act
 		String strengthDescription = util.getStrengthDescription(3);
@@ -55,4 +54,31 @@ public class PasswordStrengthUtilTest {
 		Assertions.assertEquals("Password strength: Strong", strengthDescription);
 	}
 
+	
+	/**
+	 * Test for the method {@link PasswordStrengthUtil#computeRate(CharSequence)}.
+	 * Asserts that the method returns the correct rating for a given password.
+	 */
+	@Test
+	public void testComputeRate() {
+		// Arrange
+		Environment mockEnv = Mockito.mock(Environment.class);
+		Mockito.when(mockEnv.getMinPwLength()).thenReturn(8);
+		PasswordStrengthUtil util = new PasswordStrengthUtil(Mockito.mock(ResourceBundle.class), mockEnv);
+		String shortPassword = "hi";
+		String longPassword = Strings.repeat("insertHereAVeryReallyExtremelyLongPasswordThatIsNotGoingToBeUsed" +
+				"ForAnythingButTestingBecauseItIsJustTooLongAndItIsNotGoingToBeTypedByAnyoneEverAndIWishIDidNotHaveTo" +
+				"TypeItButIHaveToBecauseIAmWastingMyTimeWritingThisLongStringThatIsNotGoingToBeUsedForAnythingWhenI" +
+				"CouldJustFinishThisAssignmentAndMoveOnWIthMyLife.", 100);
+		
+		// Act
+		int ratingNull = util.computeRate(null);
+		int ratingShort = util.computeRate(shortPassword);
+		int ratingLong = util.computeRate(longPassword);
+		
+		// Assert
+		Assertions.assertEquals(-1, ratingNull);
+		Assertions.assertEquals(-1, ratingShort);
+		Assertions.assertNotEquals(-1, ratingLong);
+	}
 }
