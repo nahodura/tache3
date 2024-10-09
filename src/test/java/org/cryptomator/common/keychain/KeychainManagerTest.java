@@ -79,4 +79,39 @@ public class KeychainManagerTest {
 		Assertions.assertTrue(keychainManager.isPassphraseStored("testKey2"));
 	}
 
+
+	/**
+	 * Test for the method {@link KeychainManager#storePassphrase(String, String, CharSequence)}.
+	 * @throws KeychainAccessException if an error occurs while storing the passphrase.
+	 * Asserts that only one (the most recent) passphrase is stored in the keychain.
+	 */
+	@Test
+	public void testStorePassphrases() {
+		// Arrange
+		KeychainManager keychainManager = new KeychainManager(new SimpleObjectProperty<>(new MapKeychainAccess()));
+
+		//Act and Assert per case
+		try {
+			keychainManager.storePassphrase("test1", "TestStoreTwice", "helloWorld");
+			Assertions.assertArrayEquals("helloWorld".toCharArray(), keychainManager.loadPassphrase("test"));
+
+			// Store the 2nd passphrase on top of the 1st
+			keychainManager.storePassphrase("test1", "TestStoreTwice", "helloFriend");
+			Assertions.assertArrayEquals("helloFriend".toCharArray(), keychainManager.loadPassphrase("test"));
+
+			// Edge case : empty passphrase
+			keychainManager.storePassphrase("test2", "TestEmpty", "");
+			Assertions.assertArrayEquals("".toCharArray(), keychainManager.loadPassphrase("test2"));
+
+			// Edge case : null passphrase
+			keychainManager.storePassphrase("test3", "TestNull", null);
+			Assertions.assertArrayEquals("".toCharArray(), keychainManager.loadPassphrase("test3"));
+
+		} catch (KeychainAccessException e) {
+			e.printStackTrace();
+			Assertions.fail("An exception should not have been thrown");
+		}
+	}
+
 }
+
