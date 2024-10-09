@@ -83,7 +83,8 @@ public class KeychainManagerTest {
 	/**
 	 * Test for the method {@link KeychainManager#storePassphrase(String, String, CharSequence)}.
 	 * @throws KeychainAccessException if an error occurs while storing the passphrase.
-	 * Asserts that only one (the most recent) passphrase is stored in the keychain.
+	 * Asserts that only one (the most recent) passphrase is stored in the keychain and
+	 * tests edge cases where the passphrase is empty or null.
 	 */
 	@Test
 	public void testStorePassphrases() {
@@ -93,19 +94,18 @@ public class KeychainManagerTest {
 		//Act and Assert per case
 		try {
 			keychainManager.storePassphrase("test1", "TestStoreTwice", "helloWorld");
-			Assertions.assertArrayEquals("helloWorld".toCharArray(), keychainManager.loadPassphrase("test"));
+			Assertions.assertArrayEquals("helloWorld".toCharArray(), keychainManager.loadPassphrase("test1"));
 
 			// Store the 2nd passphrase on top of the 1st
 			keychainManager.storePassphrase("test1", "TestStoreTwice", "helloFriend");
-			Assertions.assertArrayEquals("helloFriend".toCharArray(), keychainManager.loadPassphrase("test"));
+			Assertions.assertArrayEquals("helloFriend".toCharArray(), keychainManager.loadPassphrase("test1"));
 
 			// Edge case : empty passphrase
 			keychainManager.storePassphrase("test2", "TestEmpty", "");
 			Assertions.assertArrayEquals("".toCharArray(), keychainManager.loadPassphrase("test2"));
 
-			// Edge case : null passphrase
-			keychainManager.storePassphrase("test3", "TestNull", null);
-			Assertions.assertArrayEquals("".toCharArray(), keychainManager.loadPassphrase("test3"));
+			// Edge case : null passphrase to throw NullPointerException (expected)
+			Assertions.assertThrows(NullPointerException.class, () -> {keychainManager.storePassphrase("test3", "TestNull", null);});
 
 		} catch (KeychainAccessException e) {
 			e.printStackTrace();

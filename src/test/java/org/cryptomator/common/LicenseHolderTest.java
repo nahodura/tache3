@@ -27,6 +27,12 @@ import org.mockito.Mockito;
 
 class LicenseHolderTest {
 
+    /**
+     * Test method for {@link org.cryptomator.common.LicenseHolder#LicenseHolder(org.cryptomator.common.LicenseChecker,
+     * org.cryptomator.common.settings.Settings)}.
+     * Asserts that the constructor creates a new instance of {@link LicenseHolder} with a valid license.
+     * The license checker is mocked to return a valid license.
+     */
     @Test
     void testNewLicenseHolder() {
         // Arrange
