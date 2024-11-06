@@ -23,7 +23,6 @@ jobs:
         jvm_flags:
           - "-XX:+UseG1GC -Xms256m -Xmx512m"
           - "-XX:+UseParallelGC -Xms512m -Xmx1g"
-          - "-XX:+UnlockDiagnosticVMOptions -XX:+ExtendedDTraceProbes"
           - "-XX:+UseZGC -Xms1g -Xmx2g"
           - "-XX:+UseConcMarkSweepGC -Xms512m -Xmx1g"
 
