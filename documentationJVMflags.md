@@ -1,8 +1,7 @@
 -----
 ## Documentation pour les JVM flags
-
-À prendre note que nous avons dû disable le ```Sonar Cache``` dans le fichier build.yml à cause d'erreurs liés au token d'authentification. 
-Nous avons aussi mis 2 flags de plus que demandé (pour aucune raison autre que notre fun).
+- À prendre note que nous avons dû disable le ```Sonar Cache``` dans le fichier build.yml à cause d'erreurs liés au token d'authentification. 
+- Nous avons aussi mis 2 flags de plus que demandé (pour aucune raison autre que notre fun).
 -----
 #1 
 ```
