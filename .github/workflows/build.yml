@@ -21,16 +21,18 @@ jobs:
     strategy:
       matrix:
         jvm_flags:
-          - "-XX:+UseG1GC -Xms512m -Xmx2g -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError"
-          - "-XX:+UseG1GC -Xms256m -Xmx1g -XX:+PrintGCDetails -XX:+UnlockDiagnosticVMOptions"
-          - "-XX:+UseG1GC -Xms1g -Xmx1g -XX:+AlwaysPreTouch -XX:+ExitOnOutOfMemoryError"
-          - "-XX:+UseZGC -Xms512m -Xmx2g -XX:+PrintGCDetails -XX:MaxGCPauseMillis=100"
-          - "-XX:+UseZGC -Xms1g -Xmx1g -XX:+HeapDumpOnOutOfMemoryError -XX:+AlwaysPreTouch"
-          - "-XX:+UseZGC -Xms256m -Xmx512m -XX:MaxGCPauseMillis=50 -XX:+ExitOnOutOfMemoryError"
-          - "-XX:+UseG1GC -Xms1g -Xmx2g -XX:MaxGCPauseMillis=150 -XX:+HeapDumpOnOutOfMemoryError"
-          - "-XX:+UseG1GC -Xms512m -Xmx1g -XX:+PrintGCDetails -XX:+AlwaysPreTouch"
-          - "-XX:+UseZGC -Xms512m -Xmx1g -XX:+HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError"
-          - "-XX:+UseG1GC -Xms256m -Xmx512m -XX:+UnlockDiagnosticVMOptions -XX:+PrintGCDetails"
+          - "-XX:+UseG1GC"
+          - "-Xmx2g"
+          - "-XX:+PrintGCDetails"
+          - "-XX:+AlwaysPreTouch"
+          - "-XX:MaxGCPauseMillis=200"
+          - "-XX:+HeapDumpOnOutOfMemoryError"
+          - "-XX:+UnlockDiagnosticVMOptions"
+          - "-XX:+UseG1GC -Xmx2g -XX:+PrintGCDetails -XX:+HeapDumpOnOutOfMemoryError"
+          - "-XX:+UseG1GC -Xmx2g -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError"
+          - "-XX:+UseG1GC -Xmx2g -XX:+AlwaysPreTouch -XX:+HeapDumpOnOutOfMemoryError"
+          - "-XX:+UseG1GC -Xmx2g -XX:+PrintGCDetails -XX:+UnlockDiagnosticVMOptions -XX:+HeapDumpOnOutOfMemoryError"
+          - "-XX:+UseG1GC -Xmx2g -XX:+PrintGCDetails"
 
     steps:
 
